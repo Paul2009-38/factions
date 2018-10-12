@@ -813,39 +813,6 @@ factions.faction_tick = function()
         end
     end
 end
---[[
-local hudUpdate = 0.
-local factionUpdate = 0.
-
-minetest.register_globalstep(
-function(dtime)
-    hudUpdate = hudUpdate + dtime
-    factionUpdate = factionUpdate + dtime
-    if hudUpdate > .5 then
-        local playerslist = minetest.get_connected_players()
-        for i in pairs(playerslist) do
-            local player = playerslist[i]
-            local faction = factions.get_faction_at(player:getpos())
-            player:hud_remove("factionLand")
-            player:hud_add({
-                hud_elem_type = "text",
-                name = "factionLand",
-                number = 0xFFFFFF,
-                position = {x=0.1, y = .98},
-                text = (faction and faction.name) or "Wilderness",
-                scale = {x=1, y=1},
-                alignment = {x=0, y=0},
-            })
-        end
-        hudUpdate = 0.
-    end
-    if factionUpdate > factions.tick_time then
-        factions.faction_tick()
-        factionUpdate = 0.
-    end
-end
-)
---]]
 
 hud_ids = {}
 
