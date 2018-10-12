@@ -1016,5 +1016,14 @@ minetest.is_protected = function(pos, player)
     end
 end
 
+function grant_new_player_faction_user_priv(player)
+	local name = player.name
+	local privs = minetest.get_player_privs(name)
+	privs.faction_user = true
+	minetest.set_player_privs(name, privs)
+end
+
+register_on_newplayer(grant_new_player_faction_user_priv)
+
 hudUpdate()
 factionUpdate()
