@@ -5,8 +5,8 @@
 --
 --! @file factions.lua
 --! @brief factions core file
---! @copyright Sapier, agrecascino, shamoanjac
---! @author Sapier, agrecascino, shamoanjac
+--! @copyright Sapier, agrecascino, shamoanjac, Coder12a
+--! @author Sapier, agrecascino, shamoanjac, Coder12a
 --! @date 2016-08-12
 --
 -- Contact sapier a t gmx net
@@ -27,15 +27,15 @@ factions.players = {}
 
 factions.factions = {}
 --- settings
-factions.protection_max_depth = -512
-factions.power_per_parcel = .5
-factions.power_per_death = .25
-factions.power_per_tick = .125
-factions.tick_time = 60.
-factions.power_per_attack = 10.
-factions.faction_name_max_length = 50
-factions.rank_name_max_length = 25
-factions.maximum_faction_inactivity = 604800 -- 1 week
+factions.protection_max_depth = config.protection_max_depth
+factions.power_per_parcel = config.power_per_parcel
+factions.power_per_death = config.power_per_death
+factions.power_per_tick = config.power_per_tick
+factions.tick_time = config.tick_time
+factions.power_per_attack = config.power_per_attack
+factions.faction_name_max_length = config.faction_name_max_length
+factions.rank_name_max_length = config.rank_name_max_length
+factions.maximum_faction_inactivity = config.maximum_faction_inactivity
 
 ---------------------
 --! @brief returns whether a faction can be created or not (allows for implementation of blacklists and the like)
@@ -62,7 +62,6 @@ util = {
 
 factions.Faction.__index = factions.Faction
 
-
 -- Faction permissions:
 --
 -- disband: disband the faction
@@ -75,12 +74,14 @@ factions.Faction.__index = factions.Faction
 -- banner: set the faction's banner
 -- promote: set a player's rank
 
+factions.permissions = {"disband", "claim", "playerslist", "build", "description", "ranks", "spawn", "banner", "promote"}
+
 function factions.Faction:new(faction) 
     faction = {
         --! @brief power of a faction (needed for parcel claiming)
-        power = 0.,
+        power = config.power,
         --! @brief maximum power of a faction
-        maxpower = 0.,
+        maxpower = config.maxpower,
         --! @brief power currently in use
         usedpower = 0.,
         --! @brief list of player names
@@ -137,16 +138,43 @@ function factions.Faction.increase_power(self, power)
     if self.power > self.maxpower  - self.usedpower then
         self.power = self.maxpower - self.usedpower
     end
+	local playerslist = minetest.get_connected_players()
+	for i in pairs(playerslist) do
+		for player, _ in pairs(self.players) do
+			local realplayer = playerslist[i]
+			if realplayer:get_player_name() == player then
+				updateHudPower(realplayer,self)
+			end
+		end
+	end
     factions.save()
 end
 
 function factions.Faction.decrease_power(self, power)
     self.power = self.power - power
+	local playerslist = minetest.get_connected_players()
+	for i in pairs(playerslist) do
+		for player, _ in pairs(self.players) do
+			local realplayer = playerslist[i]
+			if realplayer:get_player_name() == player then
+				updateHudPower(realplayer,self)
+			end
+		end
+	end
     factions.save()
 end
 
 function factions.Faction.increase_maxpower(self, power)
     self.maxpower = self.maxpower + power
+	local playerslist = minetest.get_connected_players()
+	for i in pairs(playerslist) do
+		for player, _ in pairs(self.players) do
+			local realplayer = playerslist[i]
+			if realplayer:get_player_name() == player then
+				updateHudPower(realplayer,self)
+			end
+		end
+	end
     factions.save()
 end
 
@@ -155,10 +183,28 @@ function factions.Faction.decrease_maxpower(self, power)
     if self.maxpower < 0. then -- should not happen
         self.maxpower = 0.
     end
+	local playerslist = minetest.get_connected_players()
+	for i in pairs(playerslist) do
+		for player, _ in pairs(self.players) do
+			local realplayer = playerslist[i]
+			if realplayer:get_player_name() == player then
+				updateHudPower(realplayer,self)
+			end
+		end
+	end
 end
 
 function factions.Faction.increase_usedpower(self, power)
     self.usedpower = self.usedpower + power
+	local playerslist = minetest.get_connected_players()
+	for i in pairs(playerslist) do
+		for player, _ in pairs(self.players) do
+			local realplayer = playerslist[i]
+			if realplayer:get_player_name() == player then
+				updateHudPower(realplayer,self)
+			end
+		end
+	end
 end
 
 function factions.Faction.decrease_usedpower(self, power)
@@ -166,6 +212,15 @@ function factions.Faction.decrease_usedpower(self, power)
     if self.usedpower < 0. then
         self.usedpower = 0.
     end
+	local playerslist = minetest.get_connected_players()
+	for i in pairs(playerslist) do
+		for player, _ in pairs(self.players) do
+			local realplayer = playerslist[i]
+			if realplayer:get_player_name() == player then
+				updateHudPower(realplayer,self)
+			end
+		end
+	end
 end
 
 function factions.Faction.count_land(self)
@@ -181,13 +236,38 @@ function factions.Faction.add_player(self, player, rank)
     self.players[player] = rank or self.default_rank
     factions.players[player] = self.name
     self.invited_players[player] = nil
+	local playerslist = minetest.get_connected_players()
+	for i in pairs(playerslist) do
+		local realplayer = playerslist[i]
+		if realplayer:get_player_name() == player then
+			createHudFactionName(realplayer,self.name)
+			createHudPower(realplayer,self)
+			break
+		end
+	end
     factions.save()
+end
+
+function factions.Faction.check_players_in_faction(self)
+	local players = #self.players
+	if players < 1 then
+		self:disband("Zero players on faction.")
+	end
 end
 
 function factions.Faction.remove_player(self, player)
     self.players[player] = nil
     factions.players[player] = nil
     self:on_player_leave(player)
+	self:check_players_in_faction(self)
+	local playerslist = minetest.get_connected_players()
+	for i in pairs(playerslist) do
+		local realplayer = playerslist[i]
+		if realplayer:get_player_name() == player then
+			removeHud(realplayer,"1")
+			removeHud(realplayer,"2")
+		end
+	end
     factions.save()
 end
 
@@ -235,7 +315,8 @@ end
 
 --! @brief disband faction, updates global players and parcels table
 function factions.Faction.disband(self, reason)
-    for k, _ in pairs(self.players) do -- remove players affiliation
+	local playerslist = minetest.get_connected_players()
+    for k, _ in pairs(factions.players) do -- remove players affiliation
         factions.players[k] = nil
     end
     for k, v in pairs(self.land) do -- remove parcel claims
@@ -243,6 +324,14 @@ function factions.Faction.disband(self, reason)
     end
     self:on_disband(reason)
     factions.factions[self.name] = nil
+	for i in pairs(playerslist) do
+		local realplayer = playerslist[i]
+		local faction = factions.get_player_faction(realplayer:get_player_name())
+        if not faction then
+			removeHud(realplayer,"1")
+			removeHud(realplayer,"2")
+		end
+	end
     factions.save()
 end
 
@@ -395,21 +484,22 @@ function factions.Faction.is_online(self)
 end
 
 function factions.Faction.attack_parcel(self, parcelpos)
---[[    local attacked_faction = factions.get_parcel_faction(parcelpos)
-    if attacked_faction then
-        self.power = self.power - factions.power_per_attack
-        if attacked_faction.attacked_parcels[parcelpos] then 
-            attacked_faction.attacked_parcels[parcelpos][self.name] = true
-        else
-            attacked_faction.attacked_parcels[parcelpos] = {[self.name] = true}
-        end
-        attacked_faction:broadcast("Parcel ("..parcelpos..") is being attacked by "..self.name.."!!")
-        if self.power < 0. then -- punish memers
-            minetest.chat_send_all("Faction "..self.name.." has attacked too much and has now negative power!")
-        end
-        factions.save()
-    end
-    ]]
+	if config.attack_parcel then
+		local attacked_faction = factions.get_parcel_faction(parcelpos)
+		if attacked_faction then
+			self.power = self.power - factions.power_per_attack
+			if attacked_faction.attacked_parcels[parcelpos] then 
+				attacked_faction.attacked_parcels[parcelpos][self.name] = true
+			else
+				attacked_faction.attacked_parcels[parcelpos] = {[self.name] = true}
+			end
+			attacked_faction:broadcast("Parcel ("..parcelpos..") is being attacked by "..self.name.."!!")
+			if self.power < 0. then -- punish memers
+				minetest.chat_send_all("Faction "..self.name.." has attacked too much and has now negative power!")
+			end
+			factions.save()
+		end    
+	end
 end
 
 function factions.Faction.stop_attack(self, parcelpos)
@@ -723,10 +813,9 @@ factions.faction_tick = function()
         end
     end
 end
-
+--[[
 local hudUpdate = 0.
 local factionUpdate = 0.
-
 
 minetest.register_globalstep(
 function(dtime)
@@ -756,14 +845,120 @@ function(dtime)
     end
 end
 )
+--]]
+
+hud_ids = {}
+
+createHudFactionName = function(player,factionname)
+	local name = player:get_player_name()
+	local id_name = name .. "1"
+	if not hud_ids[id_name] then
+		hud_ids[id_name] = player:hud_add({
+			hud_elem_type = "text",
+			name = "factionName",
+			number = 0xFFFFFF,
+			position = {x=1, y = 0},
+			text = "Faction "..factionname,
+			scale = {x=1, y=1},
+			alignment = {x=-1, y=0},
+			offset = {x = -20, y = 20}
+		})
+	end
+end
+
+createHudPower = function(player,faction)
+	local name = player:get_player_name()
+	local id_name = name .. "2"
+	if not hud_ids[id_name] then
+		hud_ids[id_name] = player:hud_add({
+			hud_elem_type = "text",
+			name = "powerWatch",
+			number = 0xFFFFFF,
+			position = {x=0.9, y = .98},
+			text = "Power "..faction.power.."/"..faction.maxpower - faction.usedpower.."/"..faction.maxpower,
+			scale = {x=1, y=1},
+			alignment = {x=-1, y=0},
+			offset = {x = 0, y = 0}
+		})
+	end
+end
+
+updateHudPower = function(player,faction)
+	local name = player:get_player_name()
+	local id_name = name .. "2"
+	if hud_ids[id_name] then
+		player:hud_change(hud_ids[id_name],"text","Power "..faction.power.."/"..faction.maxpower - faction.usedpower.."/"..faction.maxpower)
+	end
+end
+
+removeHud = function(player,numberString)
+	local name = player:get_player_name()
+	local id_name = name .. numberString
+	if hud_ids[id_name] then
+		player:hud_remove(hud_ids[id_name])
+		hud_ids[id_name] = nil
+	end
+end
+
+hudUpdate = function()
+	minetest.after(.5, 
+	function()
+		local playerslist = minetest.get_connected_players()
+		for i in pairs(playerslist) do
+			local player = playerslist[i]
+			local name = player:get_player_name()
+			local faction = factions.get_faction_at(player:getpos())
+			local id_name = name .. "0"
+			if hud_ids[id_name] then
+				player:hud_change(hud_ids[id_name],"text",(faction and faction.name) or "Wilderness")
+			end
+		end
+		hudUpdate()
+	end)
+end
+
+factionUpdate = function()
+	minetest.after(factions.tick_time, 
+	function()
+		factions.faction_tick()
+		factionUpdate()
+	end)
+end
+
 minetest.register_on_joinplayer(
 function(player)
-    local faction = factions.get_player_faction(player:get_player_name())
+	local name = player:get_player_name()
+	hud_ids[name .. "0"] = player:hud_add({
+		hud_elem_type = "text",
+		name = "factionLand",
+		number = 0xFFFFFF,
+		position = {x=0.1, y = .98},
+		text = "Wilderness",
+		scale = {x=1, y=1},
+		alignment = {x=0, y=0},
+	})
+    local faction = factions.get_player_faction(name)
     if faction then
         faction.last_logon = os.time()
+		createHudFactionName(player,faction.name)
+		createHudPower(player,faction)
     end
 end
 )
+
+minetest.register_on_leaveplayer(
+	function(player)
+		local name = player:get_player_name()
+		local id_name = name .. "0"
+		if hud_ids[id_name] then
+			player:hud_remove(hud_ids[id_name])
+			hud_ids[id_name] = nil
+		end
+		removeHud(player,"1")
+		removeHud(player,"2")
+	end
+)
+
 minetest.register_on_respawnplayer(
     function(player)
         local faction = factions.get_player_faction(player:get_player_name())
@@ -779,7 +974,6 @@ minetest.register_on_respawnplayer(
         end
     end
 )
-
 
 
 
@@ -822,3 +1016,5 @@ minetest.is_protected = function(pos, player)
     end
 end
 
+hudUpdate()
+factionUpdate()
