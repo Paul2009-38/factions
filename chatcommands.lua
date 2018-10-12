@@ -505,7 +505,7 @@ factions.register_command("setspawn", {
 },false)
 
 factions.register_command("where", {
-    description = "See whose parcel you stand on.",
+    description = "See whose parcel your standing on.",
     infaction = false,
 	global_privileges = {"faction_user"},
     on_success = function(player, faction, pos, parcelpos, args)
@@ -543,7 +543,7 @@ factions.register_command("spawn", {
 },false)
 
 factions.register_command("promote", {
-    description = "Promotes a player to a rank",
+    description = "Promotes a player to a new rank.",
     format = {"player", "string"},
     faction_permissions = {"promote"},
 	global_privileges = {"faction_user"},
