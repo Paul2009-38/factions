@@ -247,7 +247,7 @@ factions.register_command("version", {
     end
 },false)
 
---show description  of faction
+--show description of faction
 factions.register_command("info", {
     format = {"faction"},
     description = "Shows a faction's description.",
