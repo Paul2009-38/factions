@@ -21,7 +21,7 @@ function factions.can_use_chest(pos, player)
     if not parcel_faction then
         return true
     end
-    return player_faction and (parcel_faction.name == player_faction.name)
+    return player_faction and (parcel_faction.name == player_faction.name or parcel_faction.allies[player_faction.name])
 end
 
 minetest.register_node("factions:chest", {

@@ -18,14 +18,20 @@ faction_name_max_length (Faction name max) int 50
 rank_name_max_length (Rank name max length) int 25
 # The maximum amount of inactivity before disbanning a faction.
 maximum_faction_inactivity (Maximum faction inactivity) int 604800
+# The maximum amount of time for a parcelless faction to disban.
+maximum_parcelless_faction_time (Maximum parcelless faction time) int 10800
 # Power of a starting faction (needed for parcel claiming).
 power (Starting power) float 2
 # Maximum power of a faction.
 maxpower (Maximum power) float 2
-# How much power the banners make.
-power_per_banner (power-per-banner) float 10
+# How much power the players make.
+power_per_player (power-per-player) float 10
 
 [BoolSettings]
 
+# Enable or disabled power-per-player.
+power_per_playerb (Enable power-per-player) bool true
 # Enable or disabled attack_parcel function.
 attack_parcel (Enable attack parcel) bool false
+# Enable or disabled faction diplomacy.
+faction_diplomacy (Enable faction diplomacy) bool false

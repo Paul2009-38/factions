@@ -1,17 +1,3 @@
--------------------------------------------------------------------------------
--- factions Mod by Sapier
---
--- License WTFPL
---
---! @file chatcommnd.lua
---! @brief factions chat interface
---! @copyright Sapier, agrecascino, shamoanjac, Coder12a 
---! @author Sapier, agrecascino, shamoanjac, Coder12a 
---! @date 2016-08-12
---
--- Contact sapier a t gmx net
--------------------------------------------------------------------------------
-
 local send_error = function(player, message)
     minetest.chat_send_player(player, message)
 end
@@ -45,6 +31,7 @@ factions.register_command = function(cmd_name, cmd, ignore_param_count)
                 factions = {},
                 players = {},
                 strings = {},
+				unknowns = {},
                 other = {}
             }
 			if not ignore_param_count then
@@ -87,9 +74,10 @@ factions.register_command = function(cmd_name, cmd, ignore_param_count)
                 elseif argtype == "string" then
                     table.insert(args.strings, arg)
                 else
-                    minetest.log("error", "Bad format definition for function "..self.name)
-                    send_error(player, "Internal server error")
-                    return false
+					table.insert(args.unknowns, arg)
+                    --minetest.log("error", "Bad format definition for function "..self.name)
+                    --send_error(player, "Internal server error")
+                    --return false
                 end
             end
             for i=2, #argv do
@@ -185,7 +173,7 @@ factions.register_command ("claim", {
         else
             local parcel_faction = factions.get_parcel_faction(parcelpos)
             if not parcel_faction then
-                send_error(player, "You faction cannot claim any (more) parcel(s).")
+                send_error(player, "Your faction cannot claim any (more) parcel(s).")
                 return false
             elseif parcel_faction.name == faction.name then
                 send_error(player, "This parcel already belongs to your faction.")
@@ -247,7 +235,7 @@ factions.register_command("version", {
     end
 },false)
 
---show description of faction
+--show description  of faction
 factions.register_command("info", {
     format = {"faction"},
     description = "Shows a faction's description.",
@@ -303,8 +291,16 @@ factions.register_command("create", {
         end
         local factionname = args.strings[1]
         if factions.can_create_faction(factionname) then
+			local listofenemies = {}
+			for i in pairs(factions.factions) do
+				listofenemies[i] = factions.factions[i]
+			end
             new_faction = factions.new_faction(factionname, nil)
             new_faction:add_player(player, new_faction.default_leader_rank)
+			for i in pairs(listofenemies) do
+				new_faction:new_enemy(listofenemies[i].name)
+				listofenemies[i]:new_enemy(new_faction.name)
+			end
             return true
         else
             send_error(player, "Faction cannot be created.")
@@ -417,6 +413,281 @@ factions.register_command("ranks", {
     end
 },false)
 
+factions.register_command("rank_privileges", {
+    description = "List available rank privileges.",
+	global_privileges = {"faction_user"},
+    on_success = function(player, faction, pos, parcelpos, args)
+		minetest.chat_send_player(player, "Privileges available:\n")
+		for i, k in pairs(factions.permissions) do
+            minetest.chat_send_player(player, k .. "\n")
+        end
+        return true
+    end
+},false)
+
+if factions.faction_diplomacy then
+	factions.register_command("send_alliance", {
+		description = "Send an alliance request to another faction.",
+		global_privileges = {"faction_user"},
+		format = {"string"},
+		on_success = function(player, faction, pos, parcelpos, args)
+			if faction:has_permission(player, "diplomacy") then
+				if factions.factions[args.strings[1]] then
+					if not factions.factions[args.strings[1]].request_inbox[faction.name] then
+						if faction.allies[args.strings[1]] then
+							send_error(player, "You are already allys.")
+							return false
+						end
+						if faction.enemies[args.strings[1]] then
+							send_error(player, "You need to be at peace in-order to send an alliance request.")
+							return false
+						end
+						if args.strings[1] == faction.name then
+							send_error(player, "You can not send an alliance to your own faction.")
+							return false
+						end
+						if faction.request_inbox[args.strings[1]] then
+							send_error(player, "Faction " .. args.strings[1] .. "has already sent a request to you.")
+							return false
+						end
+						factions.factions[args.strings[1]].request_inbox[faction.name] = "alliance"
+						factions.factions[args.strings[1]]:broadcast("An alliance request from faction " .. faction.name .. " has been sent to you.")
+						faction:broadcast("An alliance request was sent to faction " .. args.strings[1])
+						factions.save()
+					else
+						send_error(player, "You have already sent a request.")
+					end
+				else
+					send_error(player, args.strings[1] .. " is not a name of a faction.")
+				end
+			else
+				send_error(player, "You do not have the diplomacy privilege.")
+			end
+		end
+	},false)
+	
+	factions.register_command("send_peace", {
+		description = "Send peace to another faction.",
+		global_privileges = {"faction_user"},
+		format = {"string"},
+		on_success = function(player, faction, pos, parcelpos, args)
+			if faction:has_permission(player, "diplomacy") then
+				if factions.factions[args.strings[1]] then
+					if not factions.factions[args.strings[1]].request_inbox[faction.name] then
+						if faction.allies[args.strings[1]] then
+							send_error(player, "You are allys.")
+							return false
+						end
+						if faction.at_peace_with[args.strings[1]] then
+							send_error(player, "You are already at peace.")
+							return false
+						end
+						if args.strings[1] == faction.name then
+							send_error(player, "You can not send a peace request to your own faction.")
+							return false
+						end
+						if faction.request_inbox[args.strings[1]] then
+							send_error(player, "Faction " .. args.strings[1] .. "has already sent a request to you.")
+							return false
+						end
+						factions.factions[args.strings[1]].request_inbox[faction.name] = "peace"
+						factions.factions[args.strings[1]]:broadcast("A peace request from faction " .. faction.name .. " has been sent to you.")
+						faction:broadcast("A peace request was sent to faction " .. args.strings[1])
+						factions.save()
+					else
+						send_error(player, "You have already sent a request.")
+					end
+				else
+					send_error(player, args.strings[1] .. " is not a name of a faction.")
+				end
+			else
+				send_error(player, "You do not have the diplomacy privilege.")
+			end
+		end
+	},false)
+	
+	factions.register_command("accept", {
+		description = "accept an request from another faction.",
+		global_privileges = {"faction_user"},
+		format = {"string"},
+		on_success = function(player, faction, pos, parcelpos, args)
+			if faction:has_permission(player, "diplomacy") then
+				if faction.request_inbox[args.strings[1]] then
+					if args.strings[1] == faction.name then
+						send_error(player, "You can not accept an request from own faction.")
+						return false
+					end
+					if faction.request_inbox[args.strings[1]] == "alliance" then
+						faction:new_alliance(args.strings[1])
+						factions.factions[args.strings[1]]:new_alliance(faction.name)
+					else
+					if faction.request_inbox[args.strings[1]] == "peace" then
+						faction:new_peace(args.strings[1])
+						factions.factions[args.strings[1]]:new_peace(faction.name)
+					end
+					end
+					faction.request_inbox[args.strings[1]] = nil
+					factions.save()
+				else
+					send_error(player, "No request was sent to you.")
+				end
+			else
+				send_error(player, "You do not have the diplomacy privilege.")
+			end
+		end
+	},false)
+	
+	factions.register_command("refuse", {
+		description = "refuse an request from another faction.",
+		global_privileges = {"faction_user"},
+		format = {"string"},
+		on_success = function(player, faction, pos, parcelpos, args)
+			if faction:has_permission(player, "diplomacy") then
+				if faction.request_inbox[args.strings[1]] then
+					if args.strings[1] == faction.name then
+						send_error(player, "You can not refuse an request from your own faction.")
+						return false
+					end
+					faction.request_inbox[args.strings[1]] = nil
+					factions.factions[args.strings[1]]:broadcast("Faction " .. faction.name .. " refuse to be your ally.")
+					faction:broadcast("Refused an request from faction " .. args.strings[1])
+					factions.save()
+				else
+					send_error(player, "No request was sent to you.")
+				end
+			else
+				send_error(player, "You do not have the diplomacy privilege.")
+			end
+		end
+	},false)
+	
+	factions.register_command("delcare_war", {
+		description = "Delcare war on a faction.",
+		global_privileges = {"faction_user"},
+		format = {"string"},
+		on_success = function(player, faction, pos, parcelpos, args)
+			if faction:has_permission(player, "diplomacy") then
+				if not faction.enemies[args.strings[1]] then
+					if args.strings[1] == faction.name then
+						send_error(player, "You can not delcare war on your own faction.")
+						return false
+					end
+					if faction.allies[args.strings[1]] then
+						faction:end_alliance(args.strings[1])
+						factions.factions[args.strings[1]]:end_alliance(faction.name)
+					end
+					if faction.at_peace_with[args.strings[1]] then
+						faction:end_peace(args.strings[1])
+						factions.factions[args.strings[1]]:end_peace(faction.name)
+					end
+					faction:new_enemy(args.strings[1])
+					factions.factions[args.strings[1]]:new_enemy(faction.name)
+					factions.save()
+				else
+					send_error(player, "You are already at war.")
+				end
+			else
+				send_error(player, "You do not have the diplomacy privilege.")
+			end
+		end
+	},false)
+	
+	factions.register_command("break", {
+		description = "Break an alliance.",
+		global_privileges = {"faction_user"},
+		format = {"string"},
+		on_success = function(player, faction, pos, parcelpos, args)
+			if faction:has_permission(player, "diplomacy") then
+				if faction.allies[args.strings[1]] then
+					if args.strings[1] == faction.name then
+						send_error(player, "You can not break an alliance from your own faction.")
+						return false
+					end
+					faction:end_alliance(args.strings[1])
+					factions.factions[args.strings[1]]:end_alliance(faction.name)
+					faction:new_peace(args.strings[1])
+					factions.factions[args.strings[1]]:new_peace(faction.name)
+					factions.save()
+				else
+					send_error(player, "You where not allies to begin with.")
+				end
+			else
+				send_error(player, "You do not have the diplomacy privilege.")
+			end
+		end
+	},false)
+	
+	factions.register_command("inbox", {
+		description = "Check your diplomacy request inbox.",
+		global_privileges = {"faction_user"},
+		on_success = function(player, faction, pos, parcelpos, args)
+			if faction:has_permission(player, "diplomacy") then
+				local empty = true
+				for i,k in pairs(faction.request_inbox) do
+					if k == "alliance" then
+						minetest.chat_send_player(player,"Alliance request from faction " .. i .. "\n")
+					else 
+					if k == "peace" then
+						minetest.chat_send_player(player,"Peace request from faction " .. i .. "\n")
+					end
+					end
+					empty = false
+				end
+				if empty then
+					minetest.chat_send_player(player,"none:")
+				end
+			else
+				send_error(player, "You do not have the diplomacy privilege.")
+			end
+		end
+	},false)
+	
+	factions.register_command("allies", {
+		description = "Shows the factions that are allied to you.",
+		global_privileges = {"faction_user"},
+		on_success = function(player, faction, pos, parcelpos, args)
+			local empty = true
+			for i,k in pairs(faction.allies) do
+				minetest.chat_send_player(player,i .. "\n")
+				empty = false
+			end
+			if empty then
+				minetest.chat_send_player(player,"none:")
+			end
+		end
+	},false)
+	
+	factions.register_command("at_peace_with", {
+		description = "Shows the factions that are at peace with you.",
+		global_privileges = {"faction_user"},
+		on_success = function(player, faction, pos, parcelpos, args)
+			local empty = true
+			for i,k in pairs(faction.at_peace_with) do
+				minetest.chat_send_player(player,i .. "\n")
+				empty = false
+			end
+			if empty then
+				minetest.chat_send_player(player,"none:")
+			end
+		end
+	},false)
+	
+	factions.register_command("enemies", {
+		description = "Shows enemies of your faction.",
+		global_privileges = {"faction_user"},
+		on_success = function(player, faction, pos, parcelpos, args)
+			local empty = true
+			for i,k in pairs(faction.enemies) do
+				minetest.chat_send_player(player,i .. "\n")
+				empty = false
+			end
+			if empty then
+				minetest.chat_send_player(player,"none:")
+			end
+		end
+	},false)
+end
+
 factions.register_command("who", {
     description = "List players in your faction, and their ranks.",
 	global_privileges = {"faction_user"},
@@ -505,7 +776,7 @@ factions.register_command("setspawn", {
 },false)
 
 factions.register_command("where", {
-    description = "See whose parcel your standing on.",
+    description = "See whose parcel you stand on.",
     infaction = false,
 	global_privileges = {"faction_user"},
     on_success = function(player, faction, pos, parcelpos, args)
@@ -543,7 +814,7 @@ factions.register_command("spawn", {
 },false)
 
 factions.register_command("promote", {
-    description = "Promotes a player to a new rank.",
+    description = "Promotes a player to a rank",
     format = {"player", "string"},
     faction_permissions = {"promote"},
 	global_privileges = {"faction_user"},
@@ -567,22 +838,7 @@ factions.register_command("power", {
         return true
     end
 },false)
---[[
-factions.register_command("setbanner", {
-    description = "Sets the banner you're on as the faction's banner.",
-    faction_permissions = {"banner"},
-    on_success = function(player, faction, pos, parcelpos, args)
-        local meta = minetest.get_meta({x = pos.x, y = pos.y - 1, z = pos.z})
-        local banner = meta:get_string("banner")
-        if not banner then
-            minetest.chat_send_player(player, "No banner found.")
-            return false
-        end
-        faction:set_banner(banner)
-    end
-},false)
---]]
---[[
+
 factions.register_command("convert", {
     description = "Load factions in the old format",
     infaction = false,
@@ -597,7 +853,7 @@ factions.register_command("convert", {
         return true
     end
 },false)
---]]
+
 factions.register_command("free", {
     description = "Forcefully frees a parcel",
     infaction = false,
