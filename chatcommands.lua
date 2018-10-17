@@ -704,6 +704,38 @@ factions.register_command("who", {
     end
 },false)
 
+local parcel_size_center = factions.parcel_size / 2
+
+factions.register_command("showparcel", {
+    description = "Shows parcel for six seconds.",
+	global_privileges = {"faction_user"},
+    on_success = function(player, faction, pos, parcelpos, args)
+		local parcel_faction = factions.get_parcel_faction(parcelpos)
+		if not parcel_faction then
+			send_error(player, "There is no claim here")
+			return false
+		end
+		local pscx = parcel_size_center
+		local pscy = parcel_size_center
+		local pscz = parcel_size_center
+		local fps = factions.parcel_size
+		
+		if pos.x < 0 then
+		pscx = -pscx
+		end
+		if pos.y < 0 then
+		pscy = -pscy
+		end
+		if pos.z < 0 then
+		pscz = -pscz
+		end
+		
+		local ppos = {x = (math.floor(pos.x / fps)*fps)+pscx,y = (math.floor(pos.y / fps)*fps)+pscy,z = (math.floor(pos.z / fps)*fps)+pscz}
+		minetest.add_entity(ppos, "factions:display")
+        return true
+    end
+},false)
+
 factions.register_command("newrank", {
     description = "Add a new rank.",
     format = {"string"},
@@ -834,7 +866,7 @@ factions.register_command("power", {
     description = "Display your faction's power",
 	global_privileges = {"faction_user"},
     on_success = function(player, faction, pos, parcelpos, args)
-        minetest.chat_send_player(player, "Power: "..faction.power.."/"..faction.maxpower - faction.usedpower.."/"..faction.maxpower)
+        minetest.chat_send_player(player, "Power: "..faction.power.."/".. faction.usedpower .."/"..faction.maxpower)
         return true
     end
 },false)

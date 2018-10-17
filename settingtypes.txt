@@ -1,14 +1,16 @@
 [ValueSettings]
 
 # The max depth of protection from a parcel.
-protection_max_depth (Protection max depth) float -512
+protection_max_depth (Protection max depth) float 512
+# The max height of protection from a parcel.
+protection_max_height (Protection max height) float 10000
 # Cost of power to claim a parcel of land.
 power_per_parcel (Power-per-parcel) float 0.5
 # Power lost on death.
 power_per_death (Power-per-death) float 0.25
 # Power regeneration rate.
 power_per_tick (Power-per-tick) float 0.125
-# Faction timer. This timer regenerates power if the faction members are online.
+# Faction timer. This timer regenerates power.
 tick_time (Faction timer) float 60
 # Not in use.
 power_per_attack (Power-per-attack) float 10
@@ -21,11 +23,15 @@ maximum_faction_inactivity (Maximum faction inactivity) int 604800
 # The maximum amount of time for a parcelless faction to disban.
 maximum_parcelless_faction_time (Maximum parcelless faction time) int 10800
 # Power of a starting faction (needed for parcel claiming).
-power (Starting power) float 2
-# Maximum power of a faction.
-maxpower (Maximum power) float 2
+power (Starting power) float 0
+# Maximum power of a starting faction.
+maxpower (Starting Maximum power) float 0
 # How much power the players make.
-power_per_player (power-per-player) float 10
+power_per_player (power-per-player) float 0.125
+# How much max power is created per new player.
+powermax_per_player (powermax-per-player) float 2
+# parcel size
+parcel_size (parcel-size) float 16
 
 [BoolSettings]
 
@@ -35,3 +41,9 @@ power_per_playerb (Enable power-per-player) bool true
 attack_parcel (Enable attack parcel) bool false
 # Enable or disabled faction diplomacy.
 faction_diplomacy (Enable faction diplomacy) bool false
+# Enable or disabled the max depth and height limit for a parcel
+protection_depth_height_limit (Enable protection depth height limit) bool true
+
+[StringSettings]
+# Set the way that the parcel protection works (classic,pb-style).
+protection_style (Protection style) string classic

@@ -1,6 +1,6 @@
 hud_ids = {}
 
-createHudfactionLand = function(player)
+function createHudfactionLand(player)
 	local name = player:get_player_name()
 	hud_ids[name .. "factionLand"] = player:hud_add({
 		hud_elem_type = "text",
@@ -13,7 +13,7 @@ createHudfactionLand = function(player)
 	})
 end
 
-createHudFactionName = function(player,factionname)
+function createHudFactionName(player,factionname)
 	local name = player:get_player_name()
 	local id_name = name .. "factionName"
 	if not hud_ids[id_name] then
@@ -30,7 +30,7 @@ createHudFactionName = function(player,factionname)
 	end
 end
 
-createHudPower = function(player,faction)
+function createHudPower(player,faction)
 	local name = player:get_player_name()
 	local id_name = name .. "powerWatch"
 	if not hud_ids[id_name] then
@@ -39,7 +39,7 @@ createHudPower = function(player,faction)
 			name = "powerWatch",
 			number = 0xFFFFFF,
 			position = {x=0.9, y = .98},
-			text = "Power "..faction.power.."/"..faction.maxpower - faction.usedpower.."/"..faction.maxpower,
+			text = "Power "..faction.power.."/".. faction.usedpower .."/"..faction.maxpower,
 			scale = {x=1, y=1},
 			alignment = {x=-1, y=0},
 			offset = {x = 0, y = 0}
@@ -47,15 +47,15 @@ createHudPower = function(player,faction)
 	end
 end
 
-updateHudPower = function(player,faction)
+function updateHudPower(player,faction)
 	local name = player:get_player_name()
 	local id_name = name .. "powerWatch"
 	if hud_ids[id_name] then
-		player:hud_change(hud_ids[id_name],"text","Power "..faction.power.."/"..faction.maxpower - faction.usedpower.."/"..faction.maxpower)
+		player:hud_change(hud_ids[id_name],"text","Power "..faction.power.."/".. faction.usedpower .."/"..faction.maxpower)
 	end
 end
 
-removeHud = function(player,hudname)
+function removeHud(player,hudname)
 	local name = player:get_player_name()
 	local id_name = name .. hudname
 	if hud_ids[id_name] then
@@ -64,7 +64,7 @@ removeHud = function(player,hudname)
 	end
 end
 
-hudUpdate = function()
+function hudUpdateClaimInfo()
 	minetest.after(3, 
 	function()
 		local playerslist = minetest.get_connected_players()
@@ -77,14 +77,6 @@ hudUpdate = function()
 				player:hud_change(hud_ids[id_name],"text",(faction and faction.name) or "Wilderness")
 			end
 		end
-		hudUpdate()
-	end)
-end
-
-factionUpdate = function()
-	minetest.after(factions.tick_time, 
-	function()
-		factions.faction_tick()
-		factionUpdate()
+		hudUpdateClaimInfo()
 	end)
 end
