@@ -923,7 +923,6 @@ function(player)
 		createHudPower(player,faction)
 		faction.offlineplayers[name] = nil
 		faction.onlineplayers[name] = 1
-		factions.save()
     end
 end
 )
@@ -938,7 +937,6 @@ minetest.register_on_leaveplayer(
 			removeHud(player,"powerWatch")
 			faction.offlineplayers[name] = 1
 			faction.onlineplayers[name] = nil
-			factions.save()
 		end
 	end
 )
