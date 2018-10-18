@@ -71,7 +71,7 @@ minetest.register_craft({
 
 -- Code below was copied from TenPlus1's protector mod(MIT) and changed up a bit.
 
-local x = math.floor(factions.parcel_size / 2.1)
+local x = math.floor(factions_config.parcel_size / 2.1)
 
 minetest.register_node("factions:display_node", {
 	tiles = {"factions_display.png"},

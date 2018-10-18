@@ -37,8 +37,8 @@ parcel_size (parcel-size) float 16
 
 # Enable or disabled power-per-player.
 power_per_playerb (Enable power-per-player) bool true
-# Enable or disabled attack_parcel function.
-attack_parcel (Enable attack parcel) bool false
+# Enable or disabled factions_config.attack_parcel function.
+factions_config.attack_parcel (Enable attack parcel) bool false
 # Enable or disabled faction diplomacy.
 faction_diplomacy (Enable faction diplomacy) bool false
 # Enable or disabled the max depth and height limit for a parcel

@@ -425,7 +425,7 @@ factions.register_command("rank_privileges", {
     end
 },false)
 
-if factions.faction_diplomacy then
+if factions_config.faction_diplomacy then
 	factions.register_command("send_alliance", {
 		description = "Send an alliance request to another faction.",
 		global_privileges = {"faction_user"},
@@ -704,7 +704,7 @@ factions.register_command("who", {
     end
 },false)
 
-local parcel_size_center = factions.parcel_size / 2
+local parcel_size_center = factions_config.parcel_size / 2
 
 factions.register_command("showparcel", {
     description = "Shows parcel for six seconds.",
@@ -718,7 +718,7 @@ factions.register_command("showparcel", {
 		local pscx = parcel_size_center
 		local pscy = parcel_size_center
 		local pscz = parcel_size_center
-		local fps = factions.parcel_size
+		local fps = factions_config.parcel_size
 		
 		if pos.x < 0 then
 		pscx = -pscx

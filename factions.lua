@@ -12,38 +12,12 @@ factions.players = {}
 
 
 factions.factions = {}
---- settings
-factions.protection_max_depth = factions_config.protection_max_depth
-factions.protection_max_height = factions_config.protection_max_height
-factions.power_per_parcel = factions_config.power_per_parcel
-factions.power_per_death = factions_config.power_per_death
-factions.power_per_tick = factions_config.power_per_tick
-factions.tick_time = factions_config.tick_time
-factions.power_per_attack = factions_config.power_per_attack
-factions.faction_name_max_length = factions_config.faction_name_max_length
-factions.rank_name_max_length = factions_config.rank_name_max_length
-factions.maximum_faction_inactivity = factions_config.maximum_faction_inactivity
-factions.maximum_parcelless_faction_time = factions_config.maximum_parcelless_faction_time
-factions.attack_parcel = factions_config.attack_parcel
-factions.faction_diplomacy = factions_config.faction_diplomacy
-factions.power_per_player = factions_config.power_per_player
-factions.powermax_per_player = factions_config.powermax_per_player
-factions.protection_depth_height_limit = factions_config.protection_depth_height_limit
-factions.enable_power_per_player = factions_config.enable_power_per_player
-factions.power = factions_config.power
-factions.maxpower = factions_config.maxpower
-factions.attack_parcel = factions_config.attack_parcel
-factions.parcel_size = factions_config.parcel_size
-factions.protection_style = factions_config.protection_style
-
--- clear mem.
-factions_config = nil
 
 ---------------------
 --! @brief returns whether a faction can be created or not (allows for implementation of blacklists and the like)
 --! @param name String containing the faction's name
 factions.can_create_faction = function(name)
-    if #name > factions.faction_name_max_length then
+    if #name > factions_config.faction_name_max_length then
         return false
     elseif factions.factions[name] then
         return false
@@ -78,16 +52,16 @@ factions.Faction.__index = factions.Faction
 
 factions.permissions = {"disband", "claim", "playerslist", "build", "description", "ranks", "spawn", "promote"}
 
-if factions.faction_diplomacy then
+if factions_config.faction_diplomacy then
 	table.insert(factions.permissions,"diplomacy")
 end
 
 function factions.Faction:new(faction) 
     faction = {
         --! @brief power of a faction (needed for parcel claiming)
-        power = factions.power,
+        power = factions_config.power,
         --! @brief maximum power of a faction
-        maxpower = factions.maxpower,
+        maxpower = factions_config.maxpower,
         --! @brief power currently in use
         usedpower = 0.,
         --! @brief list of player names
@@ -218,7 +192,7 @@ function factions.Faction.add_player(self, player, rank)
     self.players[player] = rank or self.default_rank
     factions.players[player] = self.name
     self.invited_players[player] = nil
-	if factions.enable_power_per_player then
+	if factions_config.enable_power_per_player then
 		local ip = factions_ip.player_ips[player]
 		local notsame = true
 		for i,k in pairs(self.players) do
@@ -229,9 +203,9 @@ function factions.Faction.add_player(self, player, rank)
 			end
 		end
 		if notsame then
-			self:increase_power(factions.power_per_player)
-			self:increase_maxpower(factions.powermax_per_player)
-			self:decrease_usedpower(factions.power_per_player)
+			self:increase_power(factions_config.power_per_player)
+			self:increase_maxpower(factions_config.powermax_per_player)
+			self:decrease_usedpower(factions_config.power_per_player)
 		end
 	end
 	local pdata = minetest.get_player_by_name(player)
@@ -260,7 +234,7 @@ function factions.Faction.remove_player(self, player)
     factions.players[player] = nil
     self:on_player_leave(player)
 	self:check_players_in_faction(self)
-	if factions.enable_power_per_player then
+	if factions_config.enable_power_per_player then
 		local ip = factions_ip.player_ips[player]
 		local notsame = true
 		for i,k in pairs(self.players) do
@@ -271,7 +245,7 @@ function factions.Faction.remove_player(self, player)
 			end
 		end
 		if notsame then
-			self:decrease_maxpower(factions.powermax_per_player)
+			self:decrease_maxpower(factions_config.powermax_per_player)
 		end
 	end
 	local pdata = minetest.get_player_by_name(player)
@@ -290,12 +264,12 @@ end
 function factions.Faction.can_claim_parcel(self, parcelpos)
     local fac = factions.parcels[parcelpos]
     if fac then
-        if factions.factions[fac].power < 0. and self.power >= factions.power_per_parcel and not self.allies[factions.factions[fac].name] and not self.at_peace_with[factions.factions[fac].name] then
+        if factions.factions[fac].power < 0. and self.power >= factions_config.power_per_parcel and not self.allies[factions.factions[fac].name] and not self.at_peace_with[factions.factions[fac].name] then
             return true
         else
             return false
         end
-    elseif self.power < factions.power_per_parcel then
+    elseif self.power < factions_config.power_per_parcel then
         return false
     end
     return true
@@ -312,8 +286,8 @@ function factions.Faction.claim_parcel(self, parcelpos)
     end
     factions.parcels[parcelpos] = self.name
     self.land[parcelpos] = true
-    self:decrease_power(factions.power_per_parcel)
-    self:increase_usedpower(factions.power_per_parcel)
+    self:decrease_power(factions_config.power_per_parcel)
+    self:increase_usedpower(factions_config.power_per_parcel)
     self:on_claim_parcel(parcelpos)
 	self:parcelless_check()
     factions.save()
@@ -323,8 +297,8 @@ end
 function factions.Faction.unclaim_parcel(self, parcelpos)
     factions.parcels[parcelpos] = nil
     self.land[parcelpos] = nil
-    self:increase_power(factions.power_per_parcel)
-    self:decrease_usedpower(factions.power_per_parcel)
+    self:increase_power(factions_config.power_per_parcel)
+    self:decrease_usedpower(factions_config.power_per_parcel)
     self:on_unclaim_parcel(parcelpos)
 	self:parcelless_check()
     factions.save()
@@ -343,7 +317,7 @@ function factions.Faction.parcelless_check(self)
 			self.no_parcel = -1
 		else
 			self.no_parcel = os.time()
-			self:broadcast("Faction " .. self.name .. " will disband in " .. factions.maximum_parcelless_faction_time .. " seconds because it has no parcels.")
+			self:broadcast("Faction " .. self.name .. " will disband in " .. factions_config.maximum_parcelless_faction_time .. " seconds because it has no parcels.")
 		end
 	end
 end
@@ -548,11 +522,11 @@ function factions.Faction.is_online(self)
 end
 
 function factions.Faction.attack_parcel(self, parcelpos)
-	if factions.attack_parcel then
+	if factions_config.attack_parcel then
 		local attacked_faction = factions.get_parcel_faction(parcelpos)
 		if attacked_faction then
 			if not self.allies[attacked_faction.name] then
-				self.power = self.power - factions.power_per_attack
+				self.power = self.power - factions_config.power_per_attack
 				if attacked_faction.attacked_parcels[parcelpos] then 
 					attacked_faction.attacked_parcels[parcelpos][self.name] = true
 				else
@@ -686,10 +660,10 @@ function factions.Faction.on_revoke_invite(self, player)
 end
 
 function factions.get_parcel_pos(pos)
-	if factions.protection_style == "classic" then
-		return math.floor(pos.x / factions.parcel_size)..","..math.floor(pos.z / factions.parcel_size)
-	elseif factions.protection_style == "pb-style" then
-		return math.floor(pos.x / factions.parcel_size)..","..math.floor(pos.y / factions.parcel_size)..","..math.floor(pos.z / factions.parcel_size)
+	if factions_config.protection_style == "classic" then
+		return math.floor(pos.x / factions_config.parcel_size)..","..math.floor(pos.z / factions_config.parcel_size)
+	elseif factions_config.protection_style == "pb-style" then
+		return math.floor(pos.x / factions_config.parcel_size)..","..math.floor(pos.y / factions_config.parcel_size)..","..math.floor(pos.z / factions_config.parcel_size)
 	end
 end
 
@@ -717,7 +691,7 @@ end
 
 function factions.get_faction_at(pos)
 	local y = pos.y
-    if factions.protection_depth_height_limit and (pos.y < factions.protection_max_depth or pos.y > factions.protection_max_height) then
+    if factions_config.protection_depth_height_limit and (pos.y < factions_config.protection_max_depth or pos.y > factions_config.protection_max_height) then
         return nil
     end
     local parcelpos = factions.get_parcel_pos(pos)
@@ -828,17 +802,15 @@ function factions.load()
                 faction.attacked_parcels = {}
             end
             if not faction.usedpower then
-                faction.usedpower = faction:count_land() * factions.power_per_parcel
+                faction.usedpower = faction:count_land() * factions_config.power_per_parcel
             end
-            if #faction.name > factions.faction_name_max_length then
+            if #faction.name > factions_config.faction_name_max_length then
                 faction:disband()
             end
             if not faction.last_logon then
                 faction.last_logon = os.time()
             end
-			if not faction.no_parcel then
-				faction.no_parcel = os.time()
-			end
+			faction.no_parcel = os.time()
 			for i, _ in pairs(faction.onlineplayers) do
 				faction.offlineplayers[i] = _
 			end
@@ -891,7 +863,7 @@ function(player)
     if not faction then
         return true
     end
-    faction:decrease_power(factions.power_per_death)
+    faction:decrease_power(factions_config.power_per_death)
     return true
 end
 )
@@ -901,16 +873,16 @@ function factions.faction_tick()
     local now = os.time()
     for facname, faction in pairs(factions.factions) do
         if faction:is_online() then
-			if factions.enable_power_per_player then
+			if factions_config.enable_power_per_player then
 				local t = faction.onlineplayers
 				local count = 0
 				for _ in pairs(t) do count = count + 1 end
-				faction:increase_power(factions.power_per_player*count)
+				faction:increase_power(factions_config.power_per_player*count)
 			else
-				faction:increase_power(factions.power_per_tick)
+				faction:increase_power(factions_config.power_per_tick)
 			end
         end
-        if now - faction.last_logon > factions.maximum_faction_inactivity or (faction.no_parcel ~= -1 and now - faction.no_parcel > factions.maximum_parcelless_faction_time)  then
+        if now - faction.last_logon > factions_config.maximum_faction_inactivity or (faction.no_parcel ~= -1 and now - faction.no_parcel > factions_config.maximum_parcelless_faction_time)  then
             faction:disband()
         end
     end
@@ -966,7 +938,7 @@ minetest.register_on_respawnplayer(
 local default_is_protected = minetest.is_protected
 minetest.is_protected = function(pos, player)
     local y = pos.y
-    if factions.protection_depth_height_limit and (pos.y < factions.protection_max_depth or pos.y > factions.protection_max_height) then
+    if factions_config.protection_depth_height_limit and (pos.y < factions_config.protection_max_depth or pos.y > factions_config.protection_max_height) then
         return false
     end
     if factions.disallow_edit_nofac and not player_faction then
@@ -1006,7 +978,7 @@ minetest.is_protected = function(pos, player)
 end
 
 function factionUpdate()
-	minetest.after(factions.tick_time, 
+	minetest.after(factions_config.tick_time, 
 	function()
 		factions.faction_tick()
 		factionUpdate()
