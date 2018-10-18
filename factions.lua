@@ -117,6 +117,10 @@ factions.new_faction = function(name)
     faction.name = name
     factions.factions[name] = faction
     faction:on_create()
+	minetest.after(1, 
+	function(f)
+		f:on_no_parcel()
+	end,faction)
     factions.save()
     return faction
 end
@@ -317,7 +321,7 @@ function factions.Faction.parcelless_check(self)
 			self.no_parcel = -1
 		else
 			self.no_parcel = os.time()
-			self:broadcast("Faction " .. self.name .. " will disband in " .. factions_config.maximum_parcelless_faction_time .. " seconds because it has no parcels.")
+			self:on_no_parcel()
 		end
 	end
 end
@@ -569,6 +573,12 @@ end
 -- callbacks for events --
 function factions.Faction.on_create(self)  --! @brief called when the faction is added to the global faction list
     minetest.chat_send_all("Faction "..self.name.." has been created.")
+end
+
+function factions.Faction.on_no_parcel(self)
+	local now = os.time() - self.no_parcel
+	local l = factions_config.maximum_parcelless_faction_time
+    self:broadcast("This faction will disband in "..l-now.." seconds, because it has no parcels.")
 end
 
 function factions.Faction.on_player_leave(self, player)
@@ -899,6 +909,11 @@ function(player)
 		createHudPower(player,faction)
 		faction.offlineplayers[name] = nil
 		faction.onlineplayers[name] = 1
+		if faction.no_parcel ~= -1 then
+			local now = os.time() - faction.no_parcel
+			local l = factions_config.maximum_parcelless_faction_time
+			minetest.chat_send_player(player:get_player_name(),"This faction will disband in "..l-now.." seconds, because it has no parcels.")
+		end
     end
 end
 )
