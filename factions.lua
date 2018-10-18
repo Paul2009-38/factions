@@ -958,9 +958,6 @@ minetest.is_protected = function(pos, player)
     if factions_config.protection_depth_height_limit and (pos.y < factions_config.protection_max_depth or pos.y > factions_config.protection_max_height) then
         return false
     end
-    if factions.disallow_edit_nofac and not player_faction then
-        return true
-    end
 
     local parcelpos = factions.get_parcel_pos(pos)
     local parcel_faction = factions.get_parcel_faction(parcelpos)
