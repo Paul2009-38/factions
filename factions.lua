@@ -820,7 +820,9 @@ function factions.load()
             if not faction.last_logon then
                 faction.last_logon = os.time()
             end
-			faction.no_parcel = os.time()
+			if faction.no_parcel ~= -1 then
+				faction.no_parcel = os.time()
+			end
 			for i, _ in pairs(faction.onlineplayers) do
 				faction.offlineplayers[i] = _
 			end
