@@ -715,22 +715,10 @@ factions.register_command("showparcel", {
 			send_error(player, "There is no claim here")
 			return false
 		end
-		local pscx = parcel_size_center
-		local pscy = parcel_size_center
-		local pscz = parcel_size_center
+		local psc = parcel_size_center
 		local fps = factions_config.parcel_size
-		
-		if pos.x < 0 then
-		pscx = -pscx
-		end
-		if pos.y < 0 then
-		pscy = -pscy
-		end
-		if pos.z < 0 then
-		pscz = -pscz
-		end
-		
-		local ppos = {x = (math.floor(pos.x / fps)*fps)+pscx,y = (math.floor(pos.y / fps)*fps)+pscy,z = (math.floor(pos.z / fps)*fps)+pscz}
+
+		local ppos = {x = (math.floor(pos.x / fps)*fps)+psc,y = (math.floor(pos.y / fps)*fps)+psc,z = (math.floor(pos.z / fps)*fps)+psc}
 		minetest.add_entity(ppos, "factions:display")
         return true
     end
