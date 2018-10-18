@@ -439,7 +439,7 @@ if factions_config.faction_diplomacy then
 							return false
 						end
 						if faction.enemies[args.strings[1]] then
-							send_error(player, "You need to be at peace in-order to send an alliance request.")
+							send_error(player, "You need to be neutral in-order to send an alliance request.")
 							return false
 						end
 						if args.strings[1] == faction.name then
@@ -466,8 +466,8 @@ if factions_config.faction_diplomacy then
 		end
 	},false)
 	
-	factions.register_command("send_peace", {
-		description = "Send peace to another faction.",
+	factions.register_command("send_neutral", {
+		description = "Send neutral to another faction.",
 		global_privileges = {"faction_user"},
 		format = {"string"},
 		on_success = function(player, faction, pos, parcelpos, args)
@@ -478,21 +478,21 @@ if factions_config.faction_diplomacy then
 							send_error(player, "You are allys.")
 							return false
 						end
-						if faction.at_peace_with[args.strings[1]] then
-							send_error(player, "You are already at peace.")
+						if faction.neutral[args.strings[1]] then
+							send_error(player, "You are already neutral with this faction.")
 							return false
 						end
 						if args.strings[1] == faction.name then
-							send_error(player, "You can not send a peace request to your own faction.")
+							send_error(player, "You can not send a neutral request to your own faction.")
 							return false
 						end
 						if faction.request_inbox[args.strings[1]] then
 							send_error(player, "Faction " .. args.strings[1] .. "has already sent a request to you.")
 							return false
 						end
-						factions.factions[args.strings[1]].request_inbox[faction.name] = "peace"
-						factions.factions[args.strings[1]]:broadcast("A peace request from faction " .. faction.name .. " has been sent to you.")
-						faction:broadcast("A peace request was sent to faction " .. args.strings[1])
+						factions.factions[args.strings[1]].request_inbox[faction.name] = "neutral"
+						factions.factions[args.strings[1]]:broadcast("A neutral request from faction " .. faction.name .. " has been sent to you.")
+						faction:broadcast("A neutral request was sent to faction " .. args.strings[1])
 						factions.save()
 					else
 						send_error(player, "You have already sent a request.")
@@ -521,9 +521,9 @@ if factions_config.faction_diplomacy then
 						faction:new_alliance(args.strings[1])
 						factions.factions[args.strings[1]]:new_alliance(faction.name)
 					else
-					if faction.request_inbox[args.strings[1]] == "peace" then
-						faction:new_peace(args.strings[1])
-						factions.factions[args.strings[1]]:new_peace(faction.name)
+					if faction.request_inbox[args.strings[1]] == "neutral" then
+						faction:new_neutral(args.strings[1])
+						factions.factions[args.strings[1]]:new_neutral(faction.name)
 					end
 					end
 					faction.request_inbox[args.strings[1]] = nil
@@ -576,9 +576,9 @@ if factions_config.faction_diplomacy then
 						faction:end_alliance(args.strings[1])
 						factions.factions[args.strings[1]]:end_alliance(faction.name)
 					end
-					if faction.at_peace_with[args.strings[1]] then
-						faction:end_peace(args.strings[1])
-						factions.factions[args.strings[1]]:end_peace(faction.name)
+					if faction.neutral[args.strings[1]] then
+						faction:end_neutral(args.strings[1])
+						factions.factions[args.strings[1]]:end_neutral(faction.name)
 					end
 					faction:new_enemy(args.strings[1])
 					factions.factions[args.strings[1]]:new_enemy(faction.name)
@@ -605,8 +605,8 @@ if factions_config.faction_diplomacy then
 					end
 					faction:end_alliance(args.strings[1])
 					factions.factions[args.strings[1]]:end_alliance(faction.name)
-					faction:new_peace(args.strings[1])
-					factions.factions[args.strings[1]]:new_peace(faction.name)
+					faction:new_neutral(args.strings[1])
+					factions.factions[args.strings[1]]:new_neutral(faction.name)
 					factions.save()
 				else
 					send_error(player, "You where not allies to begin with.")
@@ -627,8 +627,8 @@ if factions_config.faction_diplomacy then
 					if k == "alliance" then
 						minetest.chat_send_player(player,"Alliance request from faction " .. i .. "\n")
 					else 
-					if k == "peace" then
-						minetest.chat_send_player(player,"Peace request from faction " .. i .. "\n")
+					if k == "neutral" then
+						minetest.chat_send_player(player,"neutral request from faction " .. i .. "\n")
 					end
 					end
 					empty = false
@@ -657,12 +657,12 @@ if factions_config.faction_diplomacy then
 		end
 	},false)
 	
-	factions.register_command("at_peace_with", {
-		description = "Shows the factions that are at peace with you.",
+	factions.register_command("neutral", {
+		description = "Shows the factions that are neutral with you.",
 		global_privileges = {"faction_user"},
 		on_success = function(player, faction, pos, parcelpos, args)
 			local empty = true
-			for i,k in pairs(faction.at_peace_with) do
+			for i,k in pairs(faction.neutral) do
 				minetest.chat_send_player(player,i .. "\n")
 				empty = false
 			end

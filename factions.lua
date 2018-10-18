@@ -94,7 +94,7 @@ function factions.Faction:new(faction)
         --! @brief table of enemies
         enemies = {},
 		--!
-		at_peace_with = {},
+		neutral = {},
         --! @brief table of parcels/factions that are under attack
         attacked_parcels = {},
         --! @brief whether faction is closed or open (boolean)
@@ -268,7 +268,7 @@ end
 function factions.Faction.can_claim_parcel(self, parcelpos)
     local fac = factions.parcels[parcelpos]
     if fac then
-        if factions.factions[fac].power < 0. and self.power >= factions_config.power_per_parcel and not self.allies[factions.factions[fac].name] and not self.at_peace_with[factions.factions[fac].name] then
+        if factions.factions[fac].power < 0. and self.power >= factions_config.power_per_parcel and not self.allies[factions.factions[fac].name] and not self.neutral[factions.factions[fac].name] then
             return true
         else
             return false
@@ -337,8 +337,8 @@ function factions.Faction.disband(self, reason)
 			if v.allies[self.name] then
 				v:end_alliance(self.name)
 			end
-			if v.at_peace_with[self.name] then
-				v:end_peace(self.name)
+			if v.neutral[self.name] then
+				v:end_neutral(self.name)
 			end
 		end
 	end
@@ -424,8 +424,8 @@ function factions.Faction.new_alliance(self, faction)
     if self.enemies[faction] then
         self:end_enemy(faction)
     end
-	if self.at_peace_with[faction] then
-        self:end_peace(faction)
+	if self.neutral[faction] then
+        self:end_neutral(faction)
     end
     factions.save()
 end
@@ -434,9 +434,9 @@ function factions.Faction.end_alliance(self, faction)
     self:on_end_alliance(faction)
     factions.save()
 end
-function factions.Faction.new_peace(self, faction)
-    self.at_peace_with[faction] = true
-    self:on_new_peace(faction)
+function factions.Faction.new_neutral(self, faction)
+    self.neutral[faction] = true
+    self:on_new_neutral(faction)
     if self.allies[faction] then
         self:end_alliance(faction)
     end
@@ -445,9 +445,9 @@ function factions.Faction.new_peace(self, faction)
     end
     factions.save()
 end
-function factions.Faction.end_peace(self, faction)
-    self.at_peace_with[faction] = nil
-    self:on_end_peace(faction)
+function factions.Faction.end_neutral(self, faction)
+    self.neutral[faction] = nil
+    self:on_end_neutral(faction)
     factions.save()
 end
 function factions.Faction.new_enemy(self, faction)
@@ -456,8 +456,8 @@ function factions.Faction.new_enemy(self, faction)
     if self.allies[faction] then
         self:end_alliance(faction)
     end
-	if self.at_peace_with[faction] then
-        self:end_peace(faction)
+	if self.neutral[faction] then
+        self:end_neutral(faction)
     end
     factions.save()
 end
@@ -633,12 +633,12 @@ function factions.Faction.on_end_alliance(self, faction)
     self:broadcast("This faction is no longer allied with "..faction.."!")
 end
 
-function factions.Faction.on_new_peace(self, faction)
-    self:broadcast("This faction is now at peace with "..faction)
+function factions.Faction.on_new_neutral(self, faction)
+    self:broadcast("This faction is now neutral with "..faction)
 end
 
-function factions.Faction.on_end_peace(self, faction)
-    self:broadcast("This faction is no longer at peace with "..faction.."!")
+function factions.Faction.on_end_neutral(self, faction)
+    self:broadcast("This faction is no longer neutral with "..faction.."!")
 end
 
 function factions.Faction.on_new_enemy(self, faction)
