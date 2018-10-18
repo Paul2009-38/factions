@@ -1,11 +1,17 @@
-License of source code done by old team.
-----------------------
+License of source code under old team.
+------------ Begin ------------
 License WTFPL
 Copyright (C) 2013-2016 Sapier, agrecascino, shamoanjac
-----------------------
+------------ End ------------
 
-License of source code done by new team.
-----------------------
+License of media.
+------------ Begin ------------
+following Textures created by Coder12a (CC BY-SA 3.0):
+factions_display.png
+------------ End ------------
+
+License of source code under new team.
+------------ Begin ------------
 Copyright (C) 2018 Coder12a
 
                   GNU LESSER GENERAL PUBLIC LICENSE
@@ -512,3 +518,4 @@ necessary.  Here is a sample; alter the names:
   Ty Coon, President of Vice
 
 That's all there is to it!
+------------ End ------------
