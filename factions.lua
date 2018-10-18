@@ -916,6 +916,9 @@ function(player)
 			local l = factions_config.maximum_parcelless_faction_time
 			minetest.chat_send_player(player:get_player_name(),"This faction will disband in "..l-now.." seconds, because it has no parcels.")
 		end
+		if faction:has_permission(player, "diplomacy") then
+			for _ in pairs(faction.request_inbox) do minetest.chat_send_player(player:get_player_name(),"You have diplomatic request in the inbox.") break end
+		end
     end
 end
 )
