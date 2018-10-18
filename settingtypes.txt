@@ -45,5 +45,7 @@ faction_diplomacy (Enable faction diplomacy) bool false
 protection_depth_height_limit (Enable protection depth height limit) bool true
 
 [StringSettings]
-# Set the way that the parcel protection works (2d,3d). 2d limits how far x and z can go but protection on the y goes up and down far. 3d limits all three axis.
+# Set the way that the parcel protection works (2d,3d).
+# 2d limits how far x and z can go but protection on the y goes up and down far.
+# 3d limits all three axis.
 protection_style (Protection style) string 2d
