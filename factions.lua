@@ -510,14 +510,14 @@ function factions.Faction.broadcast(self, msg, sender)
         message = sender.."@"..message
     end
     message = "Faction<"..message
-    for k, _ in pairs(self.players) do
+    for k, _ in pairs(self.onlineplayers) do
         minetest.chat_send_player(k, message)
     end
 end
 
 --! @brief checks whether a faction has at least one connected player
 function factions.Faction.is_online(self)
-    for playername, _ in pairs(self.players) do
+    for playername, _ in pairs(self.onlineplayers) do
         if minetest.get_player_by_name(playername) then
             return true
         end
