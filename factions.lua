@@ -965,19 +965,6 @@ minetest.is_protected = function(pos, player)
     local parcelpos = factions.get_parcel_pos(pos)
     local parcel_faction = factions.get_parcel_faction(parcelpos)
     local player_faction = factions.get_player_faction(player)
-    -- check if wielding death banner
-    local player_info = minetest.get_player_by_name(player)
-    if not player_info then
-        if parcel_faction then
-            return true
-        else
-            return false
-        end
-    end
-    local player_wield = player_info:get_wielded_item()
-    if player_wield:get_name() == "banners:death_banner" and player_faction then --todo: check for allies, maybe for permissions
-        return not player_faction:has_permission(player, "claim") and player_faction.power > 0 and not parcel_faction.is_admin
-    end
     -- no faction
     if not parcel_faction then
         return default_is_protected(pos, player)

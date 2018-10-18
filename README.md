@@ -7,8 +7,6 @@ Mod for handling in game factions and reputation.
 
 Redo the parcel attack system.
 
-Remove banner code.
-
 Add command to show or hide all parcel position locations as markers.
 
 Money.
@@ -28,3 +26,5 @@ Complete the diplomacy system.
 Make claim's depth not go to high or low. Or make it act like a protection block where you have to claim land upwards and downwards.
 
 Add a show claim command (show small entity boxes like in protection mod).
+
+Remove banner code.
