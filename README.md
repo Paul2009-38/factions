@@ -9,7 +9,27 @@ Redo the parcel attack system.
 
 Add command to show or hide all parcel position locations as markers.
 
-Money.
+Add money.
+
+Player tax.
+
+faction territory titles.
+
+More claim and unclaim commands.
+
+faction access manage command.
+
+More permissions.
+
+faction flags(Not to replace parcels).
+
+Maybe expand on diplomacy.
+
+Write the forum topic better.
+
+Add command to set the faction message of the day.
+
+Code clean up and optimization.
 
 # COMPLETED BUT NEEDS TESTING LIST
 
