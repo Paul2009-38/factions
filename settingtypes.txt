@@ -5,11 +5,11 @@ protection_max_depth (Protection max depth) float 512
 # The max height of protection from a parcel.
 protection_max_height (Protection max height) float 10000
 # Cost of power to claim a parcel of land.
-power_per_parcel (Power-per-parcel) float 0.5
+power_per_parcel (Power-per-parcel) float 1
 # Power lost on death.
-power_per_death (Power-per-death) float 0.25
+power_per_death (Power-per-death) float 1
 # Power regeneration rate.
-power_per_tick (Power-per-tick) float 0.125
+power_per_tick (Power-per-tick) float 2
 # Faction timer. This timer regenerates power.
 tick_time (Faction timer) float 60
 # Not in use.
@@ -27,9 +27,9 @@ power (Starting power) float 0
 # Maximum power of a starting faction.
 maxpower (Starting Maximum power) float 0
 # How much power the players make.
-power_per_player (power-per-player) float 0.125
+power_per_player (power-per-player) float 1
 # How much max power is created per new player.
-powermax_per_player (powermax-per-player) float 2
+powermax_per_player (powermax-per-player) float 12
 # parcel size
 parcel_size (parcel-size) float 16
 
