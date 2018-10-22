@@ -208,7 +208,7 @@ function factions.Faction.add_player(self, player, rank)
 		end
 		if notsame then
 			self:increase_maxpower(factions_config.powermax_per_player)
-			self:increase_power(factions_config.power_per_player)
+			--self:increase_power(factions_config.power_per_player)
 		end
 	end
 	local pdata = minetest.get_player_by_name(player)
