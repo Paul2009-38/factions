@@ -56,10 +56,18 @@ function updateHudPower(player,faction)
 end
 
 function removeHud(player,hudname)
-	local name = player:get_player_name()
+	local name = ""
+	local p = {}
+	if type(player) ~= "string" then
+		name = player:get_player_name()
+		p = player
+	else
+		name = player
+		p = minetest.get_player_by_name(player)
+	end
 	local id_name = name .. hudname
 	if hud_ids[id_name] then
-		player:hud_remove(hud_ids[id_name])
+		p:hud_remove(hud_ids[id_name])
 		hud_ids[id_name] = nil
 	end
 end

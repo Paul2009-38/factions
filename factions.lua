@@ -207,9 +207,8 @@ function factions.Faction.add_player(self, player, rank)
 			end
 		end
 		if notsame then
-			self:increase_power(factions_config.power_per_player)
 			self:increase_maxpower(factions_config.powermax_per_player)
-			self:decrease_usedpower(factions_config.power_per_player)
+			self:increase_power(factions_config.power_per_player)
 		end
 	end
 	local pdata = minetest.get_player_by_name(player)
@@ -328,7 +327,6 @@ end
 
 --! @brief disband faction, updates global players and parcels table
 function factions.Faction.disband(self, reason)
-	local playerslist = minetest.get_connected_players()
 	for i,v in pairs(factions.factions) do
 		if v.name ~= self.name then
 			if v.enemies[self.name] then
@@ -349,15 +347,13 @@ function factions.Faction.disband(self, reason)
         factions.parcels[k] = nil
     end
     self:on_disband(reason)
-    factions.factions[self.name] = nil
-	for i in pairs(playerslist) do
-		local realplayer = playerslist[i]
-		local faction = factions.get_player_faction(realplayer:get_player_name())
-        if not faction then
-			removeHud(realplayer,"factionName")
-			removeHud(realplayer,"powerWatch")
-		end
+	local playerslist = self.onlineplayers
+	for i,l in pairs(playerslist) do
+		local faction = factions.get_player_faction(i)
+		removeHud(i,"factionName")
+		removeHud(i,"powerWatch")
 	end
+	factions.factions[self.name] = nil
     factions.save()
 end
 
@@ -387,6 +383,7 @@ function factions.Faction.has_permission(self, player, permission)
     end
     return false
 end
+
 function factions.Faction.set_description(self, new)
     self.description = new
     self:on_change_description()
@@ -429,11 +426,13 @@ function factions.Faction.new_alliance(self, faction)
     end
     factions.save()
 end
+
 function factions.Faction.end_alliance(self, faction)
     self.allies[faction] = nil
     self:on_end_alliance(faction)
     factions.save()
 end
+
 function factions.Faction.new_neutral(self, faction)
     self.neutral[faction] = true
     self:on_new_neutral(faction)
@@ -445,11 +444,13 @@ function factions.Faction.new_neutral(self, faction)
     end
     factions.save()
 end
+
 function factions.Faction.end_neutral(self, faction)
     self.neutral[faction] = nil
     self:on_end_neutral(faction)
     factions.save()
 end
+
 function factions.Faction.new_enemy(self, faction)
     self.enemies[faction] = true
     self:on_new_enemy(faction)
@@ -461,6 +462,7 @@ function factions.Faction.new_enemy(self, faction)
     end
     factions.save()
 end
+
 function factions.Faction.end_enemy(self, faction)
     self.enemies[faction] = nil
     self:on_end_enemy(faction)
