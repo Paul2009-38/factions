@@ -10,9 +10,6 @@ factions.factions = {}
 factions.parcels = {}
 factions.players = {}
 
-
-factions.factions = {}
-
 ---------------------
 --! @brief returns whether a faction can be created or not (allows for implementation of blacklists and the like)
 --! @param name String containing the faction's name
@@ -98,7 +95,7 @@ function factions.Faction:new(faction)
         --! @brief table of parcels/factions that are under attack
         attacked_parcels = {},
         --! @brief whether faction is closed or open (boolean)
-        join_free = false,
+        join_free = true,
         --! @brief gives certain privileges
         is_admin = false,
         --! @brief last time anyone logged on
@@ -340,7 +337,7 @@ function factions.Faction.disband(self, reason)
 			end
 		end
 	end
-    for k, _ in pairs(factions.players) do -- remove players affiliation
+    for k, _ in pairs(self.players) do -- remove players affiliation
         factions.players[k] = nil
     end
     for k, v in pairs(self.land) do -- remove parcel claims
