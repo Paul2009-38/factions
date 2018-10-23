@@ -109,8 +109,8 @@ end
 
 
 --! @brief create a new empty faction
-factions.new_faction = function(name)
-    local faction =  factions.Faction:new(nil)
+function factions.new_faction(name)
+    local faction = factions.Faction:new(nil)
     faction.name = name
     factions.factions[name] = faction
     faction:on_create()
@@ -120,6 +120,15 @@ factions.new_faction = function(name)
 	end,faction)
     factions.save()
     return faction
+end
+
+function factions.start_diplomacy(name,faction)
+	for i in pairs(factions.factions) do
+		if i ~= name and not (faction.neutral[i] or faction.allies[i] or faction.enemies[i]) then
+			faction:new_enemy(factions.factions[i].name)
+			factions.factions[i]:new_enemy(faction.name)
+		end
+	end
 end
 
 function factions.Faction.increase_power(self, power)
@@ -173,6 +182,25 @@ function factions.Faction.decrease_usedpower(self, power)
     end
 	for i in pairs(self.onlineplayers) do
 		updateHudPower(minetest.get_player_by_name(i),self)
+	end
+end
+-- power-per-players only.
+function factions.Faction.check_power(self)
+	if factions_config.enable_power_per_player then
+		for player,unused in pairs(self.players) do
+			local ip = factions_ip.player_ips[player]
+			local notsame = true
+			for i,k in pairs(self.players) do
+				local other_ip = factions_ip.player_ips[k]
+				if other_ip == ip then
+					notsame = false
+					break
+				end
+			end
+			if notsame then
+				self:increase_maxpower(factions_config.powermax_per_player)
+			end
+		end
 	end
 end
 
@@ -785,11 +813,21 @@ end
 --! @return true/false
 -------------------------------------------------------------------------------
 function factions.load()
-    local file,error = io.open(factions_worldid .. "/" .. "factions.conf","r")
+    local filename = "factions.conf"
+    local file,error = io.open(factions_worldid .. "/" .. filename,"r")
 
     if file ~= nil then
         local raw_data = file:read("*a")
         factions.factions = minetest.deserialize(raw_data)
+		if factions.is_old_file(factions.factions) then
+			if factions.convert(filename) then
+				minetest.after(5, 
+				function()
+					minetest.chat_send_all("Factions successfully converted.")
+				end)
+				factions.save()
+			end
+		end
         for facname, faction in pairs(factions.factions) do
             minetest.log("action", facname..","..faction.name)
             for player, rank in pairs(faction.players) do
@@ -800,7 +838,6 @@ function factions.load()
                 factions.parcels[parcelpos] = facname
             end
             setmetatable(faction, factions.Faction)
-            -- compatiblity and later additions
             if not faction.maxpower or faction.maxpower <= 0. then
                 faction.maxpower = faction.power
                 if faction.power < 0. then
@@ -832,6 +869,36 @@ function factions.load()
 	factions_ip.load()
 end
 
+function factions.is_old_file(oldfactions)
+	local tempfaction = factions.Faction:new(nil)
+	local pass = false
+	for facname, faction in pairs(oldfactions) do
+		for ni, nl in pairs(tempfaction) do
+			pass = false
+			for key, value in pairs(faction) do
+				if key == ni then
+					pass = true
+					break
+				end
+			end
+			if not pass then
+				tempfaction = nil
+				return true
+			end
+		end
+		-- Only check one faction to save time.
+		if not pass then
+			tempfaction = nil
+			return true
+		else
+			tempfaction = nil
+			return false
+		end
+	end
+	tempfaction = nil
+	return false
+end
+
 function factions.convert(filename)
     local file, error = io.open(factions_worldid .. "/" .. filename, "r")
     if not file then
@@ -840,30 +907,21 @@ function factions.convert(filename)
     end
     local raw_data = file:read("*a")
     local data = minetest.deserialize(raw_data)
-    local factionsmod = data.factionsmod
-    local objects = data.objects
-    for faction, attrs in pairs(factionsmod) do
-        local newfac = factions.new_faction(faction)
-        newfac:add_player(attrs.owner, "leader")
-        for player, _ in pairs(attrs.adminlist) do
-            if not newfac.players[player] then
-                newfac:add_player(player, "moderator")
-            end
-        end
-        for player, _ in pairs(attrs.invitations) do
-            newfac:invite_player(player)
-        end
-        for i in ipairs(attrs.parcel) do
-            local parcelpos = table.concat(attrs.parcel[i],",")
-            newfac:claim_parcel(parcelpos)
-        end
-    end
-    for player, attrs in pairs(objects) do
-        local facname = attrs.factionsmod
-        local faction = factions.factions[facname]
-        if faction then
-            faction:add_player(player)
-        end
+    for facname,faction in pairs(data) do
+        local newfac = factions.new_faction(facname)
+		for oi, ol in pairs(faction) do
+			if newfac[oi] then
+				newfac[oi] = ol
+			end
+		end
+		for player, unused in pairs(newfac.players) do
+			factions.players[player] = newfac.name
+		end
+		for land, unused in pairs(newfac.land) do
+			factions.parcels[land] = newfac.name
+		end
+		factions.start_diplomacy(facname,newfac)
+		newfac:check_power()
     end
     return true
 end

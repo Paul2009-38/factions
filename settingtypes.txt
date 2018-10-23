@@ -40,7 +40,7 @@ power_per_playerb (Enable power-per-player) bool true
 # Enable or disabled factions_config.attack_parcel function.
 factions_config.attack_parcel (Enable attack parcel) bool false
 # Enable or disabled faction diplomacy.
-faction_diplomacy (Enable faction diplomacy) bool false
+faction_diplomacy (Enable faction diplomacy) bool true
 # Enable or disabled the max depth and height limit for a parcel
 protection_depth_height_limit (Enable protection depth height limit) bool true
 

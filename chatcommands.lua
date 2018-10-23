@@ -291,16 +291,9 @@ factions.register_command("create", {
         end
         local factionname = args.strings[1]
         if factions.can_create_faction(factionname) then
-			local listofenemies = {}
-			for i in pairs(factions.factions) do
-				listofenemies[i] = factions.factions[i]
-			end
-            new_faction = factions.new_faction(factionname, nil)
+			new_faction = factions.new_faction(factionname, nil)
             new_faction:add_player(player, new_faction.default_leader_rank)
-			for i in pairs(listofenemies) do
-				new_faction:new_enemy(listofenemies[i].name)
-				listofenemies[i]:new_enemy(new_faction.name)
-			end
+			factions.start_diplomacy(factionname,new_faction)
             return true
         else
             send_error(player, "Faction cannot be created.")
