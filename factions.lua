@@ -337,6 +337,7 @@ function factions.Faction.parcelless_check(self)
 		local count = 0
 		for index, value in pairs(self.land) do
 			count = count + 1
+			break
 		end
 		if count > 0 then
 			if self.no_parcel ~= -1 then

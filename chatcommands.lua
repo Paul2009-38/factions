@@ -172,7 +172,10 @@ factions.register_command ("claim", {
             return true
         else
             local parcel_faction = factions.get_parcel_faction(parcelpos)
-            if not parcel_faction then
+			if faction.power <= factions_config.power_per_parcel then
+			    send_error(player, "Not enough power.")
+                return false
+            elseif not parcel_faction then
                 send_error(player, "Your faction cannot claim any (more) parcel(s).")
                 return false
             elseif parcel_faction.name == faction.name then
