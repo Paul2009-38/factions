@@ -971,10 +971,10 @@ function(player)
 		if faction.no_parcel ~= -1 then
 			local now = os.time() - faction.no_parcel
 			local l = factions_config.maximum_parcelless_faction_time
-			minetest.chat_send_player(player:get_player_name(),"This faction will disband in "..l-now.." seconds, because it has no parcels.")
+			minetest.chat_send_player(name,"This faction will disband in "..l-now.." seconds, because it has no parcels.")
 		end
-		if faction:has_permission(player, "diplomacy") then
-			for _ in pairs(faction.request_inbox) do minetest.chat_send_player(player:get_player_name(),"You have diplomatic requests in the inbox.") break end
+		if faction:has_permission(name, "diplomacy") then
+			for _ in pairs(faction.request_inbox) do minetest.chat_send_player(name,"You have diplomatic requests in the inbox.") break end
 		end
     end
 end
