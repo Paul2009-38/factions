@@ -27,9 +27,17 @@ Maybe expand on diplomacy.
 
 Write the forum topic better.
 
-Add command to set the faction message of the day.
-
 Code clean up and optimization.
+
+Add short worded commands.
+
+Parcels should show up at a more accurate position just like in mc factions.
+
+Allow faction chest to become big when you place two chests by each other like in mc.
+
+mc style tnt.
+
+lag-free fire(if thats possible).
 
 # COMPLETED BUT NEEDS TESTING LIST
 
@@ -48,3 +56,5 @@ Make claim's depth not go to high or low. Or make it act like a protection block
 Add a show claim command (show small entity boxes like in protection mod).
 
 Remove banner code.
+
+Add command to set the faction message of the day.

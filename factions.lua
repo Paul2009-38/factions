@@ -80,6 +80,8 @@ function factions.Faction:new(faction)
         default_leader_rank = "leader",
         --! @brief faction's description string
         description = "Default faction description.",
+		--! @brief faction's message of the day.
+		message_of_the_day = "",
         --! @brief list of players currently invited (can join with /f join)
         invited_players = {},
         --! @brief table of claimed parcels (keys are parcelpos strings)
@@ -391,6 +393,11 @@ function factions.Faction.set_leader(self, player)
     self.leader = player
     self.players[player] = self.default_leader_rank
     self:on_new_leader()
+    factions.save()
+end
+
+function factions.Faction.set_message_of_the_day(self,text)
+    self.message_of_the_day = text
     factions.save()
 end
 
@@ -976,6 +983,9 @@ function(player)
 		end
 		if faction:has_permission(name, "diplomacy") then
 			for _ in pairs(faction.request_inbox) do minetest.chat_send_player(name,"You have diplomatic requests in the inbox.") break end
+		end
+		if faction.message_of_the_day ~= "" or faction.message_of_the_day ~= " " then
+		minetest.chat_send_player(name,faction.message_of_the_day)
 		end
     end
 end

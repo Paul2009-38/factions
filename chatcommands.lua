@@ -421,6 +421,21 @@ factions.register_command("rank_privileges", {
     end
 },false)
 
+factions.register_command("set_message_of_the_day", {
+    format = {"string"},
+    faction_permissions = {"playerslist"},
+    description = "Sets the message that shows up every time a faction member logs-in.",
+	global_privileges = {"faction_user"},
+    on_success = function(player, faction, pos, parcelpos, args)
+		local s = ""
+		for i,l in pairs(args.strings) do
+			s = s .. l .. " "
+		end
+        faction:set_message_of_the_day("Message of the day: " .. s)
+        return true
+    end
+},true)
+
 if factions_config.faction_diplomacy then
 	factions.register_command("send_alliance", {
 		description = "Send an alliance request to another faction.",
