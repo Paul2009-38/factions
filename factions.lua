@@ -377,7 +377,6 @@ function factions.Faction.disband(self, reason)
     self:on_disband(reason)
 	local playerslist = self.onlineplayers
 	for i,l in pairs(playerslist) do
-		local faction = factions.get_player_faction(i)
 		removeHud(i,"factionName")
 		removeHud(i,"powerWatch")
 	end

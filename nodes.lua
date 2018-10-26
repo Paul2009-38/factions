@@ -32,8 +32,27 @@ minetest.register_node("factions:chest", {
     description = "Faction chest",
     paramtype2 = "facedir",
     on_construct = function(pos)
-        minetest.get_meta(pos):get_inventory():set_size("main", 8*4)
+        	local meta = minetest.get_meta(pos)
+			meta:set_string("infotext", "Faction Chest")
+			meta:set_string("faction", "")
+			local inv = meta:get_inventory()
+			inv:set_size("main", 8*4)
     end,
+	after_place_node = function(pos, placer)
+			local meta = minetest.get_meta(pos)
+			local cf = factions.get_player_faction(placer:get_player_name())
+			if cf ~= nil then
+				meta:set_string("faction", cf.name or "")
+				meta:set_string("infotext", "Faction Chest (owned by faction " ..
+						meta:get_string("faction") .. ")")
+			end
+	end,
+	can_dig = function(pos,player)
+			local meta = minetest.get_meta(pos);
+			local inv = meta:get_inventory()
+			return inv:is_empty("main") and
+					default.can_interact_with_node(player, pos)
+	end,
     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
         if factions.can_use_chest(pos, player:get_player_name()) then
             return count
