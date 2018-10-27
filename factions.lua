@@ -529,6 +529,14 @@ function factions.Faction.delete_rank(self, rank, newrank)
     end
     self.ranks[rank] = nil
     self:on_delete_rank(rank, newrank)
+	if rank == self.default_leader_rank then
+		self.default_leader_rank = newrank
+		self:broadcast("The default leader rank has been set to "..newrank)
+	end
+	if rank == self.default_rank then
+		self.default_rank = newrank
+		self:broadcast("The default rank given to new players is set to "..newrank)
+	end
     factions.save()
 end
 
