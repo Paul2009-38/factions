@@ -51,7 +51,7 @@ minetest.register_node("factions:chest", {
 			local meta = minetest.get_meta(pos);
 			local inv = meta:get_inventory()
 			return inv:is_empty("main") and
-					default.can_interact_with_node(player, pos)
+					factions.can_use_chest(pos, player:get_player_name())
 	end,
     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
         if factions.can_use_chest(pos, player:get_player_name()) then

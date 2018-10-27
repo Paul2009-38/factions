@@ -33,8 +33,6 @@ Add short worded commands.
 
 Parcels should show up at a more accurate position just like in mc factions.
 
-Allow faction chest to become big when you place two chests by each other like in mc.
-
 Add-on mod mc style tnt.
 
 Add-on mod lag-free fire(if thats possible).
