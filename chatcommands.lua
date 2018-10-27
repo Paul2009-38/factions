@@ -172,17 +172,17 @@ factions.register_command ("claim", {
             return true
         else
             local parcel_faction = factions.get_parcel_faction(parcelpos)
-			if faction.power <= factions_config.power_per_parcel then
-			    send_error(player, "Not enough power.")
+			if parcel_faction and parcel_faction.name == faction.name then
+			    send_error(player, "This parcel already belongs to your faction.")
                 return false
-            elseif not parcel_faction then
-                send_error(player, "Your faction cannot claim any (more) parcel(s).")
+            elseif parcel_faction and parcel_faction.name ~= faction.name then
+                send_error(player, "This parcel belongs to another faction.")
                 return false
-            elseif parcel_faction.name == faction.name then
-                send_error(player, "This parcel already belongs to your faction.")
+            elseif faction.power <= factions_config.power_per_parcel then
+                send_error(player, "Not enough power.")
                 return false
             else
-                send_error(player, "This parcel belongs to another faction.")
+                send_error(player, "Your faction cannot claim any (more) parcel(s).")
                 return false
             end
         end
