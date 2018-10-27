@@ -73,18 +73,15 @@ function removeHud(player,hudname)
 end
 
 function hudUpdateClaimInfo()
-	minetest.after(3, 
-	function()
-		local playerslist = minetest.get_connected_players()
-		for i in pairs(playerslist) do
-			local player = playerslist[i]
-			local name = player:get_player_name()
-			local faction = factions.get_faction_at(player:getpos())
-			local id_name = name .. "factionLand"
-			if hud_ids[id_name] then
-				player:hud_change(hud_ids[id_name],"text",(faction and faction.name) or "Wilderness")
-			end
+	local playerslist = minetest.get_connected_players()
+	for i in pairs(playerslist) do
+		local player = playerslist[i]
+		local name = player:get_player_name()
+		local faction = factions.get_faction_at(player:getpos())
+		local id_name = name .. "factionLand"
+		if hud_ids[id_name] then
+			player:hud_change(hud_ids[id_name],"text",(faction and faction.name) or "Wilderness")
 		end
-		hudUpdateClaimInfo()
-	end)
+	end
+	minetest.after(3,hudUpdateClaimInfo)
 end

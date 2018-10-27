@@ -1003,12 +1003,9 @@ end
 
 minetest.register_on_leaveplayer(
 	function(player)
-		removeHud(player,"factionLand")
 		local name = player:get_player_name()
 		local faction = factions.get_player_faction(name)
 		if faction then
-			removeHud(player,"factionName")
-			removeHud(player,"powerWatch")
 			faction.offlineplayers[name] = 1
 			faction.onlineplayers[name] = nil
 		end
@@ -1060,12 +1057,9 @@ minetest.is_protected = function(pos, player)
 end
 
 function factionUpdate()
-	minetest.after(factions_config.tick_time, 
-	function()
-		factions.faction_tick()
-		factionUpdate()
-	end)
+	factions.faction_tick()
+	minetest.after(factions_config.tick_time,factionUpdate)
 end
 
-hudUpdateClaimInfo()
-factionUpdate()
+minetest.after(1,hudUpdateClaimInfo)
+minetest.after(1,factionUpdate)
