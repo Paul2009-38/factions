@@ -975,13 +975,36 @@ factions.register_command("setleader", {
     end
 },false)
 
-factions.register_command("setadmin", {
+factions.register_command("set_admin", {
     description = "Make a faction an admin faction",
     infaction = false,
     global_privileges = {"faction_admin"},
     format = {"faction"},
     on_success = function(player, faction, pos, parcelpos, args)
+		if not args.factions[1].is_admin then
+			minetest.chat_send_player(player,"faction " .. args.factions[1].name .. " is now an admin faction it can not be disband.")
+		else
+			minetest.chat_send_player(player,"faction " .. args.factions[1].name .. " is already an admin faction.")
+		end
+        args.factions[1].is_admin = true
+		factions.save()
+        return true
+    end
+},false)
+
+factions.register_command("remove_admin", {
+    description = "Make a faction not an admin faction",
+    infaction = false,
+    global_privileges = {"faction_admin"},
+    format = {"faction"},
+    on_success = function(player, faction, pos, parcelpos, args)
+		if args.factions[1].is_admin then
+			minetest.chat_send_player(player,"faction " .. args.factions[1].name .. " is not an admin faction any more.")
+		else
+			minetest.chat_send_player(player,"faction " .. args.factions[1].name .. " is not an admin faction to begin with.")
+		end
         args.factions[1].is_admin = false
+		factions.save()
         return true
     end
 },false)

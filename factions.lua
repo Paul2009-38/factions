@@ -356,33 +356,35 @@ end
 
 --! @brief disband faction, updates global players and parcels table
 function factions.Faction.disband(self, reason)
-	for i,v in pairs(factions.factions) do
-		if v.name ~= self.name then
-			if v.enemies[self.name] then
-				v:end_enemy(self.name)
-			end
-			if v.allies[self.name] then
-				v:end_alliance(self.name)
-			end
-			if v.neutral[self.name] then
-				v:end_neutral(self.name)
+	if not self.is_admin then
+		for i,v in pairs(factions.factions) do
+			if v.name ~= self.name then
+				if v.enemies[self.name] then
+					v:end_enemy(self.name)
+				end
+				if v.allies[self.name] then
+					v:end_alliance(self.name)
+				end
+				if v.neutral[self.name] then
+					v:end_neutral(self.name)
+				end
 			end
 		end
+		for k, _ in pairs(self.players) do -- remove players affiliation
+			factions.players[k] = nil
+		end
+		for k, v in pairs(self.land) do -- remove parcel claims
+			factions.parcels[k] = nil
+		end
+		self:on_disband(reason)
+		local playerslist = self.onlineplayers
+		for i,l in pairs(playerslist) do
+			removeHud(i,"factionName")
+			removeHud(i,"powerWatch")
+		end
+		factions.factions[self.name] = nil
+		factions.save()
 	end
-    for k, _ in pairs(self.players) do -- remove players affiliation
-        factions.players[k] = nil
-    end
-    for k, v in pairs(self.land) do -- remove parcel claims
-        factions.parcels[k] = nil
-    end
-    self:on_disband(reason)
-	local playerslist = self.onlineplayers
-	for i,l in pairs(playerslist) do
-		removeHud(i,"factionName")
-		removeHud(i,"powerWatch")
-	end
-	factions.factions[self.name] = nil
-    factions.save()
 end
 
 --! @brief change the faction leader
