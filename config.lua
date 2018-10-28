@@ -21,6 +21,7 @@ factions_config.enable_power_per_player = minetest.settings:get_bool("power_per_
 factions_config.attack_parcel = minetest.settings:get_bool("attack_parcel") or false
 factions_config.faction_diplomacy = minetest.settings:get_bool("faction_diplomacy") or true
 factions_config.protection_style = minetest.settings:get("protection_style") or "2d"
+factions_config.faction_user_priv = minetest.settings:get("faction_user_priv") or false
 --[[
 factions_config.protection_max_depth = -512
 factions_config.protection_max_height = 10000
@@ -43,4 +44,5 @@ factions_config.enable_power_per_player = true
 factions_config.attack_parcel = false
 factions_config.faction_diplomacy = true
 factions_config.protection_style = "2d"
+factions_config.faction_user_priv = false
 --]]

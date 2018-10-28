@@ -43,6 +43,8 @@ factions_config.attack_parcel (Enable attack parcel) bool false
 faction_diplomacy (Enable faction diplomacy) bool true
 # Enable or disabled the max depth and height limit for a parcel
 protection_depth_height_limit (Enable protection depth height limit) bool true
+# Enable or disabled the need for faction_user priv
+faction_user_priv (Enable faction user priv) bool false
 
 [StringSettings]
 # Set the way that the parcel protection works (2d,3d).
