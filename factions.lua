@@ -1005,7 +1005,19 @@ minetest.register_on_leaveplayer(
 	function(player)
 		local name = player:get_player_name()
 		local faction = factions.get_player_faction(name)
+		local id_name1 = name .. "factionLand"
+		if hud_ids[id_name1] then
+			hud_ids[id_name1] = nil
+		end
 		if faction then
+			local id_name2 = name .. "factionName"
+			local id_name3 = name .. "powerWatch"
+			if hud_ids[id_name2] then
+				hud_ids[id_name2] = nil
+			end
+			if hud_ids[id_name3] then
+				hud_ids[id_name3] = nil
+			end
 			faction.offlineplayers[name] = 1
 			faction.onlineplayers[name] = nil
 		end

@@ -2,15 +2,18 @@ hud_ids = {}
 
 function createHudfactionLand(player)
 	local name = player:get_player_name()
-	hud_ids[name .. "factionLand"] = player:hud_add({
-		hud_elem_type = "text",
-		name = "factionLand",
-		number = 0xFFFFFF,
-		position = {x=0.1, y = .98},
-		text = "Wilderness",
-		scale = {x=1, y=1},
-		alignment = {x=0, y=0},
-	})
+	local id_name = name .. "factionLand"
+	if not hud_ids[id_name] then
+		hud_ids[id_name] = player:hud_add({
+			hud_elem_type = "text",
+			name = "factionLand",
+			number = 0xFFFFFF,
+			position = {x=0.1, y = .98},
+			text = "Wilderness",
+			scale = {x=1, y=1},
+			alignment = {x=0, y=0},
+		})
+	end
 end
 
 function createHudFactionName(player,factionname)
