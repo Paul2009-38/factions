@@ -978,7 +978,7 @@ end
 minetest.register_on_joinplayer(
 function(player)
 	local name = player:get_player_name()
-	createHudfactionLand(player)
+	minetest.after(5,function(player)createHudfactionLand(player)end,player)
     local faction = factions.get_player_faction(name)
     if faction then
         faction.last_logon = os.time()
