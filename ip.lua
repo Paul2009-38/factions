@@ -24,5 +24,6 @@ function factions_ip.load()
         file:close()
 	else
         minetest.log("error","MOD factions: unable to load faction player ips!: " .. error)
+		factions_ip.save()
     end
 end
