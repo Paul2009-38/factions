@@ -840,8 +840,9 @@ function factions.load()
         local raw_data = file:read("*a")
 		local current_version = misc_mod_data.data.factions_version
 		misc_mod_data.load()
+		local old_version = misc_mod_data.data.factions_version 
         factions.factions = minetest.deserialize(raw_data)
-		if current_version ~= misc_mod_data.data.factions_version or factions.is_old_file(factions.factions) then
+		if current_version ~= old_version or factions.is_old_file(factions.factions) then
 			if factions.convert(filename) then
 				minetest.after(5, 
 				function()
@@ -887,6 +888,7 @@ function factions.load()
 			faction.onlineplayers = {}
         end
         file:close()
+		misc_mod_data.data.factions_version = current_version
 		misc_mod_data.save()
     end
 	factions_ip.load()
