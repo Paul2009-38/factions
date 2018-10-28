@@ -253,7 +253,7 @@ factions.register_command("list", {
 factions.register_command("version", {
     description = "Displays mod version.",
     on_success = function(player, faction, pos, parcelpos, args)
-        minetest.chat_send_player(player, "factions: version " .. factions_version , false)
+        minetest.chat_send_player(player, "factions: version " .. misc_mod_data.data.factions_version , false)
     end
 },false)
 

@@ -23,7 +23,6 @@ function factions_ip.load()
         factions_ip.player_ips = minetest.deserialize(raw_data)
         file:close()
 	else
-        minetest.log("error","MOD factions: unable to load faction player ips!: " .. error)
 		factions_ip.save()
     end
 end
