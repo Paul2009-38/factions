@@ -120,13 +120,14 @@ end
 local init_commands
 init_commands = function()
 	
-	minetest.register_privilege("faction_user",
-		{
-			description = "this user is allowed to interact with faction mod",
-			give_to_singleplayer = true,
-		}
-	)
-	
+	if factions_config.faction_user_priv then
+		minetest.register_privilege("faction_user",
+			{
+				description = "this user is allowed to interact with faction mod",
+				give_to_singleplayer = true,
+			}
+		)
+	end
 	
 	minetest.register_privilege("faction_admin",
 		{
@@ -1028,7 +1029,7 @@ factions.register_command("getspawn", {
 factions.register_command("whoin", {
     description = "Get all members of a faction.",
     infaction = false,
-    global_privileges = {"faction_admin"},
+    global_privileges = def_global_privileges,
     format = {"faction"},
     on_success = function(player, faction, pos, parcelpos, args)
         local msg = {}
@@ -1043,7 +1044,7 @@ factions.register_command("whoin", {
 factions.register_command("stats", {
     description = "Get stats of a faction.",
     infaction = false,
-    global_privileges = {"faction_admin"},
+    global_privileges = def_global_privileges,
     format = {"faction"},
     on_success = function(player, faction, pos, parcelpos, args)
         local f = args.factions[1]
@@ -1055,7 +1056,7 @@ factions.register_command("stats", {
 factions.register_command("seen", {
     description = "Check the last time a faction had a member logged in",
     infaction = false,
-    global_privileges = {"faction_admin"},
+    global_privileges = def_global_privileges,
     format = {"faction"},
     on_success = function(player, faction, pos, parcelpos, args)
         local lastseen = args.factions[1].last_logon
