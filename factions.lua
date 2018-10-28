@@ -978,12 +978,12 @@ end
 minetest.register_on_joinplayer(
 function(player)
 	local name = player:get_player_name()
-	minetest.after(5,function(player)createHudfactionLand(player)end,player)
+	minetest.after(5,createHudfactionLand,player)
     local faction = factions.get_player_faction(name)
     if faction then
         faction.last_logon = os.time()
-		createHudFactionName(player,faction.name)
-		createHudPower(player,faction)
+		minetest.after(5,createHudFactionName,player,faction.name)
+		minetest.after(5,createHudPower,player,faction)
 		faction.offlineplayers[name] = nil
 		faction.onlineplayers[name] = 1
 		if faction.no_parcel ~= -1 then

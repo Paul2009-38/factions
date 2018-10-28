@@ -1,52 +1,58 @@
 hud_ids = {}
 
 function createHudfactionLand(player)
-	local name = player:get_player_name()
-	local id_name = name .. "factionLand"
-	if not hud_ids[id_name] then
-		hud_ids[id_name] = player:hud_add({
-			hud_elem_type = "text",
-			name = "factionLand",
-			number = 0xFFFFFF,
-			position = {x=0.1, y = .98},
-			text = "Wilderness",
-			scale = {x=1, y=1},
-			alignment = {x=0, y=0},
-		})
+	if player then
+		local name = player:get_player_name()
+		local id_name = name .. "factionLand"
+		if not hud_ids[id_name] then
+			hud_ids[id_name] = player:hud_add({
+				hud_elem_type = "text",
+				name = "factionLand",
+				number = 0xFFFFFF,
+				position = {x=0.1, y = .98},
+				text = "Wilderness",
+				scale = {x=1, y=1},
+				alignment = {x=0, y=0},
+			})
+		end
 	end
 end
 
 function createHudFactionName(player,factionname)
-	local name = player:get_player_name()
-	local id_name = name .. "factionName"
-	if not hud_ids[id_name] then
-		hud_ids[id_name] = player:hud_add({
-			hud_elem_type = "text",
-			name = "factionName",
-			number = 0xFFFFFF,
-			position = {x=1, y = 0},
-			text = "Faction "..factionname,
-			scale = {x=1, y=1},
-			alignment = {x=-1, y=0},
-			offset = {x = -20, y = 20}
-		})
+	if player and factionname then
+		local name = player:get_player_name()
+		local id_name = name .. "factionName"
+		if not hud_ids[id_name] then
+			hud_ids[id_name] = player:hud_add({
+				hud_elem_type = "text",
+				name = "factionName",
+				number = 0xFFFFFF,
+				position = {x=1, y = 0},
+				text = "Faction "..factionname,
+				scale = {x=1, y=1},
+				alignment = {x=-1, y=0},
+				offset = {x = -20, y = 20}
+			})
+		end
 	end
 end
 
 function createHudPower(player,faction)
-	local name = player:get_player_name()
-	local id_name = name .. "powerWatch"
-	if not hud_ids[id_name] then
-		hud_ids[id_name] = player:hud_add({
-			hud_elem_type = "text",
-			name = "powerWatch",
-			number = 0xFFFFFF,
-			position = {x=0.9, y = .98},
-			text = "Power "..faction.power.."/".. faction.usedpower .."/"..faction.maxpower,
-			scale = {x=1, y=1},
-			alignment = {x=-1, y=0},
-			offset = {x = 0, y = 0}
-		})
+	if player and faction then
+		local name = player:get_player_name()
+		local id_name = name .. "powerWatch"
+		if not hud_ids[id_name] then
+			hud_ids[id_name] = player:hud_add({
+				hud_elem_type = "text",
+				name = "powerWatch",
+				number = 0xFFFFFF,
+				position = {x=0.9, y = .98},
+				text = "Power "..faction.power.."/".. faction.usedpower .."/"..faction.maxpower,
+				scale = {x=1, y=1},
+				alignment = {x=-1, y=0},
+				offset = {x = 0, y = 0}
+			})
+		end
 	end
 end
 
