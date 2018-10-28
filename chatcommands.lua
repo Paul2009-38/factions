@@ -375,14 +375,15 @@ factions.register_command("open", {
 },false)
 
 factions.register_command("description", {
+	format = {"string"},
     faction_permissions = {"description"},
     description = "Set your faction's description",
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
-        faction:set_description(table.concat(args.other," "))
+        faction:set_description(table.concat(args.strings," "))
         return true
     end
-},false)
+},true)
 
 factions.register_command("invite", {
     format = {"player"},
