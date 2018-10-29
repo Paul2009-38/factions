@@ -1,5 +1,5 @@
 misc_mod_data = {}
-misc_mod_data.data = {factions_version = "0.8.1"}
+misc_mod_data.data = {factions_version = "0.8.1",config = factions_config}
 
 --read some basic information
 local factions_worldid = minetest.get_worldpath()
