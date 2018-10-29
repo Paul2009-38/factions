@@ -127,8 +127,7 @@ end
 function factions.start_diplomacy(name,faction)
 	for i in pairs(factions.factions) do
 		if i ~= name and not (faction.neutral[i] or faction.allies[i] or faction.enemies[i]) then
-			faction:new_enemy(factions.factions[i].name)
-			factions.factions[i]:new_enemy(faction.name)
+			faction:new_enemy(i)
 		end
 	end
 end
@@ -841,55 +840,70 @@ function factions.load()
 		local current_version = misc_mod_data.data.factions_version
 		misc_mod_data.load()
 		local old_version = misc_mod_data.data.factions_version 
-        factions.factions = minetest.deserialize(raw_data)
-		if current_version ~= old_version or factions.is_old_file(factions.factions) then
-			if factions.convert(filename) then
-				minetest.after(5, 
-				function()
-					minetest.chat_send_all("Factions successfully converted.")
-				end)
-				factions.save()
+        local tabledata = minetest.deserialize(raw_data)
+		file:close()
+		if tabledata then
+			factions.factions = tabledata
+			if current_version ~= old_version or factions.is_old_file(tabledata) then
+				if factions.convert(filename) then
+					minetest.after(5, 
+					function()
+						minetest.chat_send_all("Factions successfully converted.")
+					end)
+				end
 			end
+			for facname, faction in pairs(factions.factions) do
+				minetest.log("action", facname..","..faction.name)
+				for player, rank in pairs(faction.players) do
+					minetest.log("action", player..","..rank)
+					factions.players[player] = facname
+				end
+				for parcelpos, val in pairs(faction.land) do
+					factions.parcels[parcelpos] = facname
+				end
+				setmetatable(faction, factions.Faction)
+				if not faction.maxpower or faction.maxpower <= 0. then
+					faction.maxpower = faction.power
+					if faction.power < 0. then
+						faction.maxpower = 0.
+					end
+				end
+				if not faction.attacked_parcels then
+					faction.attacked_parcels = {}
+				end
+				if not faction.usedpower then
+					faction.usedpower = faction:count_land() * factions_config.power_per_parcel
+				end
+				if #faction.name > factions_config.faction_name_max_length then
+					faction:disband()
+				end
+				if not faction.last_logon then
+					faction.last_logon = os.time()
+				end
+				if faction.no_parcel ~= -1 then
+					faction.no_parcel = os.time()
+				end
+				if faction:count_land() > 0 then
+					faction.no_parcel = -1
+				end
+				if faction.onlineplayers and faction.offlineplayers then
+					for i, _ in pairs(faction.onlineplayers) do
+						faction.offlineplayers[i] = _
+					end
+				else
+					faction.offlineplayers = {}
+				end
+				faction.onlineplayers = {}
+			end
+			misc_mod_data.data.factions_version = current_version
+			misc_mod_data.save()
+			factions.save()
+		else
+			minetest.after(5, 
+			function()
+				minetest.chat_send_all("Failed to deserialize saved file.")
+			end)
 		end
-        for facname, faction in pairs(factions.factions) do
-            minetest.log("action", facname..","..faction.name)
-            for player, rank in pairs(faction.players) do
-                minetest.log("action", player..","..rank)
-                factions.players[player] = facname
-            end
-            for parcelpos, val in pairs(faction.land) do
-                factions.parcels[parcelpos] = facname
-            end
-            setmetatable(faction, factions.Faction)
-            if not faction.maxpower or faction.maxpower <= 0. then
-                faction.maxpower = faction.power
-                if faction.power < 0. then
-                    faction.maxpower = 0.
-                end
-            end
-            if not faction.attacked_parcels then
-                faction.attacked_parcels = {}
-            end
-            if not faction.usedpower then
-                faction.usedpower = faction:count_land() * factions_config.power_per_parcel
-            end
-            if #faction.name > factions_config.faction_name_max_length then
-                faction:disband()
-            end
-            if not faction.last_logon then
-                faction.last_logon = os.time()
-            end
-			if faction.no_parcel ~= -1 then
-				faction.no_parcel = os.time()
-			end
-			for i, _ in pairs(faction.onlineplayers) do
-				faction.offlineplayers[i] = _
-			end
-			faction.onlineplayers = {}
-        end
-        file:close()
-		misc_mod_data.data.factions_version = current_version
-		misc_mod_data.save()
     end
 	factions_ip.load()
 end
@@ -931,23 +945,40 @@ function factions.convert(filename)
         return false
     end
     local raw_data = file:read("*a")
+	file:close()
     local data = minetest.deserialize(raw_data)
     for facname,faction in pairs(data) do
-        local newfac = factions.new_faction(facname)
+        local newfac = factions.new_faction(facname,true)
 		for oi, ol in pairs(faction) do
 			if newfac[oi] then
 				newfac[oi] = ol
 			end
 		end
-		for player, unused in pairs(newfac.players) do
-			factions.players[player] = newfac.name
+		if faction.players then
+			newfac.players = faction.players
 		end
-		for land, unused in pairs(newfac.land) do
-			factions.parcels[land] = newfac.name
+		if faction.land then
+		newfac.land =  faction.land
+		end
+		if faction.ranks then
+		newfac.ranks = faction.ranks
 		end
 		factions.start_diplomacy(facname,newfac)
 		newfac:check_power()
     end
+	-- Create runtime data.
+	for facname,faction in pairs(factions.factions) do
+		if faction.players then
+			for player, unused in pairs(faction.players) do
+				factions.players[player] = faction.name
+			end
+		end
+		if faction.land then
+			for l, unused in pairs(faction.land) do
+				factions.parcels[l] = facname
+			end
+		end
+	end
     return true
 end
 
@@ -1001,7 +1032,7 @@ function(player)
 		if faction:has_permission(name, "diplomacy") then
 			for _ in pairs(faction.request_inbox) do minetest.chat_send_player(name,"You have diplomatic requests in the inbox.") break end
 		end
-		if faction.message_of_the_day ~= "" or faction.message_of_the_day ~= " " then
+		if faction.message_of_the_day and (faction.message_of_the_day ~= "" or faction.message_of_the_day ~= " ") then
 		minetest.chat_send_player(name,faction.message_of_the_day)
 		end
     end
