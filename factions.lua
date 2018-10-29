@@ -1110,6 +1110,3 @@ function factionUpdate()
 	factions.faction_tick()
 	minetest.after(factions_config.tick_time,factionUpdate)
 end
-
-minetest.after(1,hudUpdateClaimInfo)
-minetest.after(1,factionUpdate)

@@ -11,3 +11,6 @@ dofile (factions_modpath .. "/nodes.lua")
 
 factions.load()
 misc_mod_data.check_file()
+
+minetest.after(1,hudUpdateClaimInfo)
+minetest.after(1,factionUpdate)
