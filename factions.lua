@@ -100,6 +100,8 @@ function factions.Faction:new(faction)
         join_free = true,
         --! @brief gives certain privileges
         is_admin = false,
+		--! @brief if a player on the faction has a nil rank
+		rankless = false,
         --! @brief last time anyone logged on
         last_logon = os.time(),
 		--! @brief how long this has been without parcels
