@@ -816,6 +816,23 @@ factions.register_command("delrank", {
     end
 },false)
 
+factions.register_command("change_def_rank", {
+    description = "Change the default rank given to new players and also replace rankless players in this faction.",
+    format = {"string"},
+    faction_permissions = {"ranks"},
+	global_privileges = def_global_privileges,
+    on_success = function(player, faction, pos, parcelpos, args)
+        local rank = args.strings[1]
+        if not faction.ranks[rank] then
+            send_error(player, "This rank does not exist.")
+            return false
+        end
+        faction:change_def_rank(rank)
+		faction.rankless = false
+        return true
+    end
+},false)
+
 factions.register_command("setspawn", {
     description = "Set the faction's spawn",
     faction_permissions = {"spawn"},

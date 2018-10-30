@@ -418,6 +418,8 @@ function factions.Faction.has_permission(self, player, permission)
 				return true
 			end
 		end
+	else
+		self.rankless = true
 	end
     return false
 end
@@ -520,6 +522,17 @@ end
 function factions.Faction.add_rank(self, rank, perms)
     self.ranks[rank] = perms
     self:on_add_rank(rank)
+    factions.save()
+end
+
+function factions.Faction.change_def_rank(self, rank)
+    for player, r in pairs(self.players) do
+        if r == rank or r == nil or not self.ranks[r] then
+            self.players[player] = rank
+        end
+    end
+	self.default_rank = rank
+	self:on_change_def_rank(rank, rank)
     factions.save()
 end
 
@@ -707,6 +720,10 @@ end
 
 function factions.Faction.on_delete_rank(self, rank, newrank)
     self:broadcast("The rank "..rank.." has been deleted and replaced by "..newrank)
+end
+
+function factions.Faction.on_change_def_rank(self, rank)
+    self:broadcast("The default rank given to new players has been changed to "..rank)
 end
 
 function factions.Faction.on_promote(self, member)
@@ -1033,6 +1050,11 @@ function(player)
 		end
 		if faction:has_permission(name, "diplomacy") then
 			for _ in pairs(faction.request_inbox) do minetest.chat_send_player(name,"You have diplomatic requests in the inbox.") break end
+		end
+		if faction:has_permission(name, "ranks") then
+			if faction.rankless then
+				minetest.chat_send_player(name,"You need to reset the default rank because there are rankless players in this faction. type /f change_def_rank")
+			end
 		end
 		if faction.message_of_the_day and (faction.message_of_the_day ~= "" or faction.message_of_the_day ~= " ") then
 		minetest.chat_send_player(name,faction.message_of_the_day)
