@@ -1,4 +1,6 @@
 factions_config = {}
+-- If you want to hardcode the config settings just delete settingstypes.txt, and the line up to END. And then uncomment the hardcoded settings below and change it to whatever you want.
+-- settingstypes
 local flip = tonumber(minetest.settings:get("protection_max_depth")) or 512
 factions_config.protection_max_depth = -flip
 factions_config.protection_max_height = tonumber(minetest.settings:get("protection_max_height")) or 10000
@@ -22,7 +24,9 @@ factions_config.attack_parcel = minetest.settings:get_bool("attack_parcel") or f
 factions_config.faction_diplomacy = minetest.settings:get_bool("faction_diplomacy") or true
 factions_config.protection_style = minetest.settings:get("protection_style") or "2d"
 factions_config.faction_user_priv = minetest.settings:get("faction_user_priv") or false
+-- END
 --[[
+-- hardcoded config settings
 factions_config.protection_max_depth = -512
 factions_config.protection_max_height = 10000
 factions_config.power_per_parcel = 1
