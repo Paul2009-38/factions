@@ -1308,9 +1308,15 @@ function(player)
 		if faction:has_permission(name, "accept_treaty") or faction:has_permission(name, "refuse_treaty") then
 			for _ in pairs(faction.request_inbox) do minetest.chat_send_player(name,"You have diplomatic requests in the inbox.") break end
 		end
-		if faction:has_permission(name, "ranks") then
-			if faction.rankless then
-				minetest.chat_send_player(name,"You need to reset the default rank because there are rankless players in this faction. reset all the ranks back to default using /f reset_ranks (You will lose all of your custom ranks) or use /f change_def_rank")
+		if faction.rankless then
+			local p1 = faction:has_permission(name, "reset_ranks")
+			local p2 = faction:has_permission(name, "set_def_ranks")
+			if p1 and p2 then
+				minetest.chat_send_player(name,"You need to reset the default rank because there are rankless players in this faction. reset all the ranks back to default using /f reset_ranks (You will lose all of your custom ranks) or use /f set_def_rank")
+			elseif p1 then
+				minetest.chat_send_player(name,"You need to reset the default rank because there are rankless players in this faction. reset all the ranks back to default using /f reset_ranks (You will lose all of your custom ranks)")
+			elseif p2 then
+				minetest.chat_send_player(name,"You need to reset the default rank because there are rankless players in this faction. reset all the ranks back to default using /f set_def_rank")
 			end
 		end
 		if faction.message_of_the_day and (faction.message_of_the_day ~= "" or faction.message_of_the_day ~= " ") then

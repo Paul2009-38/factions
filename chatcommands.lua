@@ -6,7 +6,7 @@ factions_chat = {}
 
 factions.commands = {}
 
-factions.register_command = function(cmd_name, cmd, ignore_param_count)
+factions.register_command = function(cmd_name, cmd, ignore_param_count,or_perm)
     factions.commands[cmd_name] = { -- default command
         name = cmd_name,
         faction_permissions = {},
@@ -92,15 +92,23 @@ factions.register_command = function(cmd_name, cmd, ignore_param_count)
                 minetest.chat_send_player(player, "This command is only available within a faction.")
                 return false
             end
+			local one_p = false
             if self.faction_permissions then
                 for i in ipairs(self.faction_permissions) do
 					local perm = self.faction_permissions[i]
-                    if not player_faction:has_permission(player, perm) then
+                    if not or_perm and not player_faction:has_permission(player, perm) then
                         send_error(player, "You do not have the faction permission "..perm)
                         return false
+					elseif or_perm and player_faction:has_permission(player, perm) then
+						one_p = true
+						break
                     end
                 end
             end
+			if or_perm and one_p == false then
+			    send_error(player, "You do not have any of faction permissions required.")
+                return false
+			end
 
             -- get some more data
             local pos = minetest.get_player_by_name(player):getpos()
@@ -180,6 +188,23 @@ if factions_config.faction_user_priv == true then
 	def_global_privileges = {"faction_user"}
 end
 
+factions.register_command ("set_name", {
+    faction_permissions = {"name"},
+	format = {"string"},
+    description = "Change the faction's name.",
+	global_privileges = def_global_privileges,
+    on_success = function(player, faction, pos, parcelpos, args)
+        local factionname = args.strings[1]
+        if factions.can_create_faction(factionname) then
+			faction:set_name(factionname)
+            return true
+        else
+            send_error(player, "Faction cannot be renamed.")
+            return false
+        end
+    end
+},false)
+
 factions.register_command ("claim", {
     faction_permissions = {"claim"},
     description = "Claim the plot of land you're on.",
@@ -205,23 +230,6 @@ factions.register_command ("claim", {
                 send_error(player, "Your faction cannot claim any (more) parcel(s).")
                 return false
             end
-        end
-    end
-},false)
-
-factions.register_command ("set_name", {
-    faction_permissions = {"name"},
-	format = {"string"},
-    description = "Change the faction's name.",
-	global_privileges = def_global_privileges,
-    on_success = function(player, faction, pos, parcelpos, args)
-        local factionname = args.strings[1]
-        if factions.can_create_faction(factionname) then
-			faction:set_name(factionname)
-            return true
-        else
-            send_error(player, "Faction cannot be renamed.")
-            return false
         end
     end
 },false)
@@ -688,7 +696,7 @@ if factions_config.faction_diplomacy == true then
 				minetest.chat_send_player(player,"none:")
 			end
 		end
-	},false)
+	},false,true)
 	
 	factions.register_command("allies", {
 		description = "Shows the factions that are allied to you.",
