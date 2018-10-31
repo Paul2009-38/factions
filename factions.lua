@@ -982,6 +982,11 @@ function factions.convert(filename)
 		if faction.ranks then
 		newfac.ranks = faction.ranks
 		end
+		if faction.rankless then
+			newfac.rankless = faction.rankless
+		else
+			newfac.rankless = false
+		end
 		factions.start_diplomacy(facname,newfac)
 		newfac:check_power()
     end
