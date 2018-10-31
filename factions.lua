@@ -419,7 +419,10 @@ function factions.Faction.has_permission(self, player, permission)
 			end
 		end
 	else
-		self.rankless = true
+		if not self.rankless then
+			self.rankless = true
+			factions.save()
+		end
 	end
     return false
 end
