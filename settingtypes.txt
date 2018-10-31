@@ -25,7 +25,7 @@ maximum_parcelless_faction_time (Maximum parcelless faction time) int 10800
 # Power of a starting faction (needed for parcel claiming).
 power (Starting power) float 0
 # Maximum power of a starting faction.
-maxpower (Starting Maximum power) float 0
+maxpower (Starting Maximum power) float 12
 # How much power the players make.
 power_per_player (power-per-player) float 1
 # How much max power is created per new player.
@@ -43,6 +43,8 @@ factions_config.attack_parcel (Enable attack parcel) bool false
 faction_diplomacy (Enable faction diplomacy) bool true
 # Enable or disabled the max depth and height limit for a parcel
 protection_depth_height_limit (Enable protection depth height limit) bool true
+# Enable or disabled faction spawn teleport
+spawn_teleport (Enable spawn teleport) bool false
 # Enable or disabled the need for faction_user priv
 faction_user_priv (Enable faction user priv) bool false
 

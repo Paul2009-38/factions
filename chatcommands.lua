@@ -94,8 +94,9 @@ factions.register_command = function(cmd_name, cmd, ignore_param_count)
             end
             if self.faction_permissions then
                 for i in ipairs(self.faction_permissions) do
-                    if not player_faction:has_permission(player, self.faction_permissions[i]) then
-                        send_error(player, "You don't have permissions to do that.")
+					local perm = self.faction_permissions[i]
+                    if not player_faction:has_permission(player, perm) then
+                        send_error(player, "You do not have the faction permission "..perm)
                         return false
                     end
                 end
@@ -120,7 +121,7 @@ end
 local init_commands
 init_commands = function()
 	
-	if factions_config.faction_user_priv then
+	if factions_config.faction_user_priv == true then
 		minetest.register_privilege("faction_user",
 			{
 				description = "this user is allowed to interact with faction mod",
@@ -128,6 +129,7 @@ init_commands = function()
 			}
 		)
 	end
+	
 	
 	minetest.register_privilege("faction_admin",
 		{
@@ -137,19 +139,18 @@ init_commands = function()
 	)
 	
 	local def_privs = { interact=true}
-	if factions_config.faction_user_priv then
+	if factions_config.faction_user_priv == true then
 		def_privs.faction_user = true
 	end
 	
 	minetest.register_chatcommand("factions",
 		{
-			params = "<cmd> <parameter 1> .. <parameter n>",
-			description = "faction administration functions",
+			params = "<command> parameters",
+			description = "Factions commands. Type /factions help for available commands.",
 			privs = def_privs,
 			func = factions_chat.cmdhandler,
 		}
 	)
-	
 	
 	minetest.register_chatcommand("f",
 		{
@@ -168,7 +169,7 @@ end
 
 local def_global_privileges = nil
 
-if factions_config.faction_user_priv then
+if factions_config.faction_user_priv == true then
 	minetest.register_on_newplayer(function(player)
 		local name = player:get_player_name()
 		local privs = minetest.get_player_privs(name)
@@ -204,6 +205,23 @@ factions.register_command ("claim", {
                 send_error(player, "Your faction cannot claim any (more) parcel(s).")
                 return false
             end
+        end
+    end
+},false)
+
+factions.register_command ("set_name", {
+    faction_permissions = {"name"},
+	format = {"string"},
+    description = "Change the faction's name.",
+	global_privileges = def_global_privileges,
+    on_success = function(player, faction, pos, parcelpos, args)
+        local factionname = args.strings[1]
+        if factions.can_create_faction(factionname) then
+			faction:set_name(factionname)
+            return true
+        else
+            send_error(player, "Faction cannot be renamed.")
+            return false
         end
     end
 },false)
@@ -280,7 +298,7 @@ factions.register_command("leave", {
 },false)
 
 factions.register_command("kick", {
-    faction_permissions = {"playerslist"},
+    faction_permissions = {"kick"},
     format = {"player"},
     description = "Kick a player from your faction.",
 	global_privileges = def_global_privileges,
@@ -354,25 +372,45 @@ factions.register_command("disband", {
     end
 },false)
 
-factions.register_command("close", {
-    faction_permissions = {"playerslist"},
-    description = "Make your faction invite-only.",
+factions.register_command("flag", {
+    faction_permissions = {"flags"},
+    description = "Manage the faction's flags.",
 	global_privileges = def_global_privileges,
+	format = {"string"},
     on_success = function(player, faction, pos, parcelpos, args)
-        faction:toggle_join_free(false)
+		--"Make your faction invite-only."
+		--"Allow any player to join your faction."
+        --faction:toggle_join_free(false)
+		local flag_name = args.strings[1]
+		local bool = args.strings[2]
+		if (flag_name == "help" or flag_name == "flags") or not bool then
+			for i, k in pairs(factions.flags) do
+				minetest.chat_send_player(player, k..": ".. factions.flags_desc[i] .. "\n")
+			end
+			return true
+		end
+		if flag_name and bool then
+			local yes = false
+			if bool == "yes" then
+				yes = true
+			elseif bool == "no" then
+				yes = false
+			else
+				send_error(player, "Set the flags only to yes or no.")
+				return false
+			end
+			if flag_name == "open" then
+				faction:toggle_join_free(yes)
+			elseif flag_name == "monsters" then
+			elseif flag_name == "tax_kick" then
+			elseif flag_name == "animals" then
+			else
+				send_error(player, flag_name.." is not an flag.")
+			end
+		end
         return true
     end
-},false)
-
-factions.register_command("open", {
-    faction_permissions = {"playerslist"},
-    description = "Allow any player to join your faction.",
-	global_privileges = def_global_privileges,
-    on_success = function(player, faction, pos, parcelpos, args)
-        faction:toggle_join_free(true)
-        return true
-    end
-},false)
+},true)
 
 factions.register_command("description", {
 	format = {"string"},
@@ -387,7 +425,7 @@ factions.register_command("description", {
 
 factions.register_command("invite", {
     format = {"player"},
-    faction_permissions = {"playerslist"},
+    faction_permissions = {"invite"},
     description = "Invite a player to your faction.",
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
@@ -398,7 +436,7 @@ factions.register_command("invite", {
 
 factions.register_command("uninvite", {
     format = {"player"},
-    faction_permissions = {"playerslist"},
+    faction_permissions = {"invite"},
     description = "Revoke a player's invite.",
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
@@ -435,7 +473,7 @@ factions.register_command("rank_privileges", {
     on_success = function(player, faction, pos, parcelpos, args)
 		minetest.chat_send_player(player, "Privileges available:\n")
 		for i, k in pairs(factions.permissions) do
-            minetest.chat_send_player(player, k .. "\n")
+            minetest.chat_send_player(player, k .. ": " .. factions.permissions_desc[i] .. "\n")
         end
         return true
     end
@@ -443,7 +481,7 @@ factions.register_command("rank_privileges", {
 
 factions.register_command("set_message_of_the_day", {
     format = {"string"},
-    faction_permissions = {"playerslist"},
+    faction_permissions = {"motd"},
     description = "Sets the message that shows up every time a faction member logs-in.",
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
@@ -456,43 +494,40 @@ factions.register_command("set_message_of_the_day", {
     end
 },true)
 
-if factions_config.faction_diplomacy then
+if factions_config.faction_diplomacy == true then
 	factions.register_command("send_alliance", {
 		description = "Send an alliance request to another faction.",
 		global_privileges = def_global_privileges,
 		format = {"string"},
+		faction_permissions = {"alliance"},
 		on_success = function(player, faction, pos, parcelpos, args)
-			if faction:has_permission(player, "diplomacy") then
-				if factions.factions[args.strings[1]] then
-					if not factions.factions[args.strings[1]].request_inbox[faction.name] then
-						if faction.allies[args.strings[1]] then
-							send_error(player, "You are already allys.")
-							return false
-						end
-						if faction.enemies[args.strings[1]] then
-							send_error(player, "You need to be neutral in-order to send an alliance request.")
-							return false
-						end
-						if args.strings[1] == faction.name then
-							send_error(player, "You can not send an alliance to your own faction.")
-							return false
-						end
-						if faction.request_inbox[args.strings[1]] then
-							send_error(player, "Faction " .. args.strings[1] .. "has already sent a request to you.")
-							return false
-						end
-						factions.factions[args.strings[1]].request_inbox[faction.name] = "alliance"
-						factions.factions[args.strings[1]]:broadcast("An alliance request from faction " .. faction.name .. " has been sent to you.")
-						faction:broadcast("An alliance request was sent to faction " .. args.strings[1])
-						factions.save()
-					else
-						send_error(player, "You have already sent a request.")
+			if factions.factions[args.strings[1]] then
+				if not factions.factions[args.strings[1]].request_inbox[faction.name] then
+					if faction.allies[args.strings[1]] then
+						send_error(player, "You are already allys.")
+						return false
 					end
+					if faction.enemies[args.strings[1]] then
+						send_error(player, "You need to be neutral in-order to send an alliance request.")
+						return false
+					end
+					if args.strings[1] == faction.name then
+						send_error(player, "You can not send an alliance to your own faction.")
+						return false
+					end
+					if faction.request_inbox[args.strings[1]] then
+						send_error(player, "Faction " .. args.strings[1] .. "has already sent a request to you.")
+						return false
+					end
+					factions.factions[args.strings[1]].request_inbox[faction.name] = "alliance"
+					factions.factions[args.strings[1]]:broadcast("An alliance request from faction " .. faction.name .. " has been sent to you.")
+					faction:broadcast("An alliance request was sent to faction " .. args.strings[1])
+					factions.save()
 				else
-					send_error(player, args.strings[1] .. " is not a name of a faction.")
+					send_error(player, "You have already sent a request.")
 				end
 			else
-				send_error(player, "You do not have the diplomacy privilege.")
+				send_error(player, args.strings[1] .. " is not a name of a faction.")
 			end
 		end
 	},false)
@@ -501,38 +536,35 @@ if factions_config.faction_diplomacy then
 		description = "Send neutral to another faction.",
 		global_privileges = def_global_privileges,
 		format = {"string"},
+		faction_permissions = {"neutral"},
 		on_success = function(player, faction, pos, parcelpos, args)
-			if faction:has_permission(player, "diplomacy") then
-				if factions.factions[args.strings[1]] then
-					if not factions.factions[args.strings[1]].request_inbox[faction.name] then
-						if faction.allies[args.strings[1]] then
-							send_error(player, "You are allys.")
-							return false
-						end
-						if faction.neutral[args.strings[1]] then
-							send_error(player, "You are already neutral with this faction.")
-							return false
-						end
-						if args.strings[1] == faction.name then
-							send_error(player, "You can not send a neutral request to your own faction.")
-							return false
-						end
-						if faction.request_inbox[args.strings[1]] then
-							send_error(player, "Faction " .. args.strings[1] .. "has already sent a request to you.")
-							return false
-						end
-						factions.factions[args.strings[1]].request_inbox[faction.name] = "neutral"
-						factions.factions[args.strings[1]]:broadcast("A neutral request from faction " .. faction.name .. " has been sent to you.")
-						faction:broadcast("A neutral request was sent to faction " .. args.strings[1])
-						factions.save()
-					else
-						send_error(player, "You have already sent a request.")
+			if factions.factions[args.strings[1]] then
+				if not factions.factions[args.strings[1]].request_inbox[faction.name] then
+					if faction.allies[args.strings[1]] then
+						send_error(player, "You are allys.")
+						return false
 					end
+					if faction.neutral[args.strings[1]] then
+						send_error(player, "You are already neutral with this faction.")
+						return false
+					end
+					if args.strings[1] == faction.name then
+						send_error(player, "You can not send a neutral request to your own faction.")
+						return false
+					end
+					if faction.request_inbox[args.strings[1]] then
+						send_error(player, "Faction " .. args.strings[1] .. "has already sent a request to you.")
+						return false
+					end
+					factions.factions[args.strings[1]].request_inbox[faction.name] = "neutral"
+					factions.factions[args.strings[1]]:broadcast("A neutral request from faction " .. faction.name .. " has been sent to you.")
+					faction:broadcast("A neutral request was sent to faction " .. args.strings[1])
+					factions.save()
 				else
-					send_error(player, args.strings[1] .. " is not a name of a faction.")
+					send_error(player, "You have already sent a request.")
 				end
 			else
-				send_error(player, "You do not have the diplomacy privilege.")
+				send_error(player, args.strings[1] .. " is not a name of a faction.")
 			end
 		end
 	},false)
@@ -541,29 +573,26 @@ if factions_config.faction_diplomacy then
 		description = "accept an request from another faction.",
 		global_privileges = def_global_privileges,
 		format = {"string"},
+		faction_permissions = {"accept_treaty"},
 		on_success = function(player, faction, pos, parcelpos, args)
-			if faction:has_permission(player, "diplomacy") then
-				if faction.request_inbox[args.strings[1]] then
-					if args.strings[1] == faction.name then
-						send_error(player, "You can not accept an request from own faction.")
-						return false
-					end
-					if faction.request_inbox[args.strings[1]] == "alliance" then
-						faction:new_alliance(args.strings[1])
-						factions.factions[args.strings[1]]:new_alliance(faction.name)
-					else
-					if faction.request_inbox[args.strings[1]] == "neutral" then
-						faction:new_neutral(args.strings[1])
-						factions.factions[args.strings[1]]:new_neutral(faction.name)
-					end
-					end
-					faction.request_inbox[args.strings[1]] = nil
-					factions.save()
-				else
-					send_error(player, "No request was sent to you.")
+			if faction.request_inbox[args.strings[1]] then
+				if args.strings[1] == faction.name then
+					send_error(player, "You can not accept an request from own faction.")
+					return false
 				end
+				if faction.request_inbox[args.strings[1]] == "alliance" then
+					faction:new_alliance(args.strings[1])
+					factions.factions[args.strings[1]]:new_alliance(faction.name)
+				else
+				if faction.request_inbox[args.strings[1]] == "neutral" then
+					faction:new_neutral(args.strings[1])
+					factions.factions[args.strings[1]]:new_neutral(faction.name)
+				end
+				end
+				faction.request_inbox[args.strings[1]] = nil
+				factions.save()
 			else
-				send_error(player, "You do not have the diplomacy privilege.")
+				send_error(player, "No request was sent to you.")
 			end
 		end
 	},false)
@@ -572,22 +601,19 @@ if factions_config.faction_diplomacy then
 		description = "refuse an request from another faction.",
 		global_privileges = def_global_privileges,
 		format = {"string"},
+		faction_permissions = {"refuse_treaty"},
 		on_success = function(player, faction, pos, parcelpos, args)
-			if faction:has_permission(player, "diplomacy") then
-				if faction.request_inbox[args.strings[1]] then
-					if args.strings[1] == faction.name then
-						send_error(player, "You can not refuse an request from your own faction.")
-						return false
-					end
-					faction.request_inbox[args.strings[1]] = nil
-					factions.factions[args.strings[1]]:broadcast("Faction " .. faction.name .. " refuse to be your ally.")
-					faction:broadcast("Refused an request from faction " .. args.strings[1])
-					factions.save()
-				else
-					send_error(player, "No request was sent to you.")
+			if faction.request_inbox[args.strings[1]] then
+				if args.strings[1] == faction.name then
+					send_error(player, "You can not refuse an request from your own faction.")
+					return false
 				end
+				faction.request_inbox[args.strings[1]] = nil
+				factions.factions[args.strings[1]]:broadcast("Faction " .. faction.name .. " refuse to be your ally.")
+				faction:broadcast("Refused an request from faction " .. args.strings[1])
+				factions.save()
 			else
-				send_error(player, "You do not have the diplomacy privilege.")
+				send_error(player, "No request was sent to you.")
 			end
 		end
 	},false)
@@ -596,29 +622,26 @@ if factions_config.faction_diplomacy then
 		description = "Delcare war on a faction.",
 		global_privileges = def_global_privileges,
 		format = {"string"},
+		faction_permissions = {"declare_war"},
 		on_success = function(player, faction, pos, parcelpos, args)
-			if faction:has_permission(player, "diplomacy") then
-				if not faction.enemies[args.strings[1]] then
-					if args.strings[1] == faction.name then
-						send_error(player, "You can not delcare war on your own faction.")
-						return false
-					end
-					if faction.allies[args.strings[1]] then
-						faction:end_alliance(args.strings[1])
-						factions.factions[args.strings[1]]:end_alliance(faction.name)
-					end
-					if faction.neutral[args.strings[1]] then
-						faction:end_neutral(args.strings[1])
-						factions.factions[args.strings[1]]:end_neutral(faction.name)
-					end
-					faction:new_enemy(args.strings[1])
-					factions.factions[args.strings[1]]:new_enemy(faction.name)
-					factions.save()
-				else
-					send_error(player, "You are already at war.")
+			if not faction.enemies[args.strings[1]] then
+				if args.strings[1] == faction.name then
+					send_error(player, "You can not delcare war on your own faction.")
+					return false
 				end
+				if faction.allies[args.strings[1]] then
+					faction:end_alliance(args.strings[1])
+					factions.factions[args.strings[1]]:end_alliance(faction.name)
+				end
+				if faction.neutral[args.strings[1]] then
+					faction:end_neutral(args.strings[1])
+					factions.factions[args.strings[1]]:end_neutral(faction.name)
+				end
+				faction:new_enemy(args.strings[1])
+				factions.factions[args.strings[1]]:new_enemy(faction.name)
+				factions.save()
 			else
-				send_error(player, "You do not have the diplomacy privilege.")
+				send_error(player, "You are already at war.")
 			end
 		end
 	},false)
@@ -627,23 +650,20 @@ if factions_config.faction_diplomacy then
 		description = "Break an alliance.",
 		global_privileges = def_global_privileges,
 		format = {"string"},
+		faction_permissions = {"alliance"},
 		on_success = function(player, faction, pos, parcelpos, args)
-			if faction:has_permission(player, "diplomacy") then
-				if faction.allies[args.strings[1]] then
-					if args.strings[1] == faction.name then
-						send_error(player, "You can not break an alliance from your own faction.")
-						return false
-					end
-					faction:end_alliance(args.strings[1])
-					factions.factions[args.strings[1]]:end_alliance(faction.name)
-					faction:new_neutral(args.strings[1])
-					factions.factions[args.strings[1]]:new_neutral(faction.name)
-					factions.save()
-				else
-					send_error(player, "You where not allies to begin with.")
+			if faction.allies[args.strings[1]] then
+				if args.strings[1] == faction.name then
+					send_error(player, "You can not break an alliance from your own faction.")
+					return false
 				end
+				faction:end_alliance(args.strings[1])
+				factions.factions[args.strings[1]]:end_alliance(faction.name)
+				faction:new_neutral(args.strings[1])
+				factions.factions[args.strings[1]]:new_neutral(faction.name)
+				factions.save()
 			else
-				send_error(player, "You do not have the diplomacy privilege.")
+				send_error(player, "You where not allies to begin with.")
 			end
 		end
 	},false)
@@ -651,24 +671,21 @@ if factions_config.faction_diplomacy then
 	factions.register_command("inbox", {
 		description = "Check your diplomacy request inbox.",
 		global_privileges = def_global_privileges,
+		faction_permissions = {"accept_treaty","refuse_treaty","alliance","neutral","declare_war"},
 		on_success = function(player, faction, pos, parcelpos, args)
-			if faction:has_permission(player, "diplomacy") then
-				local empty = true
-				for i,k in pairs(faction.request_inbox) do
-					if k == "alliance" then
-						minetest.chat_send_player(player,"Alliance request from faction " .. i .. "\n")
-					else 
-					if k == "neutral" then
-						minetest.chat_send_player(player,"neutral request from faction " .. i .. "\n")
-					end
-					end
-					empty = false
+			local empty = true
+			for i,k in pairs(faction.request_inbox) do
+				if k == "alliance" then
+					minetest.chat_send_player(player,"Alliance request from faction " .. i .. "\n")
+				else 
+				if k == "neutral" then
+					minetest.chat_send_player(player,"neutral request from faction " .. i .. "\n")
 				end
-				if empty then
-					minetest.chat_send_player(player,"none:")
 				end
-			else
-				send_error(player, "You do not have the diplomacy privilege.")
+				empty = false
+			end
+			if empty then
+				minetest.chat_send_player(player,"none:")
 			end
 		end
 	},false)
@@ -737,7 +754,7 @@ factions.register_command("who", {
 
 local parcel_size_center = factions_config.parcel_size / 2
 
-factions.register_command("showparcel", {
+factions.register_command("show_parcel", {
     description = "Shows parcel for six seconds.",
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
@@ -755,10 +772,10 @@ factions.register_command("showparcel", {
     end
 },false)
 
-factions.register_command("newrank", {
+factions.register_command("new_rank", {
     description = "Add a new rank.",
     format = {"string"},
-    faction_permissions = {"ranks"},
+    faction_permissions = {"create_ranks"},
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
 		if args.strings[1] then
@@ -786,7 +803,7 @@ factions.register_command("newrank", {
 			if not success then
 				if args.strings[failindex] then
 					send_error(player, "Permission " .. args.strings[failindex] .. " is invalid.")
-					else
+				else
 					send_error(player, "No permission was given.")
 				end
 				return false
@@ -799,16 +816,169 @@ factions.register_command("newrank", {
     end
 },true)
 
-factions.register_command("delrank", {
+factions.register_command("replace_privs", {
+    description = "Deletes current permissions and replaces them with the ones given.",
+    format = {"string"},
+    faction_permissions = {"edit_ranks"},
+	global_privileges = def_global_privileges,
+    on_success = function(player, faction, pos, parcelpos, args)
+		if args.strings[1] then
+			local rank = args.strings[1]
+			if not faction.ranks[rank] then
+				send_error(player, "Rank does not exist")
+				return false
+			end
+			local success = false
+			local failindex = -1
+			for _, f in pairs(args.strings) do
+				if f then
+					for q, r in pairs(factions.permissions) do
+						if f == r then
+							success = true
+							break
+						end
+					end
+					if not success and _ ~= 1 then
+						failindex = _
+						break
+					end
+				end
+			end
+			if not success then
+				if args.strings[failindex] then
+					send_error(player, "Permission " .. args.strings[failindex] .. " is invalid.")
+				else
+					send_error(player, "No permission was given.")
+				end
+				return false
+			end
+			faction:replace_privs(rank, args.other)
+			return true
+		end
+		send_error(player, "No rank was given.")
+		return false
+    end
+},true)
+
+factions.register_command("remove_privs", {
+    description = "Remove permissions from a rank.",
+    format = {"string"},
+    faction_permissions = {"edit_ranks"},
+	global_privileges = def_global_privileges,
+    on_success = function(player, faction, pos, parcelpos, args)
+		if args.strings[1] then
+			local rank = args.strings[1]
+			if not faction.ranks[rank] then
+				send_error(player, "Rank does not exist")
+				return false
+			end
+			local success = false
+			local failindex = -1
+			for _, f in pairs(args.strings) do
+				if f then
+					for q, r in pairs(factions.permissions) do
+						if f == r then
+							success = true
+							break
+						end
+					end
+					if not success and _ ~= 1 then
+						failindex = _
+						break
+					end
+				end
+			end
+			if not success then
+				if args.strings[failindex] then
+					send_error(player, "Permission " .. args.strings[failindex] .. " is invalid.")
+				else
+					send_error(player, "No permission was given.")
+				end
+				return false
+			end
+			faction:remove_privs(rank, args.other)
+			return true
+		end
+		send_error(player, "No rank was given.")
+		return false
+    end
+},true)
+
+factions.register_command("add_privs", {
+    description = "add permissions to a rank.",
+    format = {"string"},
+    faction_permissions = {"edit_ranks"},
+	global_privileges = def_global_privileges,
+    on_success = function(player, faction, pos, parcelpos, args)
+		if args.strings[1] then
+			local rank = args.strings[1]
+			if not faction.ranks[rank] then
+				send_error(player, "Rank does not exist")
+				return false
+			end
+			local success = false
+			local failindex = -1
+			for _, f in pairs(args.strings) do
+				if f then
+					for q, r in pairs(factions.permissions) do
+						if f == r then
+							success = true
+							break
+						end
+					end
+					if not success and _ ~= 1 then
+						failindex = _
+						break
+					end
+				end
+			end
+			if not success then
+				if args.strings[failindex] then
+					send_error(player, "Permission " .. args.strings[failindex] .. " is invalid.")
+				else
+					send_error(player, "No permission was given.")
+				end
+				return false
+			end
+			faction:add_privs(rank, args.other)
+			return true
+		end
+		send_error(player, "No rank was given.")
+		return false
+    end
+},true)
+
+factions.register_command("set_rank_name", {
+    description = "Change the name of given rank.",
+    format = {"string","string"},
+    faction_permissions = {"edit_ranks"},
+	global_privileges = def_global_privileges,
+    on_success = function(player, faction, pos, parcelpos, args)
+        local rank = args.strings[1]
+        local newrank = args.strings[2]
+        if not faction.ranks[rank] then
+            send_error(player, "The rank does not exist.")
+            return false
+        end
+		if faction.ranks[newrank] then
+            send_error(player, "This rank name was already taken.")
+            return false
+        end
+        faction:set_rank_name(rank, newrank)
+        return true
+    end
+},falsw)
+
+factions.register_command("del_rank", {
     description = "Replace and delete a rank.",
     format = {"string", "string"},
-    faction_permissions = {"ranks"},
+    faction_permissions = {"delete_ranks"},
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         local rank = args.strings[1]
         local newrank = args.strings[2]
         if not faction.ranks[rank] or not faction.ranks[newrank] then
-            send_error(player, "One of the specified ranks do not exist.")
+            send_error(player, "One of the specified ranks does not exist.")
             return false
         end
         faction:delete_rank(rank, newrank)
@@ -816,10 +986,10 @@ factions.register_command("delrank", {
     end
 },false)
 
-factions.register_command("change_def_rank", {
+factions.register_command("set_def_rank", {
     description = "Change the default rank given to new players and also replace rankless players in this faction.",
     format = {"string"},
-    faction_permissions = {"ranks"},
+    faction_permissions = {"set_def_ranks"},
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         local rank = args.strings[1]
@@ -827,21 +997,60 @@ factions.register_command("change_def_rank", {
             send_error(player, "This rank does not exist.")
             return false
         end
-        faction:change_def_rank(rank)
-		faction.rankless = false
+        faction:set_def_rank(rank)
         return true
     end
 },false)
 
-factions.register_command("setspawn", {
+factions.register_command("reset_ranks", {
+    description = "Reset's all of the factions rankings back to the default ones.",
+    format = {},
+    faction_permissions = {"reset_ranks"},
+	global_privileges = def_global_privileges,
+    on_success = function(player, faction, pos, parcelpos, args)
+        faction:reset_ranks()
+        return true
+    end
+},false)
+
+factions.register_command("set_spawn", {
     description = "Set the faction's spawn",
-    faction_permissions = {"spawn"},
+    faction_permissions = {"set_spawn"},
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         faction:set_spawn(pos)
         return true
     end
 },false)
+
+factions.register_command("del_spawn", {
+    description = "Set the faction's spawn to zero",
+    faction_permissions = {"unset_spawn"},
+	global_privileges = def_global_privileges,
+    on_success = function(player, faction, pos, parcelpos, args)
+        faction:set_spawn({x=0,y=0,z=0})
+        return true
+    end
+},false)
+
+if factions_config.spawn_teleport == true then
+	factions.register_command("tp_spawn", {
+		description = "Teleport to the faction's spawn",
+		faction_permissions = {"spawn"},
+		global_privileges = def_global_privileges,
+		on_success = function(player, faction, pos, parcelpos, args)
+			if player then
+				minetest.chat_send_player(player, "Teleporting in five seconds.")
+				minetest.after(5, 
+					function(faction,player)
+						faction:tp_spawn(player)
+					end,faction,player)
+				return true
+			end
+			return false
+		end
+	},false)
+end
 
 factions.register_command("where", {
     description = "See whose parcel you stand on.",
@@ -865,7 +1074,7 @@ factions.register_command("help", {
     end
 },false)
 
-factions.register_command("spawn", {
+factions.register_command("get_spawn", {
     description = "Shows your faction's spawn",
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
@@ -974,7 +1183,7 @@ factions.register_command("which", {
     end
 },false)
 
-factions.register_command("setleader", {
+factions.register_command("set_leader", {
     description = "Set a player as a faction's leader",
     infaction = false,
     global_privileges = {"faction_admin"},
@@ -1026,7 +1235,7 @@ factions.register_command("remove_admin", {
     end
 },false)
 
-factions.register_command("resetpower", {
+factions.register_command("reset_power", {
     description = "Reset a faction's power",
     infaction = false,
     global_privileges = {"faction_admin"},
@@ -1050,7 +1259,7 @@ factions.register_command("obliterate", {
     end
 },false)
 
-factions.register_command("getspawn", {
+factions.register_command("get_factions_spawn", {
     description = "Get a faction's spawn",
     infaction = false,
     global_privileges = {"faction_admin"},

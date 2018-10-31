@@ -35,26 +35,95 @@ util = {
 
 factions.Faction.__index = factions.Faction
 
+starting_ranks = {["leader"] = {"build","door","container","name","description","motd","invite","kick"
+						,"title","set_spawn","unset_spawn","with_draw","territory","claim","access","disband","flags","create_ranks","edit_ranks","delete_ranks","set_def_ranks","reset_ranks","promote"},
+                 ["moderator"] = {"claim","door","build","set_spawn","invite","kick","promote"},
+                 ["member"] = {"build","container","door"}
+                }
+
 -- Faction permissions:
 --
--- disband: disband the faction
--- claim: (un)claim parcels
--- playerslist: invite/kick players and open/close the faction
 -- build: dig and place nodes
--- description: set the faction's description
--- ranks: create and delete ranks
--- spawn: set the faction's spawn
+-- pain_build: dig and place nodes but take damage doing so
+-- door: open/close or dig doors
+-- container: be able to use containers like chest
+-- name: set the faction's name
+-- description: Set the faction description
+-- motd: set the faction's message of the day
+-- invite: (un)invite players to join the faction
+-- kick: kick players off the faction
+-- title: set territory titles
+-- set_spawn: set the faction's spawn
+-- unset_spawn: delete the faction's spawn
+-- with_draw: withdraw money from the faction's bank
+-- spawn: be able to teleport to the faction's spawn
+-- territory: claim or unclaim territory
+-- claim: (un)claim parcels of land
+-- access: manage access to territory and parcels of land to players or factions
+-- disband: disband the faction
+-- flags: manage faction's flags
+-- create_ranks: create new ranks
+-- edit_ranks: edit rank name and permissions
+-- delete_ranks: delete ranks
+-- set_def_ranks: set the default rank given to new players
+-- reset_ranks: reset the ranks back to the default ones
 -- promote: set a player's rank
--- diplomacy: make war, or an alliance with other teams.
+-- declare_war: be able to declare war with another faction
+-- neutral: be able to send a neutral request to another faction
+-- alliance: be able to send a alliance request to another faction and break alliance treaties too
+-- accept_treaty: be able to accept a treaty request from another faction
+-- refuse_treaty: be able to refuse a treaty request from another faction
 
-factions.permissions = {"disband", "claim", "playerslist", "build", "description", "ranks", "spawn", "promote"}
+factions.permissions = {"build","pain_build","door","container","name","description","motd","invite","kick"
+						,"title","set_spawn","unset_spawn","with_draw","territory","claim","access","disband","flags","create_ranks","edit_ranks","delete_ranks","set_def_ranks","reset_ranks","promote"}
+factions.permissions_desc = {"dig and place nodes","dig and place nodes but take damage doing so","open/close or dig","be able to use containers like chest","set the faction's name"
+						,"Set the faction description","set the faction's message of the day","(un)invite players to join the faction","kick players off the faction","set territory titles","set the faction's spawn"
+						,"delete the faction's spawn","withdraw money from the faction's bank","claim or unclaim territory","(un)claim parcels of land","manage access to territory and parcels of land to players or factions"
+						,"disband the faction","manage faction's flags","create new ranks","edit rank permissions","delete ranks","set the default rank given to new players","reset the ranks back to the default ones","set a player's rank"}
+						
+-- open: can the faction be joined without an invite?
+-- monsters: can monsters spawn on your land?
+-- tax_kick: will players be kicked for not paying tax?
+-- animals: can animals spawn on your land?
+factions.flags = {"open","monsters","tax_kick","animals"}
+factions.flags_desc = {"can the faction be joined without an invite?","can monsters spawn on your land?(unused)","will players be kicked for not paying tax?(unused)","can animals spawn on your land?(unused)"}
 
-if factions_config.faction_diplomacy then
-	table.insert(factions.permissions,"diplomacy")
+if factions_config.faction_diplomacy == true then
+	table.insert(factions.permissions,"declare_war")
+	table.insert(factions.permissions,"neutral")
+	table.insert(factions.permissions,"alliance")
+	table.insert(factions.permissions,"accept_treaty")
+	table.insert(factions.permissions,"refuse_treaty")
+	
+	table.insert(factions.permissions_desc,"be able to declare war with another faction")
+	table.insert(factions.permissions_desc,"be able to send a neutral request to another faction")
+	table.insert(factions.permissions_desc,"be able to send a alliance request to another faction and break alliance treaties too")
+	table.insert(factions.permissions_desc,"be able to accept a treaty request from another faction")
+	table.insert(factions.permissions_desc,"be able to refuse a treaty request from another faction")
+	
+	local lt = starting_ranks["leader"]
+	table.insert(lt,"declare_war")
+	table.insert(lt,"neutral")
+	table.insert(lt,"alliance")
+	table.insert(lt,"accept_treaty")
+	table.insert(lt,"refuse_treaty")
+	starting_ranks["leader"] = lt
+end
+
+if factions_config.spawn_teleport == true then
+	table.insert(factions.permissions,"spawn")
+	
+	table.insert(factions.permissions_desc,"be able to teleport to the faction's spawn")
+	
+	table.insert(starting_ranks["leader"],"spawn")
+	table.insert(starting_ranks["moderator"],"spawn")
+	table.insert(starting_ranks["member"],"spawn")
+	
 end
 
 function factions.Faction:new(faction) 
     faction = {
+		name = "",
         --! @brief power of a faction (needed for parcel claiming)
         power = factions_config.power,
         --! @brief maximum power of a faction
@@ -68,12 +137,11 @@ function factions.Faction:new(faction)
 		--! @brief list of player names offline
 		offlineplayers = {},
         --! @brief table of ranks/permissions
-        ranks = {["leader"] = factions.permissions,
-                 ["moderator"] = {"claim", "playerslist", "build", "spawn"},
-                 ["member"] = {"build"}
-                },
+        ranks = starting_ranks,
         --! @brief name of the leader
         leader = nil,
+		--! @brief spawn of the faction
+		spawn = {x=0, y=0, z=0},
         --! @brief default joining rank for new members
         default_rank = "member",
         --! @brief default rank assigned to the leader
@@ -97,7 +165,7 @@ function factions.Faction:new(faction)
         --! @brief table of parcels/factions that are under attack
         attacked_parcels = {},
         --! @brief whether faction is closed or open (boolean)
-        join_free = true,
+        join_free = false,
         --! @brief gives certain privileges
         is_admin = false,
 		--! @brief if a player on the faction has a nil rank
@@ -113,7 +181,7 @@ end
 
 
 --! @brief create a new empty faction
-function factions.new_faction(name)
+function factions.new_faction(name,do_not_save)
     local faction = factions.Faction:new(nil)
     faction.name = name
     factions.factions[name] = faction
@@ -122,16 +190,55 @@ function factions.new_faction(name)
 	function(f)
 		f:on_no_parcel()
 	end,faction)
-    factions.save()
+	if not do_not_save then
+		factions.save()
+	end
     return faction
 end
 
 function factions.start_diplomacy(name,faction)
-	for i in pairs(factions.factions) do
+	for i,fac in pairs(factions.factions) do
 		if i ~= name and not (faction.neutral[i] or faction.allies[i] or faction.enemies[i]) then
 			faction:new_enemy(i)
+			fac:new_enemy(name)
 		end
 	end
+end
+
+function factions.Faction.set_name(self, name)
+	local oldname = self.name
+	local oldfaction = factions.factions[oldname]
+	self.name = name
+	for i,fac in pairs(factions.factions) do
+		if i ~= oldname then
+			if fac.neutral[oldname] then
+				fac.neutral[oldname] = nil
+				fac.neutral[name] = true
+			end
+			if fac.allies[oldname] then
+				fac.allies[oldname] = nil
+				fac.allies[name] = true
+			end
+			if fac.enemies[oldname] then
+				fac.enemies[oldname] = nil
+				fac.enemies[name] = true
+			end
+		end
+	end
+	for parcel in pairs(self.land) do
+	factions.parcels[parcel] = self.name
+	end
+	for playername in pairs(self.players) do
+	factions.players[playername] = self.name
+	end
+	factions.factions[oldname] = nil
+	factions.factions[name] = oldfaction
+	factions.factions[name].name = name
+	for playername in pairs(self.onlineplayers) do
+		updateFactionName(playername,name)
+	end
+	self:on_set_name(oldname)
+	factions.save()
 end
 
 function factions.Faction.increase_power(self, power)
@@ -236,7 +343,6 @@ function factions.Faction.add_player(self, player, rank)
 		end
 		if notsame then
 			self:increase_maxpower(factions_config.powermax_per_player)
-			--self:increase_power(factions_config.power_per_player)
 		end
 	end
 	local pdata = minetest.get_player_by_name(player)
@@ -378,8 +484,7 @@ function factions.Faction.disband(self, reason)
 			factions.parcels[k] = nil
 		end
 		self:on_disband(reason)
-		local playerslist = self.onlineplayers
-		for i,l in pairs(playerslist) do
+		for i,l in pairs(self.onlineplayers) do
 			removeHud(i,"factionName")
 			removeHud(i,"powerWatch")
 		end
@@ -519,6 +624,13 @@ function factions.Faction.set_spawn(self, pos)
     factions.save()
 end
 
+function factions.Faction.tp_spawn(self, playername)
+	player = minetest.get_player_by_name(playername)
+	if player then
+		player:moveto(self.spawn, false)
+	end
+end
+
 --! @brief create a new rank with permissions
 --! @param rank the name of the new rank
 --! @param rank a list with the permissions of the new rank
@@ -528,14 +640,97 @@ function factions.Faction.add_rank(self, rank, perms)
     factions.save()
 end
 
-function factions.Faction.change_def_rank(self, rank)
+--! @brief replace an rank's permissions
+--! @param rank the name of the rank to edit
+--! @param add or remove permissions to the rank
+function factions.Faction.replace_privs(self, rank, perms)
+    self.ranks[rank] = perms
+    self:on_replace_privs(rank)
+    factions.save()
+end
+
+function factions.Faction.remove_privs(self, rank, perms)
+	local revoked = false
+	local p = self.ranks[rank]
+	for index, perm in pairs(p) do
+		if table_Contains(perms,perm) then
+			revoked = true
+			table.remove(p,index)
+		end
+	end
+	self.ranks[rank] = p
+	if revoked then
+		self:on_remove_privs(rank,perms)
+	else
+		self:broadcast("No privilege was revoked from rank "..rank..".")
+	end
+    factions.save()
+end
+
+function factions.Faction.add_privs(self, rank, perms)
+	local added = false
+	local p = self.ranks[rank]
+	for index, perm in pairs(perms) do
+		if not table_Contains(p,perm) then
+			added = true
+			table.insert(p,perm)
+		end
+	end
+	self.ranks[rank] = p
+	if added then
+		self:on_add_privs(rank,perms)
+	else
+		self:broadcast("The rank "..rank.." already has these privileges.")
+	end
+    factions.save()
+end
+
+function factions.Faction.set_rank_name(self, oldrank, newrank)
+	local copyrank = self.ranks[oldrank]
+	self.ranks[newrank] = copyrank
+	self.ranks[oldrank] = nil
+	for player, r in pairs(self.players) do
+        if r == oldrank then
+            self.players[player] = newrank
+        end
+    end
+	if oldrank == self.default_leader_rank then
+		self.default_leader_rank = newrank
+		self:broadcast("The default leader rank has been set to "..newrank)
+	end
+	if oldrank == self.default_rank then
+		self.default_rank = newrank
+		self:broadcast("The default rank given to new players is set to "..newrank)
+	end
+    self:on_set_rank_name(oldrank, newrank)
+    factions.save()
+end
+
+function factions.Faction.set_def_rank(self, rank)
     for player, r in pairs(self.players) do
         if r == rank or r == nil or not self.ranks[r] then
             self.players[player] = rank
         end
     end
 	self.default_rank = rank
-	self:on_change_def_rank(rank, rank)
+	self:on_set_def_rank(rank)
+	self.rankless = false
+    factions.save()
+end
+
+function factions.Faction.reset_ranks(self)
+	self.ranks = starting_ranks
+	self.default_rank = "member"
+	self.default_leader_rank_rank = "leader"
+    for player, r in pairs(self.players) do
+        if not player == leader and (r == nil or not self.ranks[r]) then
+            self.players[player] = self.default_rank
+		elseif player == leader then
+			self.players[player] = self.default_leader_rank_rank
+        end
+    end
+	self:on_reset_ranks()
+	self.rankless = false
     factions.save()
 end
 
@@ -639,6 +834,10 @@ function factions.Faction.on_create(self)  --! @brief called when the faction is
     minetest.chat_send_all("Faction "..self.name.." has been created.")
 end
 
+function factions.Faction.on_set_name(self,oldname)
+    minetest.chat_send_all("Faction "..oldname.." has been changed its name to "..self.name..".")
+end
+
 function factions.Faction.on_no_parcel(self)
 	local now = os.time() - self.no_parcel
 	local l = factions_config.maximum_parcelless_faction_time
@@ -721,12 +920,32 @@ function factions.Faction.on_add_rank(self, rank)
     self:broadcast("The rank "..rank.." has been created with privileges: "..table.concat(self.ranks[rank], ", "))
 end
 
+function factions.Faction.on_replace_privs(self, rank)
+    self:broadcast("The privileges in rank "..rank.." have been delete and changed to: "..table.concat(self.ranks[rank], ", "))
+end
+
+function factions.Faction.on_remove_privs(self, rank,privs)
+    self:broadcast("The privileges in rank "..rank.." have been revoked: "..table.concat(privs, ", "))
+end
+
+function factions.Faction.on_add_privs(self, rank,privs)
+    self:broadcast("The privileges in rank "..rank.." have been added: "..table.concat(privs, ", "))
+end
+
+function factions.Faction.on_set_rank_name(self, rank,newrank)
+    self:broadcast("The name of rank "..rank.." has been changed to "..newrank)
+end
+
 function factions.Faction.on_delete_rank(self, rank, newrank)
     self:broadcast("The rank "..rank.." has been deleted and replaced by "..newrank)
 end
 
-function factions.Faction.on_change_def_rank(self, rank)
+function factions.Faction.on_set_def_rank(self, rank)
     self:broadcast("The default rank given to new players has been changed to "..rank)
+end
+
+function factions.Faction.on_reset_ranks(self)
+    self:broadcast("All of the faction's ranks have been reset to the default ones.")
 end
 
 function factions.Faction.on_promote(self, member)
@@ -908,14 +1127,13 @@ function factions.load()
 				if faction:count_land() > 0 then
 					faction.no_parcel = -1
 				end
-				if faction.onlineplayers and faction.offlineplayers then
-					for i, _ in pairs(faction.onlineplayers) do
+				faction.onlineplayers = {}
+				faction.offlineplayers = {}
+				if faction.players then
+					for i, _ in pairs(faction.players) do
 						faction.offlineplayers[i] = _
 					end
-				else
-					faction.offlineplayers = {}
 				end
-				faction.onlineplayers = {}
 			end
 			misc_mod_data.data.factions_version = current_version
 			misc_mod_data.save()
@@ -968,7 +1186,10 @@ function factions.convert(filename)
     end
     local raw_data = file:read("*a")
 	file:close()
+	
     local data = minetest.deserialize(raw_data)
+	local old_permissions = {"disband", "claim", "playerslist", "build", "description", "ranks", "spawn", "promote","diplomacy"}
+	
     for facname,faction in pairs(data) do
         local newfac = factions.new_faction(facname,true)
 		for oi, ol in pairs(faction) do
@@ -980,7 +1201,7 @@ function factions.convert(filename)
 			newfac.players = faction.players
 		end
 		if faction.land then
-		newfac.land =  faction.land
+		newfac.land = faction.land
 		end
 		if faction.ranks then
 		newfac.ranks = faction.ranks
@@ -989,6 +1210,35 @@ function factions.convert(filename)
 			newfac.rankless = faction.rankless
 		else
 			newfac.rankless = false
+		end
+		for rank,perm in pairs(faction.ranks) do
+			for index,value in pairs(perm) do
+				if value == "playerslist" then
+					table.remove(faction.ranks[rank],index)
+					table.insert(faction.ranks[rank],"kick")
+					table.insert(faction.ranks[rank],"invite")
+				elseif value == "ranks" then
+					table.remove(faction.ranks[rank],index)
+					table.insert(faction.ranks[rank],"create_ranks")
+					table.insert(faction.ranks[rank],"edit_ranks")
+					table.insert(faction.ranks[rank],"delete_ranks")
+					table.insert(faction.ranks[rank],"set_def_ranks")
+					table.insert(faction.ranks[rank],"reset_ranks")
+				elseif value == "diplomacy" then
+					table.remove(faction.ranks[rank],index)
+					table.insert(faction.ranks[rank],"declare_war")
+					table.insert(faction.ranks[rank],"neutral")
+					table.insert(faction.ranks[rank],"alliance")
+					table.insert(faction.ranks[rank],"accept_treaty")
+					table.insert(faction.ranks[rank],"refuse_treaty")
+				elseif value == "spawn" then
+					if not factions_config.spawn_teleport == true then
+						table.remove(faction.ranks[rank],index)
+					end
+					table.insert(faction.ranks[rank],"set_spawn")
+					table.insert(faction.ranks[rank],"unset_spawn")
+				end
+			end
 		end
 		factions.start_diplomacy(facname,newfac)
 		newfac:check_power()
@@ -1019,7 +1269,6 @@ function(player)
     return true
 end
 )
-
 
 function factions.faction_tick()
     local now = os.time()
@@ -1056,12 +1305,12 @@ function(player)
 			local l = factions_config.maximum_parcelless_faction_time
 			minetest.chat_send_player(name,"This faction will disband in "..l-now.." seconds, because it has no parcels.")
 		end
-		if faction:has_permission(name, "diplomacy") then
+		if faction:has_permission(name, "accept_treaty") or faction:has_permission(name, "refuse_treaty") then
 			for _ in pairs(faction.request_inbox) do minetest.chat_send_player(name,"You have diplomatic requests in the inbox.") break end
 		end
 		if faction:has_permission(name, "ranks") then
 			if faction.rankless then
-				minetest.chat_send_player(name,"You need to reset the default rank because there are rankless players in this faction. type /f change_def_rank")
+				minetest.chat_send_player(name,"You need to reset the default rank because there are rankless players in this faction. reset all the ranks back to default using /f reset_ranks (You will lose all of your custom ranks) or use /f change_def_rank")
 			end
 		end
 		if faction.message_of_the_day and (faction.message_of_the_day ~= "" or faction.message_of_the_day ~= " ") then
@@ -1090,6 +1339,7 @@ minetest.register_on_leaveplayer(
 			end
 			faction.offlineplayers[name] = 1
 			faction.onlineplayers[name] = nil
+			factions.save()
 		end
 	end
 )
@@ -1127,9 +1377,17 @@ minetest.is_protected = function(pos, player)
         return default_is_protected(pos, player)
     elseif player_faction then
         if parcel_faction.name == player_faction.name then
-            return not parcel_faction:has_permission(player, "build")
+			if parcel_faction:has_permission(player, "pain_build") then
+				local p = minetest.get_player_by_name(player)
+				p:set_hp(p:get_hp() - 0.5)
+			end
+            return not (parcel_faction:has_permission(player, "build") or parcel_faction:has_permission(player, "pain_build"))
         elseif parcel_faction.allies[player_faction.name] then
-			return not player_faction:has_permission(player, "build")
+			if player_faction:has_permission(player, "pain_build") then
+				local p = minetest.get_player_by_name(player)
+				p:set_hp(p:get_hp() - 0.5)
+			end
+			return not (player_faction:has_permission(player, "build") or player_faction:has_permission(player, "pain_build"))
 		else
 			return not parcel_faction:parcel_is_attacked_by(parcelpos, player_faction)
         end

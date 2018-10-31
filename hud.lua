@@ -56,14 +56,6 @@ function createHudPower(player,faction)
 	end
 end
 
-function updateHudPower(player,faction)
-	local name = player:get_player_name()
-	local id_name = name .. "powerWatch"
-	if hud_ids[id_name] then
-		player:hud_change(hud_ids[id_name],"text","Power "..faction.power.."/".. faction.usedpower .."/"..faction.maxpower)
-	end
-end
-
 function removeHud(player,hudname)
 	local name = ""
 	local p = {}
@@ -78,6 +70,30 @@ function removeHud(player,hudname)
 	if hud_ids[id_name] then
 		p:hud_remove(hud_ids[id_name])
 		hud_ids[id_name] = nil
+	end
+end
+
+function updateHudPower(player,faction)
+	local name = player:get_player_name()
+	local id_name = name .. "powerWatch"
+	if hud_ids[id_name] then
+		player:hud_change(hud_ids[id_name],"text","Power "..faction.power.."/".. faction.usedpower .."/"..faction.maxpower)
+	end
+end
+
+function updateFactionName(player,factionname)
+	local name = ""
+	local p = {}
+	if type(player) ~= "string" then
+		name = player:get_player_name()
+		p = player
+	else
+		name = player
+		p = minetest.get_player_by_name(player)
+	end
+	local id_name = name .. "factionName"
+	if hud_ids[id_name] then
+		p:hud_change(hud_ids[id_name],"text","Faction "..factionname)
 	end
 end
 

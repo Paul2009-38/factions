@@ -1,93 +1,103 @@
-function factions.get_chest_formspec(pos)
-    local spos = pos.x..","..pos.y..","..pos.z
-    return "size[8,9]" ..
-           default.gui_bg ..
-           default.gui_bg_img ..
-           default.gui_slots ..
-           "list[nodemeta:"..spos..";main;0,0.3;8,4;]" ..
-           "list[current_player;main;0,4.85;8,1;]"..
-           "list[current_player;main;0,6.08;8,3;8]"..
-           "listring[nodemeta:"..spos..";main]"..
-           "listring[current_player;main]"..
-           default.get_hotbar_bg(0, 4.85)
-end
-
-function factions.can_use_chest(pos, player)
+function factions.can_use_node(pos, player,permission)
     if not player then
         return false
     end
     local parcel_faction = factions.get_faction_at(pos)
-    local player_faction = factions.get_player_faction(player)
-    if not parcel_faction then
+	if not parcel_faction then
         return true
     end
-    return player_faction and (parcel_faction.name == player_faction.name or parcel_faction.allies[player_faction.name])
+    local player_faction = factions.get_player_faction(player)
+	if player_faction and (parcel_faction.name == player_faction.name or parcel_faction.allies[player_faction.name]) and player_faction:has_permission(player, permission) then
+		return true
+	end
 end
-
-minetest.register_node("factions:chest", {
-    tiles = {"factions_chest_top.png", "factions_chest_top.png",
-             "factions_chest_side.png", "factions_chest_side.png",
-             "factions_chest_side.png", "factions_chest_front.png"},
-    groups = {choppy = 2},
-    description = "Faction chest",
-    paramtype2 = "facedir",
-    on_construct = function(pos)
-        	local meta = minetest.get_meta(pos)
-			meta:set_string("infotext", "Faction Chest")
-			meta:set_string("faction", "")
-			local inv = meta:get_inventory()
-			inv:set_size("main", 8*4)
-    end,
-	after_place_node = function(pos, placer)
-			local meta = minetest.get_meta(pos)
-			local cf = factions.get_player_faction(placer:get_player_name())
-			if cf ~= nil then
-				meta:set_string("faction", cf.name or "")
+-- Make default chest the faction chest.
+if minetest.registered_nodes["default:chest"] then
+	minetest.register_lbm({
+		label = "Replace faction chest with default one.",
+		name = "factions:replace_factions_chest",
+		nodenames = {"factions:chest"},
+		action = function(pos, node)
+			minetest.swap_node(pos, {name="default:chest"})
+			local parcel_faction = factions.get_faction_at(pos)
+			if parcel_faction then
+				local meta = minetest.get_meta(pos)
+				meta:set_string("faction", parcel_faction.name or "")
 				meta:set_string("infotext", "Faction Chest (owned by faction " ..
 						meta:get_string("faction") .. ")")
 			end
-	end,
-	can_dig = function(pos,player)
-			local meta = minetest.get_meta(pos);
-			local inv = meta:get_inventory()
-			return inv:is_empty("main") and
-					factions.can_use_chest(pos, player:get_player_name())
-	end,
-    allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-        if factions.can_use_chest(pos, player:get_player_name()) then
-            return count
-        else
-            return 0
-        end
-    end,
-    allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-        if factions.can_use_chest(pos, player:get_player_name()) then
-            return stack:get_count()
-        else
-            return 0
-        end
-    end,
-    allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-        if factions.can_use_chest(pos, player:get_player_name()) then
-            return stack:get_count()
-        else
-            return 0
-        end
-    end,
-    on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-        if factions.can_use_chest(pos, clicker:get_player_name()) then
-            minetest.show_formspec(clicker:get_player_name(), "factions:chest", factions.get_chest_formspec(pos))
-        end
-        return itemstack
-    end
-})
-
-minetest.register_craft({
-    output = "factions:chest",
-    type = "shapeless",
-    recipe = {"default:chest_locked", "default:steel_ingot"}
-})
-
+		end
+	})
+	local dc = minetest.registered_nodes["default:chest"]
+	local def_on_rightclick = dc.on_rightclick
+	local clonenode = {}
+	for k,v in pairs(minetest.registered_nodes["default:chest"]) do clonenode[k] = v end
+	clonenode.after_place_node = function(pos, placer)
+		local parcel_faction = factions.get_faction_at(pos)
+		if parcel_faction then
+			local meta = minetest.get_meta(pos)
+			meta:set_string("faction", parcel_faction.name or "")
+			meta:set_string("infotext", "Faction Chest (owned by faction " ..
+					meta:get_string("faction") .. ")")
+		end
+	end
+	clonenode.can_dig = function(pos,player)
+		local meta = minetest.get_meta(pos);
+		local inv = meta:get_inventory()
+		return inv:is_empty("main") and
+				factions.can_use_node(pos, player:get_player_name(),"container")
+	end
+	clonenode.allow_metadata_inventory_move = function(pos, from_list, from_index,
+			to_list, to_index, count, player)
+		if not factions.can_use_node(pos, player:get_player_name(),"container") then
+			return 0
+		end
+		return count
+	end
+	clonenode.allow_metadata_inventory_put = function(pos, listname, index, stack, player)
+		if not factions.can_use_node(pos, player:get_player_name(),"container") then
+			return 0
+		end
+		return stack:get_count()
+	end
+	clonenode.allow_metadata_inventory_take = function(pos, listname, index, stack, player)
+		if not factions.can_use_node(pos, player:get_player_name(),"container") then
+			return 0
+		end
+		return stack:get_count()
+	end
+	clonenode.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+		if not factions.can_use_node(pos, clicker:get_player_name(),"container") then
+			return itemstack
+		end
+		def_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
+	end
+	minetest.register_node(":default:chest",clonenode)
+end
+-- Edit default doors and trapdoors to make them require the door permission.
+local doors = {"doors:door_wood_a","doors:door_wood_b","doors:door_steel_a","doors:door_steel_b","doors:door_glass_a","doors:door_glass_b"
+,"doors:door_obsidian_glass_a","doors:door_obsidian_glass_b","doors:trapdoor","doors:trapdoor_open","doors:trapdoor_steel","doors:trapdoor_steel_open"}
+for i,k in ipairs(doors) do
+	if minetest.registered_nodes[k] then
+		local dw = minetest.registered_nodes[k]
+		local def_after_place_node = dw.on_rightclick
+		local can_dig = dw.can_dig
+		local clonenode = {}
+		for k,v in pairs(minetest.registered_nodes[k]) do clonenode[k] = v end
+		clonenode.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+			if factions.can_use_node(pos, clicker:get_player_name(),"door") then
+				def_after_place_node(pos, node, clicker, itemstack, pointed_thing)
+			end
+		end
+		clonenode.can_dig = function(pos, digger)
+			if factions.can_use_node(pos, digger:get_player_name(),"door") then
+				return can_dig(pos, digger)
+			end
+			return false
+		end
+		minetest.register_node(":"..k,clonenode)
+	end
+end
 -- Code below was copied from TenPlus1's protector mod(MIT) and changed up a bit.
 
 local x = math.floor(factions_config.parcel_size / 2.1)

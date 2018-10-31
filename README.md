@@ -19,10 +19,6 @@ More claim and unclaim commands.
 
 faction access manage command.
 
-More permissions.
-
-faction flags(Not to replace parcels).
-
 Maybe expand on diplomacy.
 
 Write the forum topic better.
