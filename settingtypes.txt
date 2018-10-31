@@ -23,9 +23,9 @@ maximum_faction_inactivity (Maximum faction inactivity) int 604800
 # The maximum amount of time for a parcelless faction to disban.
 maximum_parcelless_faction_time (Maximum parcelless faction time) int 10800
 # Power of a starting faction (needed for parcel claiming).
-power (Starting power) float 0
+power (Starting power) float 12
 # Maximum power of a starting faction.
-maxpower (Starting Maximum power) float 12
+maxpower (Starting Maximum power) float 0
 # How much power the players make.
 power_per_player (power-per-player) float 1
 # How much max power is created per new player.
