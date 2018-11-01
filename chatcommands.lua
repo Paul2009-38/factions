@@ -530,7 +530,7 @@ if factions_config.faction_diplomacy == true then
 					factions.factions[args.strings[1]].request_inbox[faction.name] = "alliance"
 					factions.factions[args.strings[1]]:broadcast("An alliance request from faction " .. faction.name .. " has been sent to you.")
 					faction:broadcast("An alliance request was sent to faction " .. args.strings[1])
-					factions.save()
+					factions.bulk_save()
 				else
 					send_error(player, "You have already sent a request.")
 				end
@@ -567,7 +567,7 @@ if factions_config.faction_diplomacy == true then
 					factions.factions[args.strings[1]].request_inbox[faction.name] = "neutral"
 					factions.factions[args.strings[1]]:broadcast("A neutral request from faction " .. faction.name .. " has been sent to you.")
 					faction:broadcast("A neutral request was sent to faction " .. args.strings[1])
-					factions.save()
+					factions.bulk_save()
 				else
 					send_error(player, "You have already sent a request.")
 				end
@@ -598,7 +598,7 @@ if factions_config.faction_diplomacy == true then
 				end
 				end
 				faction.request_inbox[args.strings[1]] = nil
-				factions.save()
+				factions.bulk_save()
 			else
 				send_error(player, "No request was sent to you.")
 			end
@@ -619,7 +619,7 @@ if factions_config.faction_diplomacy == true then
 				faction.request_inbox[args.strings[1]] = nil
 				factions.factions[args.strings[1]]:broadcast("Faction " .. faction.name .. " refuse to be your ally.")
 				faction:broadcast("Refused an request from faction " .. args.strings[1])
-				factions.save()
+				factions.bulk_save()
 			else
 				send_error(player, "No request was sent to you.")
 			end
@@ -647,7 +647,7 @@ if factions_config.faction_diplomacy == true then
 				end
 				faction:new_enemy(args.strings[1])
 				factions.factions[args.strings[1]]:new_enemy(faction.name)
-				factions.save()
+				factions.bulk_save()
 			else
 				send_error(player, "You are already at war.")
 			end
@@ -669,7 +669,7 @@ if factions_config.faction_diplomacy == true then
 				factions.factions[args.strings[1]]:end_alliance(faction.name)
 				faction:new_neutral(args.strings[1])
 				factions.factions[args.strings[1]]:new_neutral(faction.name)
-				factions.save()
+				factions.bulk_save()
 			else
 				send_error(player, "You where not allies to begin with.")
 			end
@@ -1230,7 +1230,7 @@ factions.register_command("set_admin", {
 			minetest.chat_send_player(player,"faction " .. args.factions[1].name .. " is already an admin faction.")
 		end
         args.factions[1].is_admin = true
-		factions.save()
+		factions.bulk_save()
         return true
     end
 },false)
@@ -1247,7 +1247,7 @@ factions.register_command("remove_admin", {
 			minetest.chat_send_player(player,"faction " .. args.factions[1].name .. " is not an admin faction to begin with.")
 		end
         args.factions[1].is_admin = false
-		factions.save()
+		factions.bulk_save()
         return true
     end
 },false)

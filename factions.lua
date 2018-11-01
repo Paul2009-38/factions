@@ -191,7 +191,7 @@ function factions.new_faction(name,do_not_save)
 		f:on_no_parcel()
 	end,faction)
 	if not do_not_save then
-		factions.save()
+		factions.bulk_save()
 	end
     return faction
 end
@@ -238,7 +238,7 @@ function factions.Faction.set_name(self, name)
 		updateFactionName(playername,name)
 	end
 	self:on_set_name(oldname)
-	factions.save()
+	factions.bulk_save()
 end
 
 function factions.Faction.increase_power(self, power)
@@ -249,7 +249,7 @@ function factions.Faction.increase_power(self, power)
 	for i in pairs(self.onlineplayers) do
 		updateHudPower(minetest.get_player_by_name(i),self)
 	end
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.decrease_power(self, power)
@@ -257,7 +257,7 @@ function factions.Faction.decrease_power(self, power)
 	for i in pairs(self.onlineplayers) do
 		updateHudPower(minetest.get_player_by_name(i),self)
 	end
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.increase_maxpower(self, power)
@@ -265,7 +265,7 @@ function factions.Faction.increase_maxpower(self, power)
 	for i in pairs(self.onlineplayers) do
 		updateHudPower(minetest.get_player_by_name(i),self)
 	end
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.decrease_maxpower(self, power)
@@ -356,7 +356,7 @@ function factions.Faction.add_player(self, player, rank)
 		self.offlineplayers[player] = 1
 		self.onlineplayers[player] = nil
 	end
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.check_players_in_faction(self)
@@ -394,7 +394,7 @@ function factions.Faction.remove_player(self, player)
 	end
 		self.offlineplayers[player] = nil
 		self.onlineplayers[player] = nil
-    factions.save()
+    factions.bulk_save()
 end
 
 --! @param parcelpos position of the wanted parcel
@@ -428,7 +428,7 @@ function factions.Faction.claim_parcel(self, parcelpos)
     self:increase_usedpower(factions_config.power_per_parcel)
     self:on_claim_parcel(parcelpos)
 	self:parcelless_check()
-    factions.save()
+    factions.bulk_save()
 end
 
 --! @brief claim a parcel, update power and update global parcels table
@@ -439,7 +439,7 @@ function factions.Faction.unclaim_parcel(self, parcelpos)
     self:decrease_usedpower(factions_config.power_per_parcel)
     self:on_unclaim_parcel(parcelpos)
 	self:parcelless_check()
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.parcelless_check(self)
@@ -489,7 +489,7 @@ function factions.Faction.disband(self, reason)
 			removeHud(i,"powerWatch")
 		end
 		factions.factions[self.name] = nil
-		factions.save()
+		factions.bulk_save()
 	end
 end
 
@@ -501,12 +501,12 @@ function factions.Faction.set_leader(self, player)
     self.leader = player
     self.players[player] = self.default_leader_rank
     self:on_new_leader()
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.set_message_of_the_day(self,text)
     self.message_of_the_day = text
-    factions.save()
+    factions.bulk_save()
 end
 
 --! @brief check permissions for a given player
@@ -526,7 +526,7 @@ function factions.Faction.has_permission(self, player, permission)
 	else
 		if not self.rankless then
 			self.rankless = true
-			factions.save()
+			factions.bulk_save()
 		end
 	end
     return false
@@ -535,27 +535,27 @@ end
 function factions.Faction.set_description(self, new)
     self.description = new
     self:on_change_description()
-    factions.save()
+    factions.bulk_save()
 end
 
 --! @brief places player in invite list
 function factions.Faction.invite_player(self, player)
     self.invited_players[player] = true
     self:on_player_invited(player)
-    factions.save()
+    factions.bulk_save()
 end
 
 --! @brief removes player from invite list (can no longer join via /f join)
 function factions.Faction.revoke_invite(self, player)
     self.invited_players[player] = nil
     self:on_revoke_invite(player)
-    factions.save()
+    factions.bulk_save()
 end
 --! @brief set faction openness
 function factions.Faction.toggle_join_free(self, bool)
     self.join_free = bool
     self:on_toggle_join_free()
-    factions.save()
+    factions.bulk_save()
 end
 
 --! @return true if a player can use /f join, false otherwise
@@ -572,13 +572,13 @@ function factions.Faction.new_alliance(self, faction)
 	if self.neutral[faction] then
         self:end_neutral(faction)
     end
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.end_alliance(self, faction)
     self.allies[faction] = nil
     self:on_end_alliance(faction)
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.new_neutral(self, faction)
@@ -590,13 +590,13 @@ function factions.Faction.new_neutral(self, faction)
     if self.enemies[faction] then
         self:end_enemy(faction)
     end
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.end_neutral(self, faction)
     self.neutral[faction] = nil
     self:on_end_neutral(faction)
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.new_enemy(self, faction)
@@ -608,20 +608,20 @@ function factions.Faction.new_enemy(self, faction)
 	if self.neutral[faction] then
         self:end_neutral(faction)
     end
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.end_enemy(self, faction)
     self.enemies[faction] = nil
     self:on_end_enemy(faction)
-    factions.save()
+    factions.bulk_save()
 end
 
 --! @brief faction's member will now spawn in a new place
 function factions.Faction.set_spawn(self, pos)
     self.spawn = {x=pos.x, y=pos.y, z=pos.z}
     self:on_set_spawn()
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.tp_spawn(self, playername)
@@ -637,7 +637,7 @@ end
 function factions.Faction.add_rank(self, rank, perms)
     self.ranks[rank] = perms
     self:on_add_rank(rank)
-    factions.save()
+    factions.bulk_save()
 end
 
 --! @brief replace an rank's permissions
@@ -646,7 +646,7 @@ end
 function factions.Faction.replace_privs(self, rank, perms)
     self.ranks[rank] = perms
     self:on_replace_privs(rank)
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.remove_privs(self, rank, perms)
@@ -664,7 +664,7 @@ function factions.Faction.remove_privs(self, rank, perms)
 	else
 		self:broadcast("No privilege was revoked from rank "..rank..".")
 	end
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.add_privs(self, rank, perms)
@@ -682,7 +682,7 @@ function factions.Faction.add_privs(self, rank, perms)
 	else
 		self:broadcast("The rank "..rank.." already has these privileges.")
 	end
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.set_rank_name(self, oldrank, newrank)
@@ -703,7 +703,7 @@ function factions.Faction.set_rank_name(self, oldrank, newrank)
 		self:broadcast("The default rank given to new players is set to "..newrank)
 	end
     self:on_set_rank_name(oldrank, newrank)
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.set_def_rank(self, rank)
@@ -715,7 +715,7 @@ function factions.Faction.set_def_rank(self, rank)
 	self.default_rank = rank
 	self:on_set_def_rank(rank)
 	self.rankless = false
-    factions.save()
+    factions.bulk_save()
 end
 
 function factions.Faction.reset_ranks(self)
@@ -731,7 +731,7 @@ function factions.Faction.reset_ranks(self)
     end
 	self:on_reset_ranks()
 	self.rankless = false
-    factions.save()
+    factions.bulk_save()
 end
 
 --! @brief delete a rank and replace it
@@ -753,7 +753,7 @@ function factions.Faction.delete_rank(self, rank, newrank)
 		self.default_rank = newrank
 		self:broadcast("The default rank given to new players is set to "..newrank)
 	end
-    factions.save()
+    factions.bulk_save()
 end
 
 --! @brief set a player's rank
@@ -799,7 +799,7 @@ function factions.Faction.attack_parcel(self, parcelpos)
 				if self.power < 0. then -- punish memers
 					minetest.chat_send_all("Faction "..self.name.." has attacked too much and has now negative power!")
 				end
-				factions.save()
+				factions.bulk_save()
 			else
 				self:broadcast("You can not attack that parcel because it belongs to an ally.")
 			end
@@ -816,7 +816,7 @@ function factions.Faction.stop_attack(self, parcelpos)
             attacked_faction:broadcast("Parcel ("..parcelpos..") is no longer under attack from "..self.name..".")
             self:broadcast("Parcel ("..parcelpos..") has been reconquered by "..attacked_faction.name..".")
         end
-        factions.save()
+        factions.bulk_save()
     end
 end
 
@@ -1037,6 +1037,8 @@ function factions.get_faction_list()
     return retval
 end
 
+local saving = false
+
 -------------------------------------------------------------------------------
 -- name: save()
 --
@@ -1060,7 +1062,14 @@ function factions.save()
         minetest.log("error","MOD factions: unable to save factions world specific data!: " .. error)
     end
 	factions_ip.save()
-	
+	saving = false
+end
+
+function factions.bulk_save()
+    if saving == false then
+		saving = true
+		minetest.after(5,function() factions.save() end)
+	end
 end
 
 -------------------------------------------------------------------------------
@@ -1289,8 +1298,11 @@ function factions.faction_tick()
     end
 end
 
+local player_count = 0
+
 minetest.register_on_joinplayer(
 function(player)
+	player_count = player_count + 1
 	local name = player:get_player_name()
 	minetest.after(5,createHudfactionLand,player)
     local faction = factions.get_player_faction(name)
@@ -1323,11 +1335,13 @@ function(player)
 		minetest.chat_send_player(name,faction.message_of_the_day)
 		end
     end
+	factions.bulk_save()
 end
 )
 
 minetest.register_on_leaveplayer(
 	function(player)
+		player_count = player_count - 1
 		local name = player:get_player_name()
 		local faction = factions.get_player_faction(name)
 		local id_name1 = name .. "factionLand"
@@ -1345,6 +1359,10 @@ minetest.register_on_leaveplayer(
 			end
 			faction.offlineplayers[name] = 1
 			faction.onlineplayers[name] = nil
+		end
+		if player_count > 0 then
+			factions.bulk_save()
+		else
 			factions.save()
 		end
 	end

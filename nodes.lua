@@ -81,7 +81,7 @@ for i,k in ipairs(doors) do
 	if minetest.registered_nodes[k] then
 		local dw = minetest.registered_nodes[k]
 		local def_after_place_node = dw.on_rightclick
-		local can_dig = dw.can_dig
+		local def_can_dig = dw.can_dig
 		local clonenode = {}
 		for k,v in pairs(minetest.registered_nodes[k]) do clonenode[k] = v end
 		clonenode.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
@@ -91,7 +91,7 @@ for i,k in ipairs(doors) do
 		end
 		clonenode.can_dig = function(pos, digger)
 			if factions.can_use_node(pos, digger:get_player_name(),"door") then
-				return can_dig(pos, digger)
+				return def_can_dig(pos, digger)
 			end
 			return false
 		end
