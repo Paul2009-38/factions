@@ -17,6 +17,10 @@ faction territory titles.
 
 faction territories (Like a faction within a faction)
 
+faction color.
+
+Color tags based on faction color(add support for entity tag mods).
+
 More claim and unclaim commands.
 
 faction access manage command.
