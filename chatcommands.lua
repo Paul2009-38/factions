@@ -1119,7 +1119,16 @@ factions.register_command("power", {
     description = "Display your faction's power",
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
-        minetest.chat_send_player(player, "Power: "..faction.power.."/".. faction.usedpower .."/"..faction.maxpower)
+		local pps = 0
+		if factions_config.enable_power_per_player then
+			local t = faction.onlineplayers
+			local count = 0
+			for _ in pairs(t) do count = count + 1 end
+			pps = factions_config.power_per_player * count
+		else
+			fpps = factions_config.power_per_tick
+		end
+        minetest.chat_send_player(player, "Power: "..faction.power.." / "..faction.maxpower - faction.usedpower.."\nPower per "..factions_config.tick_time.." seconds: "..pps.."\nPower per death: -"..factions_config.power_per_death)
         return true
     end
 },false)

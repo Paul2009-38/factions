@@ -15,6 +15,8 @@ Player money tax.
 
 faction territory titles.
 
+faction territories (Like a faction within a faction)
+
 More claim and unclaim commands.
 
 faction access manage command.
