@@ -47,7 +47,7 @@ function createHudPower(player,faction)
 				name = "powerWatch",
 				number = 0xFFFFFF,
 				position = {x=0.9, y = .98},
-				text = "Power "..faction.power.."/".. faction.usedpower .."/"..faction.maxpower,
+				text = "Power: "..faction.power.." / ".. faction.maxpower - faction.usedpower,
 				scale = {x=1, y=1},
 				alignment = {x=-1, y=0},
 				offset = {x = 0, y = 0}
@@ -77,7 +77,7 @@ function updateHudPower(player,faction)
 	local name = player:get_player_name()
 	local id_name = name .. "powerWatch"
 	if hud_ids[id_name] then
-		player:hud_change(hud_ids[id_name],"text","Power "..faction.power.."/".. faction.usedpower .."/"..faction.maxpower)
+		player:hud_change(hud_ids[id_name],"text","Power: "..faction.power.." / ".. faction.maxpower - faction.usedpower)
 	end
 end
 
