@@ -36,7 +36,7 @@ util = {
 factions.Faction.__index = factions.Faction
 
 starting_ranks = {["leader"] = {"build","door","container","name","description","motd","invite","kick"
-						,"title","set_spawn","unset_spawn","with_draw","territory","claim","access","disband","flags","create_ranks","edit_ranks","delete_ranks","set_def_ranks","reset_ranks","promote"},
+						,"player_title","set_spawn","unset_spawn","with_draw","territory","claim","access","disband","flags","create_ranks","edit_ranks","delete_ranks","set_def_ranks","reset_ranks","promote"},
                  ["moderator"] = {"claim","door","build","set_spawn","invite","kick","promote"},
                  ["member"] = {"build","container","door"}
                 }
@@ -52,7 +52,7 @@ starting_ranks = {["leader"] = {"build","door","container","name","description",
 -- motd: set the faction's message of the day
 -- invite: (un)invite players to join the faction
 -- kick: kick players off the faction
--- title: set territory titles
+-- player_title: set player titles
 -- set_spawn: set the faction's spawn
 -- unset_spawn: delete the faction's spawn
 -- with_draw: withdraw money from the faction's bank
@@ -75,9 +75,9 @@ starting_ranks = {["leader"] = {"build","door","container","name","description",
 -- refuse_treaty: be able to refuse a treaty request from another faction
 
 factions.permissions = {"build","pain_build","door","container","name","description","motd","invite","kick"
-						,"title","set_spawn","unset_spawn","with_draw","territory","claim","access","disband","flags","create_ranks","edit_ranks","delete_ranks","set_def_ranks","reset_ranks","promote"}
+						,"player_title","set_spawn","unset_spawn","with_draw","territory","claim","access","disband","flags","create_ranks","edit_ranks","delete_ranks","set_def_ranks","reset_ranks","promote"}
 factions.permissions_desc = {"dig and place nodes","dig and place nodes but take damage doing so","open/close or dig","be able to use containers like chest","set the faction's name"
-						,"Set the faction description","set the faction's message of the day","(un)invite players to join the faction","kick players off the faction","set territory titles","set the faction's spawn"
+						,"Set the faction description","set the faction's message of the day","(un)invite players to join the faction","kick players off the faction","set player titles","set the faction's spawn"
 						,"delete the faction's spawn","withdraw money from the faction's bank","claim or unclaim territory","(un)claim parcels of land","manage access to territory and parcels of land to players or factions"
 						,"disband the faction","manage faction's flags","create new ranks","edit rank permissions","delete ranks","set the default rank given to new players","reset the ranks back to the default ones","set a player's rank"}
 						
