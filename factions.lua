@@ -301,7 +301,7 @@ function factions.Faction.check_power(self)
 			local ip = factions_ip.player_ips[player]
 			local notsame = true
 			for i,k in pairs(self.players) do
-				local other_ip = factions_ip.player_ips[k]
+				local other_ip = factions_ip.player_ips[i]
 				if other_ip == ip then
 					notsame = false
 					break
@@ -328,14 +328,11 @@ end)
 
 function factions.Faction.add_player(self, player, rank)
     self:on_player_join(player)
-    self.players[player] = rank or self.default_rank
-    factions.players[player] = self.name
-    self.invited_players[player] = nil
 	if factions_config.enable_power_per_player then
 		local ip = factions_ip.player_ips[player]
 		local notsame = true
 		for i,k in pairs(self.players) do
-			local other_ip = factions_ip.player_ips[k]
+			local other_ip = factions_ip.player_ips[i]
 			if other_ip == ip then
 				notsame = false
 				break
@@ -345,6 +342,9 @@ function factions.Faction.add_player(self, player, rank)
 			self:increase_maxpower(factions_config.powermax_per_player)
 		end
 	end
+	self.players[player] = rank or self.default_rank
+    factions.players[player] = self.name
+    self.invited_players[player] = nil
 	local pdata = minetest.get_player_by_name(player)
 	local ipc = pdata:is_player_connected(player)
 	if ipc then
@@ -376,7 +376,7 @@ function factions.Faction.remove_player(self, player)
 		local ip = factions_ip.player_ips[player]
 		local notsame = true
 		for i,k in pairs(self.players) do
-			local other_ip = factions_ip.player_ips[k]
+			local other_ip = factions_ip.player_ips[i]
 			if other_ip == ip then
 				notsame = false
 				break
@@ -777,9 +777,7 @@ end
 --! @brief checks whether a faction has at least one connected player
 function factions.Faction.is_online(self)
     for playername, _ in pairs(self.onlineplayers) do
-        if minetest.get_player_by_name(playername) then
-            return true
-        end
+		return true
     end
     return false
 end
