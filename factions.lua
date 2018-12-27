@@ -942,11 +942,12 @@ function factions.Faction.on_revoke_invite(self, player)
     minetest.chat_send_player(player, "You are no longer invited to faction "..self.name)
 end
 
+local parcel_size = factions_config.parcel_size
 function factions.get_parcel_pos(pos)
 	if factions_config.protection_style == "2d" then
-		return math.floor(pos.x / factions_config.parcel_size)..","..math.floor(pos.z / factions_config.parcel_size)
+		return math.floor(pos.x / parcel_size) * parcel_size .. "," .. math.floor(pos.z / parcel_size) * parcel_size
 	elseif factions_config.protection_style == "3d" then
-		return math.floor(pos.x / factions_config.parcel_size)..","..math.floor(pos.y / factions_config.parcel_size)..","..math.floor(pos.z / factions_config.parcel_size)
+		return math.floor(pos.x / parcel_size) * parcel_size .. "," .. math.floor(pos.y / parcel_size) * parcel_size .. "," .. math.floor(pos.z / parcel_size) * parcel_size
 	end
 end
 
