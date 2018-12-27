@@ -36,8 +36,8 @@ util = {
 factions.Faction.__index = factions.Faction
 
 starting_ranks = {["leader"] = {"build","door","container","name","description","motd","invite","kick"
-						,"player_title","set_spawn","unset_spawn","with_draw","territory","claim","access","disband","flags","create_ranks","edit_ranks","delete_ranks","set_def_ranks","reset_ranks","promote"},
-                 ["moderator"] = {"claim","door","build","set_spawn","invite","kick","promote"},
+						,"player_title","spawn","with_draw","territory","claim","access","disband","flags","ranks","promote"},
+                 ["moderator"] = {"claim","door","build","spawn","invite","kick","promote"},
                  ["member"] = {"build","container","door"}
                 }
 
@@ -53,20 +53,14 @@ starting_ranks = {["leader"] = {"build","door","container","name","description",
 -- invite: (un)invite players to join the faction
 -- kick: kick players off the faction
 -- player_title: set player titles
--- set_spawn: set the faction's spawn
--- unset_spawn: delete the faction's spawn
+-- spawn: set the faction's spawn
 -- with_draw: withdraw money from the faction's bank
--- spawn: be able to teleport to the faction's spawn
 -- territory: claim or unclaim territory
 -- claim: (un)claim parcels of land
 -- access: manage access to territory and parcels of land to players or factions
 -- disband: disband the faction
 -- flags: manage faction's flags
--- create_ranks: create new ranks
--- edit_ranks: edit rank name and permissions
--- delete_ranks: delete ranks
--- set_def_ranks: set the default rank given to new players
--- reset_ranks: reset the ranks back to the default ones
+-- ranks: create, edit, and delete ranks
 -- promote: set a player's rank
 -- declare_war: be able to declare war with another faction
 -- neutral: be able to send a neutral request to another faction
@@ -75,11 +69,11 @@ starting_ranks = {["leader"] = {"build","door","container","name","description",
 -- refuse_treaty: be able to refuse a treaty request from another faction
 
 factions.permissions = {"build","pain_build","door","container","name","description","motd","invite","kick"
-						,"player_title","set_spawn","unset_spawn","with_draw","territory","claim","access","disband","flags","create_ranks","edit_ranks","delete_ranks","set_def_ranks","reset_ranks","promote"}
+						,"player_title","spawn","with_draw","territory","claim","access","disband","flags","ranks","promote"}
 factions.permissions_desc = {"dig and place nodes","dig and place nodes but take damage doing so","open/close or dig","be able to use containers like chest","set the faction's name"
 						,"Set the faction description","set the faction's message of the day","(un)invite players to join the faction","kick players off the faction","set player titles","set the faction's spawn"
-						,"delete the faction's spawn","withdraw money from the faction's bank","claim or unclaim territory","(un)claim parcels of land","manage access to territory and parcels of land to players or factions"
-						,"disband the faction","manage faction's flags","create new ranks","edit rank permissions","delete ranks","set the default rank given to new players","reset the ranks back to the default ones","set a player's rank"}
+						,"withdraw money from the faction's bank","claim or unclaim territory","(un)claim parcels of land","manage access to territory and parcels of land to players or factions"
+						,"disband the faction","manage faction's flags","create, edit, and delete ranks"}
 						
 -- open: can the faction be joined without an invite?
 -- monsters: can monsters spawn on your land?
@@ -108,17 +102,6 @@ if factions_config.faction_diplomacy == true then
 	table.insert(lt,"accept_treaty")
 	table.insert(lt,"refuse_treaty")
 	starting_ranks["leader"] = lt
-end
-
-if factions_config.spawn_teleport == true then
-	table.insert(factions.permissions,"spawn")
-	
-	table.insert(factions.permissions_desc,"be able to teleport to the faction's spawn")
-	
-	table.insert(starting_ranks["leader"],"spawn")
-	table.insert(starting_ranks["moderator"],"spawn")
-	table.insert(starting_ranks["member"],"spawn")
-	
 end
 
 function factions.Faction:new(faction) 
@@ -1195,7 +1178,7 @@ function factions.convert(filename)
 	file:close()
 	
     local data = minetest.deserialize(raw_data)
-	local old_permissions = {"disband", "claim", "playerslist", "build", "description", "ranks", "spawn", "promote","diplomacy"}
+	local old_permissions = {"disband", "claim", "playerslist", "build", "description", "promote", "diplomacy"}
 	
     for facname,faction in pairs(data) do
         local newfac = factions.new_faction(facname,true)
@@ -1224,13 +1207,6 @@ function factions.convert(filename)
 					table.remove(faction.ranks[rank],index)
 					table.insert(faction.ranks[rank],"kick")
 					table.insert(faction.ranks[rank],"invite")
-				elseif value == "ranks" then
-					table.remove(faction.ranks[rank],index)
-					table.insert(faction.ranks[rank],"create_ranks")
-					table.insert(faction.ranks[rank],"edit_ranks")
-					table.insert(faction.ranks[rank],"delete_ranks")
-					table.insert(faction.ranks[rank],"set_def_ranks")
-					table.insert(faction.ranks[rank],"reset_ranks")
 				elseif value == "diplomacy" then
 					table.remove(faction.ranks[rank],index)
 					table.insert(faction.ranks[rank],"declare_war")
@@ -1238,12 +1214,6 @@ function factions.convert(filename)
 					table.insert(faction.ranks[rank],"alliance")
 					table.insert(faction.ranks[rank],"accept_treaty")
 					table.insert(faction.ranks[rank],"refuse_treaty")
-				elseif value == "spawn" then
-					if not factions_config.spawn_teleport == true then
-						table.remove(faction.ranks[rank],index)
-					end
-					table.insert(faction.ranks[rank],"set_spawn")
-					table.insert(faction.ranks[rank],"unset_spawn")
 				end
 			end
 		end

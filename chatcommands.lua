@@ -783,7 +783,7 @@ factions.register_command("show_parcel", {
 factions.register_command("new_rank", {
     description = "Add a new rank.",
     format = {"string"},
-    faction_permissions = {"create_ranks"},
+    faction_permissions = {"ranks"},
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
 		if args.strings[1] then
@@ -800,6 +800,8 @@ factions.register_command("new_rank", {
 						if f == r then
 							success = true
 							break
+						else
+							success = false
 						end
 					end
 					if not success and _ ~= 1 then
@@ -827,7 +829,7 @@ factions.register_command("new_rank", {
 factions.register_command("replace_privs", {
     description = "Deletes current permissions and replaces them with the ones given.",
     format = {"string"},
-    faction_permissions = {"edit_ranks"},
+    faction_permissions = {"ranks"},
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
 		if args.strings[1] then
@@ -844,6 +846,8 @@ factions.register_command("replace_privs", {
 						if f == r then
 							success = true
 							break
+						else
+							success = false
 						end
 					end
 					if not success and _ ~= 1 then
@@ -871,7 +875,7 @@ factions.register_command("replace_privs", {
 factions.register_command("remove_privs", {
     description = "Remove permissions from a rank.",
     format = {"string"},
-    faction_permissions = {"edit_ranks"},
+    faction_permissions = {"ranks"},
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
 		if args.strings[1] then
@@ -888,6 +892,8 @@ factions.register_command("remove_privs", {
 						if f == r then
 							success = true
 							break
+						else
+							success = false
 						end
 					end
 					if not success and _ ~= 1 then
@@ -915,7 +921,7 @@ factions.register_command("remove_privs", {
 factions.register_command("add_privs", {
     description = "add permissions to a rank.",
     format = {"string"},
-    faction_permissions = {"edit_ranks"},
+    faction_permissions = {"ranks"},
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
 		if args.strings[1] then
@@ -932,6 +938,8 @@ factions.register_command("add_privs", {
 						if f == r then
 							success = true
 							break
+						else
+							success = false
 						end
 					end
 					if not success and _ ~= 1 then
@@ -959,7 +967,7 @@ factions.register_command("add_privs", {
 factions.register_command("set_rank_name", {
     description = "Change the name of given rank.",
     format = {"string","string"},
-    faction_permissions = {"edit_ranks"},
+    faction_permissions = {"ranks"},
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         local rank = args.strings[1]
@@ -980,7 +988,7 @@ factions.register_command("set_rank_name", {
 factions.register_command("del_rank", {
     description = "Replace and delete a rank.",
     format = {"string", "string"},
-    faction_permissions = {"delete_ranks"},
+    faction_permissions = {"ranks"},
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         local rank = args.strings[1]
@@ -997,7 +1005,7 @@ factions.register_command("del_rank", {
 factions.register_command("set_def_rank", {
     description = "Change the default rank given to new players and also replace rankless players in this faction.",
     format = {"string"},
-    faction_permissions = {"set_def_ranks"},
+    faction_permissions = {"ranks"},
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         local rank = args.strings[1]
@@ -1013,7 +1021,7 @@ factions.register_command("set_def_rank", {
 factions.register_command("reset_ranks", {
     description = "Reset's all of the factions rankings back to the default ones.",
     format = {},
-    faction_permissions = {"reset_ranks"},
+    faction_permissions = {"ranks"},
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         faction:reset_ranks()
@@ -1023,7 +1031,7 @@ factions.register_command("reset_ranks", {
 
 factions.register_command("set_spawn", {
     description = "Set the faction's spawn",
-    faction_permissions = {"set_spawn"},
+    faction_permissions = {"spawn"},
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         faction:set_spawn(pos)
@@ -1033,7 +1041,7 @@ factions.register_command("set_spawn", {
 
 factions.register_command("del_spawn", {
     description = "Set the faction's spawn to zero",
-    faction_permissions = {"unset_spawn"},
+    faction_permissions = {"spawn"},
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         faction:set_spawn({x=0,y=0,z=0})
