@@ -62,11 +62,7 @@ starting_ranks = {["leader"] = {"build","door","container","name","description",
 -- flags: manage faction's flags
 -- ranks: create, edit, and delete ranks
 -- promote: set a player's rank
--- declare_war: be able to declare war with another faction
--- neutral: be able to send a neutral request to another faction
--- alliance: be able to send a alliance request to another faction and break alliance treaties too
--- accept_treaty: be able to accept a treaty request from another faction
--- refuse_treaty: be able to refuse a treaty request from another faction
+-- diplomacy: be able to control the faction's diplomacy
 
 factions.permissions = {"build","pain_build","door","container","name","description","motd","invite","kick"
 						,"player_title","spawn","with_draw","territory","claim","access","disband","flags","ranks","promote"}
@@ -79,28 +75,16 @@ factions.permissions_desc = {"dig and place nodes","dig and place nodes but take
 -- monsters: can monsters spawn on your land?
 -- tax_kick: will players be kicked for not paying tax?
 -- animals: can animals spawn on your land?
-factions.flags = {"open","monsters","tax_kick","animals"}
+factions.flags = {"open", "monsters", "tax_kick", "animals"}
 factions.flags_desc = {"can the faction be joined without an invite?","can monsters spawn on your land?(unused)","will players be kicked for not paying tax?(unused)","can animals spawn on your land?(unused)"}
 
 if factions_config.faction_diplomacy == true then
-	table.insert(factions.permissions,"declare_war")
-	table.insert(factions.permissions,"neutral")
-	table.insert(factions.permissions,"alliance")
-	table.insert(factions.permissions,"accept_treaty")
-	table.insert(factions.permissions,"refuse_treaty")
+	table.insert(factions.permissions,"diplomacy")
 	
-	table.insert(factions.permissions_desc,"be able to declare war with another faction")
-	table.insert(factions.permissions_desc,"be able to send a neutral request to another faction")
-	table.insert(factions.permissions_desc,"be able to send a alliance request to another faction and break alliance treaties too")
-	table.insert(factions.permissions_desc,"be able to accept a treaty request from another faction")
-	table.insert(factions.permissions_desc,"be able to refuse a treaty request from another faction")
+	table.insert(factions.permissions_desc,"be able to control the faction's diplomacy")
 	
 	local lt = starting_ranks["leader"]
-	table.insert(lt,"declare_war")
-	table.insert(lt,"neutral")
-	table.insert(lt,"alliance")
-	table.insert(lt,"accept_treaty")
-	table.insert(lt,"refuse_treaty")
+	table.insert(lt,"diplomacy")
 	starting_ranks["leader"] = lt
 end
 
@@ -1184,7 +1168,6 @@ function factions.convert(filename)
 	file:close()
 	
     local data = minetest.deserialize(raw_data)
-	local old_permissions = {"disband", "claim", "playerslist", "build", "description", "promote", "diplomacy"}
 	
     for facname,faction in pairs(data) do
         local newfac = factions.new_faction(facname,true)
@@ -1206,22 +1189,6 @@ function factions.convert(filename)
 			newfac.rankless = faction.rankless
 		else
 			newfac.rankless = false
-		end
-		for rank,perm in pairs(faction.ranks) do
-			for index,value in pairs(perm) do
-				if value == "playerslist" then
-					table.remove(faction.ranks[rank],index)
-					table.insert(faction.ranks[rank],"kick")
-					table.insert(faction.ranks[rank],"invite")
-				elseif value == "diplomacy" then
-					table.remove(faction.ranks[rank],index)
-					table.insert(faction.ranks[rank],"declare_war")
-					table.insert(faction.ranks[rank],"neutral")
-					table.insert(faction.ranks[rank],"alliance")
-					table.insert(faction.ranks[rank],"accept_treaty")
-					table.insert(faction.ranks[rank],"refuse_treaty")
-				end
-			end
 		end
 		factions.start_diplomacy(facname,newfac)
 		newfac:check_power()

@@ -507,7 +507,7 @@ if factions_config.faction_diplomacy == true then
 		description = "Send an alliance request to another faction.",
 		global_privileges = def_global_privileges,
 		format = {"string"},
-		faction_permissions = {"alliance"},
+		faction_permissions = {"diplomacy"},
 		on_success = function(player, faction, pos, parcelpos, args)
 			if factions.factions[args.strings[1]] then
 				if not factions.factions[args.strings[1]].request_inbox[faction.name] then
@@ -544,7 +544,7 @@ if factions_config.faction_diplomacy == true then
 		description = "Send neutral to another faction.",
 		global_privileges = def_global_privileges,
 		format = {"string"},
-		faction_permissions = {"neutral"},
+		faction_permissions = {"diplomacy"},
 		on_success = function(player, faction, pos, parcelpos, args)
 			if factions.factions[args.strings[1]] then
 				if not factions.factions[args.strings[1]].request_inbox[faction.name] then
@@ -581,7 +581,7 @@ if factions_config.faction_diplomacy == true then
 		description = "accept an request from another faction.",
 		global_privileges = def_global_privileges,
 		format = {"string"},
-		faction_permissions = {"accept_treaty"},
+		faction_permissions = {"diplomacy"},
 		on_success = function(player, faction, pos, parcelpos, args)
 			if faction.request_inbox[args.strings[1]] then
 				if args.strings[1] == faction.name then
@@ -609,7 +609,7 @@ if factions_config.faction_diplomacy == true then
 		description = "refuse an request from another faction.",
 		global_privileges = def_global_privileges,
 		format = {"string"},
-		faction_permissions = {"refuse_treaty"},
+		faction_permissions = {"diplomacy"},
 		on_success = function(player, faction, pos, parcelpos, args)
 			if faction.request_inbox[args.strings[1]] then
 				if args.strings[1] == faction.name then
@@ -630,7 +630,7 @@ if factions_config.faction_diplomacy == true then
 		description = "Delcare war on a faction.",
 		global_privileges = def_global_privileges,
 		format = {"string"},
-		faction_permissions = {"declare_war"},
+		faction_permissions = {"diplomacy"},
 		on_success = function(player, faction, pos, parcelpos, args)
 			if not faction.enemies[args.strings[1]] then
 				if args.strings[1] == faction.name then
@@ -658,7 +658,7 @@ if factions_config.faction_diplomacy == true then
 		description = "Break an alliance.",
 		global_privileges = def_global_privileges,
 		format = {"string"},
-		faction_permissions = {"alliance"},
+		faction_permissions = {"diplomacy"},
 		on_success = function(player, faction, pos, parcelpos, args)
 			if faction.allies[args.strings[1]] then
 				if args.strings[1] == faction.name then
@@ -679,7 +679,7 @@ if factions_config.faction_diplomacy == true then
 	factions.register_command("inbox", {
 		description = "Check your diplomacy request inbox.",
 		global_privileges = def_global_privileges,
-		faction_permissions = {"accept_treaty","refuse_treaty","alliance","neutral","declare_war"},
+		faction_permissions = {"diplomacy"},
 		on_success = function(player, faction, pos, parcelpos, args)
 			local empty = true
 			for i,k in pairs(faction.request_inbox) do
