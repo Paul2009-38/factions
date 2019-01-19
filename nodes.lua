@@ -89,11 +89,20 @@ for i,k in ipairs(doors) do
 				def_after_place_node(pos, node, clicker, itemstack, pointed_thing)
 			end
 		end
-		clonenode.can_dig = function(pos, digger)
-			if factions.can_use_node(pos, digger:get_player_name(),"door") then
-				return def_can_dig(pos, digger)
+		if def_can_dig then
+			clonenode.can_dig = function(pos, digger)
+				if factions.can_use_node(pos, digger:get_player_name(),"door") then
+					return def_can_dig(pos, digger)
+				end
+				return false
 			end
-			return false
+		else
+			clonenode.can_dig = function(pos, digger)
+				if factions.can_use_node(pos, digger:get_player_name(),"door") then
+					return true
+				end
+				return false
+			end
 		end
 		minetest.register_node(":"..k,clonenode)
 	end
