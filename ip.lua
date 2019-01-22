@@ -5,14 +5,9 @@ factions_ip.player_ips = {}
 local factions_worldid = minetest.get_worldpath()
 
 function factions_ip.save()
-    local file,error = io.open(factions_worldid .. "/" .. "factions_iplist.txt","w")
-
-    if file ~= nil then
-        file:write(minetest.serialize(factions_ip.player_ips))
-        file:close()
-    else
-        minetest.log("error","MOD factions: unable to save faction player ips!: " .. error)
-    end
+	if not minetest.safe_file_write(factions_worldid .. "/" .. "factions_iplist.txt", minetest.serialize(factions_ip.player_ips)) then
+		minetest.log("error","MOD factions: unable to save faction player ips!: " .. error)
+	end
 end
 
 function factions_ip.load()

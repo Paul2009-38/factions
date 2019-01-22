@@ -5,12 +5,7 @@ misc_mod_data.data = {factions_version = "0.8.1",config = factions_config}
 local factions_worldid = minetest.get_worldpath()
 
 function misc_mod_data.save()
-    local file,error = io.open(factions_worldid .. "/" .. "factions_misc_mod_data.txt","w")
-
-    if file ~= nil then
-        file:write(minetest.serialize(misc_mod_data.data))
-        file:close()
-    else
+	if not minetest.safe_file_write(factions_worldid .. "/" .. "factions_misc_mod_data.txt", minetest.serialize(misc_mod_data.data)) then
         minetest.log("error","MOD factions: unable to save factions misc mod data!: " .. error)
     end
 end
