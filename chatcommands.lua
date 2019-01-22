@@ -210,13 +210,15 @@ factions.register_command ("claim", {
     description = "Claim the plot of land you're on.",
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
-        local can_claim = faction:can_claim_parcel(parcelpos)
+		local p = parcelpos
+		local can_claim = faction:can_claim_parcel(p)
+		
         if can_claim then
-            minetest.chat_send_player(player, "Claming parcel "..parcelpos)
-            faction:claim_parcel(parcelpos)
+            minetest.chat_send_player(player, "Claming parcel " .. p)
+            faction:claim_parcel(p)
             return true
         else
-            local parcel_faction = factions.get_parcel_faction(parcelpos)
+            local parcel_faction = factions.get_parcel_faction(p)
 			if parcel_faction and parcel_faction.name == faction.name then
 			    send_error(player, "This parcel already belongs to your faction.")
                 return false
@@ -278,6 +280,7 @@ factions.register_command("list", {
 --show factions mod version
 factions.register_command("version", {
     description = "Displays mod version.",
+	infaction = false,
     on_success = function(player, faction, pos, parcelpos, args)
         minetest.chat_send_player(player, "factions: version " .. misc_mod_data.data.factions_version , false)
     end
@@ -287,6 +290,7 @@ factions.register_command("version", {
 factions.register_command("info", {
     format = {"faction"},
     description = "Shows a faction's description.",
+	infaction = false,
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         minetest.chat_send_player(player,
@@ -356,14 +360,18 @@ factions.register_command("join", {
     infaction = false,
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
-        local new_faction = args.factions[1]
-        if new_faction:can_join(player) then
-            if faction then -- leave old faction
-                faction:remove_player(player)
-            end
+        if faction ~= nil or faction then
+			send_error(player, "You need to leave your current faction in order to join this one.")
+            return false
+		end
+		local new_faction = args.factions[1]
+        if new_faction and new_faction:can_join(player) then
             new_faction:add_player(player)
-        else
+        elseif new_faction then
             send_error(player, "You cannot join this faction.")
+            return false
+		else
+			send_error(player, "Enter the right faction name.")
             return false
         end
         return true
@@ -437,7 +445,9 @@ factions.register_command("invite", {
     description = "Invite a player to your faction.",
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
-        faction:invite_player(args.players[1]:get_player_name())
+        if args.players and args.players[1] then
+			faction:invite_player(args.players[1]:get_player_name())
+		end
         return true
     end
 },false)
@@ -478,6 +488,7 @@ factions.register_command("ranks", {
 factions.register_command("rank_privileges", {
     description = "List available rank privileges.",
 	global_privileges = def_global_privileges,
+	infaction = false,
     on_success = function(player, faction, pos, parcelpos, args)
 		minetest.chat_send_player(player, "Privileges available:\n")
 		for i, k in pairs(factions.permissions) do
@@ -765,6 +776,7 @@ local parcel_size_center = factions_config.parcel_size / 2
 factions.register_command("show_parcel", {
     description = "Shows parcel for six seconds.",
 	global_privileges = def_global_privileges,
+	infaction = false,
     on_success = function(player, faction, pos, parcelpos, args)
 		local parcel_faction = factions.get_parcel_faction(parcelpos)
 		if not parcel_faction then
@@ -1050,22 +1062,38 @@ factions.register_command("del_spawn", {
 },false)
 
 if factions_config.spawn_teleport == true then
+
+	local tip = {}
+	
 	factions.register_command("tp_spawn", {
 		description = "Teleport to the faction's spawn",
 		faction_permissions = {"spawn"},
 		global_privileges = def_global_privileges,
 		on_success = function(player, faction, pos, parcelpos, args)
 			if player then
+			if tip[player] then
+				minetest.chat_send_player(player, "Your already being teleported!")
+				return false
+			end
 				minetest.chat_send_player(player, "Teleporting in five seconds.")
 				minetest.after(5, 
 					function(faction,player)
 						faction:tp_spawn(player)
-					end,faction,player)
+						tip[player] = nil
+					end, faction, player)
+				tip[player] = true
 				return true
 			end
 			return false
 		end
 	},false)
+	
+	minetest.register_on_leaveplayer(
+	function(player)
+		local name = player:get_player_name()
+		tip[name] = nil
+	end
+)
 end
 
 factions.register_command("where", {
