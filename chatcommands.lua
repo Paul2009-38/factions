@@ -1204,8 +1204,23 @@ factions.register_command("promote", {
     on_success = function(player, faction, pos, parcelpos, args)
         local rank = args.strings[1]
         if faction.ranks[rank] then
-            factions.promote(faction.name, args.players[1]:get_player_name(), rank)
-            return true
+			local player_to_promote = args.players[1]
+			local name = player_to_promote:get_player_name()
+			
+			local player_faction, facname = factions.get_player_faction(name)
+			
+			local promoter_faction, promoter_facname = factions.get_player_faction(player)
+			
+			if player_faction and promoter_facname == facname then
+				factions.promote(faction.name, name, rank)
+				return true
+			elseif not player_faction or promoter_facname ~= facname then
+				send_error(player, name .. " is not in your faction")
+				return false
+			else
+				send_error(player, name .. " cannot be promoted from your faction")
+				return false
+			end
         else
             send_error(player, "The specified rank does not exist.")
             return false
