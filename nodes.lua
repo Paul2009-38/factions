@@ -1,4 +1,4 @@
-function factions.can_use_node(pos, player,permission)
+function factions.can_use_node(pos, player, permission)
     if not player then
         return false
     end
@@ -6,11 +6,12 @@ function factions.can_use_node(pos, player,permission)
 	if not parcel_faction then
         return true
     end
-    local player_faction = factions.get_player_faction(player)
-	if player_faction and (parcel_faction.name == player_faction.name or parcel_faction.allies[player_faction.name]) and player_faction:has_permission(player, permission) then
+    local player_faction, facname = factions.get_player_faction(player)
+	if player_faction and (parcel_faction.name == facname or parcel_faction.allies[facname]) and factions.has_permission(facname, player, permission) then
 		return true
 	end
 end
+
 -- Make default chest the faction chest.
 if minetest.registered_nodes["default:chest"] then
 	minetest.register_lbm({
@@ -42,33 +43,33 @@ if minetest.registered_nodes["default:chest"] then
 				name .. ")")
 		end
 	end
-	local can_dig = function(pos,player)
-		local meta = minetest.get_meta(pos);
+	local can_dig = function(pos, player)
+		local meta = minetest.get_meta(pos)
 		local inv = meta:get_inventory()
 		return inv:is_empty("main") and
-				factions.can_use_node(pos, player:get_player_name(),"container")
+				factions.can_use_node(pos, player:get_player_name(), "container")
 	end
 	local allow_metadata_inventory_move = function(pos, from_list, from_index,
 			to_list, to_index, count, player)
-		if not factions.can_use_node(pos, player:get_player_name(),"container") then
+		if not factions.can_use_node(pos, player:get_player_name(), "container") then
 			return 0
 		end
 		return count
 	end
 	local allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-		if not factions.can_use_node(pos, player:get_player_name(),"container") then
+		if not factions.can_use_node(pos, player:get_player_name(), "container") then
 			return 0
 		end
 		return stack:get_count()
 	end
 	local allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-		if not factions.can_use_node(pos, player:get_player_name(),"container") then
+		if not factions.can_use_node(pos, player:get_player_name(), "container") then
 			return 0
 		end
 		return stack:get_count()
 	end
 	local on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-		if not factions.can_use_node(pos, clicker:get_player_name(),"container") then
+		if not factions.can_use_node(pos, clicker:get_player_name(), "container") then
 			return itemstack
 		end
 		return def_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
@@ -80,6 +81,7 @@ if minetest.registered_nodes["default:chest"] then
 	allow_metadata_inventory_take = allow_metadata_inventory_take,
 	on_rightclick = on_rightclick})
 end
+
 -- Edit default doors and trapdoors to make them require the door permission.
 local doors = {"doors:door_wood_a", "doors:door_wood_b", "doors:door_steel_a", "doors:door_steel_b", "doors:door_glass_a", "doors:door_glass_b", 
 				"doors:door_obsidian_glass_a", "doors:door_obsidian_glass_b", "doors:trapdoor", "doors:trapdoor_open", "doors:trapdoor_steel", "doors:trapdoor_steel_open",
