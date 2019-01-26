@@ -809,12 +809,12 @@ function factions.set_rank_name(name, oldrank, newrank)
 	
 	if oldrank == faction.default_leader_rank then
 		faction.default_leader_rank = newrank
-		factions.broadcast("The default leader rank has been set to " .. newrank)
+		factions.broadcast(name, "The default leader rank has been set to " .. newrank)
 	end
 	
 	if oldrank == faction.default_rank then
 		faction.default_rank = newrank
-		factions.broadcast("The default rank given to new players is set to " .. newrank)
+		factions.broadcast(name, "The default rank given to new players is set to " .. newrank)
 	end
 	
     factions.on_set_rank_name(name, oldrank, newrank)
@@ -870,11 +870,11 @@ function factions.delete_rank(name, rank, newrank)
     factions.on_delete_rank(name, rank, newrank)
 	if rank == faction.default_leader_rank then
 		faction.default_leader_rank = newrank
-		factions.broadcast("The default leader rank has been set to "..newrank)
+		factions.broadcast(name, "The default leader rank has been set to "..newrank)
 	end
 	if rank == faction.default_rank then
 		faction.default_rank = newrank
-		factions.broadcast("The default rank given to new players is set to "..newrank)
+		factions.broadcast(name, "The default rank given to new players is set to "..newrank)
 	end
     
 	factions.factions.set(name, faction)

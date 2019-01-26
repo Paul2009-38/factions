@@ -36,7 +36,7 @@ function faction_convert()
 					factions.parcels.set(parcelpos, facname)
 				end
 			end
-			os.rename(path, minetest.get_worldpath() .. "/factions_old.txt")
+			os.rename(path, minetest.get_worldpath() .. "/factions_old.conf")
 		end
     end
 end
