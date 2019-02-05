@@ -500,7 +500,7 @@ function factions.disband(name, reason)
 	if not faction.is_admin then
 		for i, v in pairs(factions.get_faction_list()) do
 			local fac = factions.factions.get(v)
-			if fac.name ~= name then
+			if fac ~= nil and fac.name ~= name then
 				if fac.enemies[name] then
 					factions.end_enemy(fac.name, name)
 				end
@@ -1125,24 +1125,27 @@ function factions.faction_tick()
     local now = os.time()
     for i, facname in pairs(factions.get_faction_list()) do
         local faction = factions.factions.get(facname)
-		if factions.is_online(facname) then
-			if factions_config.enable_power_per_player then
-				local count = 0
-				for _ in pairs(factions.onlineplayers[facname]) do count = count + 1 end
-				factions.increase_power(facname, factions_config.power_per_player * count)
-			else
-				factions.increase_power(facname, factions_config.power_per_tick)
+		
+		if faction ~= nil then
+			if factions.is_online(facname) then
+				if factions_config.enable_power_per_player then
+					local count = 0
+					for _ in pairs(factions.onlineplayers[facname]) do count = count + 1 end
+					factions.increase_power(facname, factions_config.power_per_player * count)
+				else
+					factions.increase_power(facname, factions_config.power_per_tick)
+				end
 			end
-        end
-        if now - faction.last_logon > factions_config.maximum_faction_inactivity or (faction.no_parcel ~= -1 and now - faction.no_parcel > factions_config.maximum_parcelless_faction_time)  then
-            local r = ""
-			if now - faction.last_logon > factions_config.maximum_faction_inactivity  then
-				r = "inactivity"
-			else
-				r = "no parcel claims"
+			if now - faction.last_logon > factions_config.maximum_faction_inactivity or (faction.no_parcel ~= -1 and now - faction.no_parcel > factions_config.maximum_parcelless_faction_time)  then
+				local r = ""
+				if now - faction.last_logon > factions_config.maximum_faction_inactivity  then
+					r = "inactivity"
+				else
+					r = "no parcel claims"
+				end
+				factions.disband(facname, r)
 			end
-			factions.disband(facname, r)
-        end
+		end
     end
 end
 
