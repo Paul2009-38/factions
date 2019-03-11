@@ -346,10 +346,12 @@ function factions.add_player(name, player, rank)
     factions.players.set(player, name)
     faction.invited_players[player] = nil
 	local pdata = minetest.get_player_by_name(player)
-	local ipc = pdata:is_player_connected(player)
-	if ipc then
-		createHudFactionName(pdata, name)
-		createHudPower(pdata, faction)
+	if pdata then
+		local ipc = pdata:is_player_connected(player)
+		if ipc then
+			createHudFactionName(pdata, name)
+			createHudPower(pdata, faction)
+		end
 	end
     
 	factions.factions.set(name, faction)
@@ -395,11 +397,13 @@ function factions.remove_player(name, player)
 	end
 	
 	local pdata = minetest.get_player_by_name(player)
-	local ipc = pdata:is_player_connected(player)
-	
-	if ipc then
-		removeHud(pdata,"factionName")
-		removeHud(pdata,"powerWatch")
+	if pdata then
+		local ipc = pdata:is_player_connected(player)
+		
+		if ipc then
+			removeHud(pdata,"factionName")
+			removeHud(pdata,"powerWatch")
+		end
 	end
 	
 	factions.check_players_in_faction(name)
@@ -718,6 +722,7 @@ function factions.tp_spawn(name, playername)
 	
 	if player then
 		player:set_pos(faction.spawn)
+		minetest.sound_play("whoosh", {pos = faction.spawn, gain = 0.5, max_hear_distance = 10})
 	end
 end
 
@@ -1205,6 +1210,10 @@ minetest.register_on_leaveplayer(
 			if hud_ids[id_name3] then
 				hud_ids[id_name3] = nil
 			end
+			for k, v in pairs(factions.onlineplayers[facname]) do
+				return
+			end
+			factions.onlineplayers[facname] = nil
 		end
 	end
 )
@@ -1242,13 +1251,13 @@ minetest.is_protected = function(pos, player)
     if not parcel_faction then
         return default_is_protected(pos, player)
     elseif player_faction then
-        if parcel_name == player_name then
+        if parcel_faction.name == player_faction.name then
 			if factions.has_permission(parcel_fac_name, player, "pain_build") then
 				local p = minetest.get_player_by_name(player)
 				p:set_hp(p:get_hp() - 0.5)
 			end
             return not (factions.has_permission(parcel_fac_name, player, "build") or factions.has_permission(parcel_fac_name, player, "pain_build"))
-        elseif parcel_allies[player_name] then
+        elseif parcel_faction.allies[player_faction.name] then
 			if factions.has_permission(player_fac_name, player, "pain_build") then
 				local p = minetest.get_player_by_name(player)
 				p:set_hp(p:get_hp() - 0.5)

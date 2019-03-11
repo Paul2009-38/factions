@@ -82,11 +82,41 @@ if minetest.registered_nodes["default:chest"] then
 	on_rightclick = on_rightclick})
 end
 
+local door_items = {"doors:door_wood", "doors:door_steel", "doors:door_glass", "doors:door_obsidian_glass", "doors:woodglass_door", "doors:slide_door",
+					"doors:screen_door", "doors:rusty_prison_door", "doors:prison_door", "doors:japanese_door", "ts_doors:door_default_aspen_wood", "ts_doors:door_full_default_aspen_wood", 
+					"ts_doors:door_default_pine_wood", "ts_doors:door_full_default_pine_wood", "ts_doors:door_default_acacia_wood", "ts_doors:door_full_default_acacia_wood", 
+					"ts_doors:door_default_wood", "ts_doors:door_full_default_wood", "ts_doors:door_default_junglewood", "ts_doors:door_full_default_junglewood", 
+					"ts_doors:door_default_bronzeblock", "ts_doors:door_full_default_bronzeblock", "ts_doors:door_default_copperblock", "ts_doors:door_full_default_copperblock", 
+					"ts_doors:door_default_diamondblock", "ts_doors:door_full_default_diamondblock", "ts_doors:door_full_default_goldblock", "ts_doors:door_default_steelblock", "ts_doors:door_full_default_steelblock"}
+
+local trapdoor_items = {"doors:trapdoor", "doors:trapdoor_steel", "ts_doors:trapdoor_default_aspen_wood", "ts_doors:trapdoor_full_default_aspen_wood",
+					"ts_doors:trapdoor_default_wood", "ts_doors:trapdoor_full_default_wood", "ts_doors:trapdoor_default_acacia_wood", "ts_doors:trapdoor_full_default_acacia_wood",
+					"ts_doors:trapdoor_default_bronzeblock", "ts_doors:trapdoor_full_default_bronzeblock", "ts_doors:trapdoor_default_copperblock", "ts_doors:trapdoor_full_default_copperblock", "ts_doors:trapdoor_full_default_diamondblock",
+					"ts_doors:door_default_goldblock", "ts_doors:trapdoor_default_steelblock", "ts_doors:trapdoor_full_default_steelblock", "ts_doors:trapdoor_default_pine_wood", "ts_doors:trapdoor_full_default_pine_wood",
+					"ts_doors:trapdoor_full_default_goldblock", "ts_doors:trapdoor_default_junglewood", "ts_doors:trapdoor_full_default_junglewood",
+					"ts_doors:trapdoor_default_diamondblock", "ts_doors:trapdoor_default_goldblock"}					
+					
 -- Edit default doors and trapdoors to make them require the door permission.
-local doors = {"doors:door_wood_a", "doors:door_wood_b", "doors:door_steel_a", "doors:door_steel_b", "doors:door_glass_a", "doors:door_glass_b", 
-				"doors:door_obsidian_glass_a", "doors:door_obsidian_glass_b", "doors:trapdoor", "doors:trapdoor_open", "doors:trapdoor_steel", "doors:trapdoor_steel_open",
-				"doors:woodglass_door_a", "doors:woodglass_door_b", "doors:slide_door_a", "doors:slide_door_b", "doors:screen_door_a", "doors:screen_door_b", "doors:rusty_prison_door_a",
-				"doors:rusty_prison_door_b", "doors:prison_door_a", "doors:prison_door_b", "doors:japanese_door_a", "doors:japanese_door_b"}
+local doors = {}
+
+local all_items = {}
+
+local item_count = 1
+
+for i, l in ipairs(door_items) do
+	doors[item_count] = l .. "_a"
+	doors[item_count + 1] = l .. "_b"
+	all_items[item_count] = l
+	item_count = item_count + 2
+end
+
+for i, l in ipairs(trapdoor_items) do
+	doors[item_count] = l
+	doors[item_count + 1] = l .. "_open"
+	all_items[item_count] = l
+	item_count = item_count + 2
+end
+
 for i, l in ipairs(doors) do
 	local dw = minetest.registered_nodes[l]
 	if dw then
@@ -122,10 +152,7 @@ for i, l in ipairs(doors) do
 	end
 end
 
-local door_items = {"doors:door_wood", "doors:door_steel", "doors:door_glass", "doors:door_obsidian_glass", "doors:trapdoor", "doors:trapdoor_steel", "doors:woodglass_door", "doors:slide_door",
-					"doors:screen_door", "doors:rusty_prison_door", "doors:prison_door", "doors:japanese_door"}
-
-for i, l in ipairs(door_items) do
+for i, l in ipairs(all_items) do
 	local it = minetest.registered_items[l]
 	if it then
 		local def_on_place = it.on_place

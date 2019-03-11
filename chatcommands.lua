@@ -64,20 +64,17 @@ factions.register_command = function(cmd_name, cmd, ignore_param_count,or_perm)
                         table.insert(args.factions, fac)
                     end
                 elseif argtype == "player" then
-                    local pl = minetest.get_player_by_name(arg)
-                    if not pl and not factions.players[arg] then
-                        send_error(player, "Player is not online.")
-                        return false
-                    else
-                        table.insert(args.players, pl)
-                    end
+					local data = minetest.get_auth_handler().get_auth(arg)
+					if data then
+						table.insert(args.players, arg)
+					else
+						send_error(player, "Player does not exist.")
+						return false
+					end
                 elseif argtype == "string" then
                     table.insert(args.strings, arg)
                 else
 					table.insert(args.unknowns, arg)
-                    --minetest.log("error", "Bad format definition for function "..self.name)
-                    --send_error(player, "Internal server error")
-                    --return false
                 end
             end
             for i=2, #argv do
@@ -219,10 +216,10 @@ factions.register_command ("claim", {
             return true
         else
             local parcel_faction = factions.get_parcel_faction(p)
-			if parcel_faction and parcel_name == faction.name then
+			if parcel_faction and parcel_faction.name == faction.name then
 			    send_error(player, "This parcel already belongs to your faction")
                 return false
-            elseif parcel_faction and parcel_name ~= faction.name then
+            elseif parcel_faction and parcel_faction.name ~= faction.name then
                 send_error(player, "This parcel belongs to another faction")
                 return false
             elseif faction.power <= factions_config.power_per_parcel then
@@ -246,7 +243,7 @@ factions.register_command("unclaim", {
 		    send_error(player, "This parcel does not exist.")
             return false
 		end
-        if parcel_name ~= name then
+        if parcel_faction.name ~= faction.name then
             send_error(player, "This parcel does not belong to you.")
             return false
         else
@@ -316,8 +313,7 @@ factions.register_command("kick", {
     description = "Kick a player from your faction",
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
-        local victim = args.players[1]
-		local name = victim:get_player_name()
+        local name = args.players[1]
 		
         local victim_faction, facname = factions.get_player_faction(name)
 		
@@ -458,7 +454,11 @@ factions.register_command("invite", {
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         if args.players and args.players[1] then
-			factions.invite_player(faction.name, args.players[1]:get_player_name())
+			if player == args.players[1] then
+				send_error(player, "You can not invite yourself.")
+				return
+			end
+			factions.invite_player(faction.name, args.players[1])
 		end
         return true
     end
@@ -470,7 +470,7 @@ factions.register_command("uninvite", {
     description = "Revoke a player's invite.",
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
-        factions.revoke_invite(faction.name, args.players[1]:get_player_name())
+        factions.revoke_invite(faction.name, args.players[1])
         return true
     end
 },false)
@@ -1126,37 +1126,17 @@ factions.register_command("del_spawn", {
 },false)
 
 if factions_config.spawn_teleport == true then
-
-	local tip = {}
-	
 	factions.register_command("tp_spawn", {
 		description = "Teleport to the faction's spawn",
 		global_privileges = def_global_privileges,
 		on_success = function(player, faction, pos, parcelpos, args)
 			if player then
-			if tip[player] then
-				minetest.chat_send_player(player, "Your already being teleported!")
-				return false
-			end
 				minetest.chat_send_player(player, "Teleporting in five seconds.")
-				minetest.after(5, 
-					function(faction, player)
-						factions.tp_spawn(faction.name, player)
-						tip[player] = nil
-					end, faction, player)
-				tip[player] = true
-				return true
+				factions.tp_spawn(faction.name, player)
 			end
 			return false
 		end
 	},false)
-	
-	minetest.register_on_leaveplayer(
-	function(player)
-		local name = player:get_player_name()
-		tip[name] = nil
-	end
-)
 end
 
 factions.register_command("where", {
@@ -1204,8 +1184,7 @@ factions.register_command("promote", {
     on_success = function(player, faction, pos, parcelpos, args)
         local rank = args.strings[1]
         if faction.ranks[rank] then
-			local player_to_promote = args.players[1]
-			local name = player_to_promote:get_player_name()
+			local name = args.players[1]
 			
 			local player_faction, facname = factions.get_player_faction(name)
 			
@@ -1307,7 +1286,7 @@ factions.register_command("set_leader", {
     global_privileges = {"faction_admin"},
     format = {"faction", "player"},
     on_success = function(player, faction, pos, parcelpos, args)
-        local playername = args.players[1]:get_player_name()
+        local playername = args.players[1]
         local playerfaction, facname = factions.get_player_faction(playername)
         local targetfaction = args.factions[1]
         if playername ~= targetname then
@@ -1426,10 +1405,10 @@ factions.register_command("stats", {
         local f = args.factions[1]
 		local pps = 0
 		if factions_config.enable_power_per_player then
-			if factions.onlineplayers[faction.name] == nil then
-				factions.onlineplayers[faction.name] = {}
+			if factions.onlineplayers[f.name] == nil then
+				factions.onlineplayers[f.name] = {}
 			end
-			local t = factions.onlineplayers[faction.name]
+			local t = factions.onlineplayers[f.name]
 			local count = 0
 			for _ in pairs(t) do count = count + 1 end
 			pps = factions_config.power_per_player * count
@@ -1478,7 +1457,7 @@ factions_chat.cmdhandler = function (playername,parameter)
 	if parameter == nil or
 		parameter == "" then
         if player_faction then
-            minetest.chat_send_player(playername, "You are in faction "..player_name..". Type /f help for a list of commands.")
+            minetest.chat_send_player(playername, "You are in faction " .. player_faction.name .. ". Type /f help for a list of commands.")
         else
             minetest.chat_send_player(playername, "You are part of no faction")
         end
