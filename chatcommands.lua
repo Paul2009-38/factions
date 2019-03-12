@@ -459,6 +459,25 @@ factions.register_command("invite", {
 				return
 			end
 			factions.invite_player(faction.name, args.players[1])
+			minetest.chat_send_player(player, "Invite Sent.")
+		end
+        return true
+    end
+},false)
+
+factions.register_command("invites", {
+    description = "List invited players.",
+	faction_permissions = {"invite"},
+	global_privileges = def_global_privileges,
+    on_success = function(player, faction, pos, parcelpos, args)
+        minetest.chat_send_player(player, "Invited players:")
+		local foundplayer = false
+		for p, _ in pairs(faction.invited_players) do
+			minetest.chat_send_player(player, p)
+			foundplayer = true
+		end
+		if not foundplayer then
+			minetest.chat_send_player(player, "None:")
 		end
         return true
     end
@@ -471,6 +490,7 @@ factions.register_command("uninvite", {
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         factions.revoke_invite(faction.name, args.players[1])
+		minetest.chat_send_player(player, "Invite canceled.")
         return true
     end
 },false)
@@ -815,17 +835,26 @@ if factions_config.faction_diplomacy == true then
 end
 
 factions.register_command("who", {
-    description = "List players in your faction, and their ranks.",
-	global_privileges = def_global_privileges,
+    description = "List players in a faction, and their ranks.",
+    infaction = false,
+    global_privileges = def_global_privileges,
+    format = {"faction"},
     on_success = function(player, faction, pos, parcelpos, args)
-        if not faction.players then
-            minetest.chat_send_player(player, "There is nobody in this faction (" .. faction.name .. ")")
-            return true
+        local f = args.factions[1]
+		
+		if not f then
+			minetest.chat_send_player(player, "There faction (" .. f.name .. ") does not exist.")
+			return
+		end
+		
+		if not f.players then
+            minetest.chat_send_player(player, "There is nobody in this faction (" .. f.name .. ")")
+            return
         end
 		
-        minetest.chat_send_player(player, "Players in faction " .. faction.name .. ": ")
+        minetest.chat_send_player(player, "Players in faction " .. f.name .. ": ")
 		
-        for p, rank in pairs(faction.players) do
+        for p, rank in pairs(f.players) do
             minetest.chat_send_player(player, p .." (" .. rank .. ")")
         end
 		
@@ -1192,6 +1221,7 @@ factions.register_command("promote", {
 			
 			if player_faction and promoter_facname == facname then
 				factions.promote(faction.name, name, rank)
+				minetest.chat_send_player(player, "Promoted " .. name .. " to " .. rank .. "!")
 				return true
 			elseif not player_faction or promoter_facname ~= facname then
 				send_error(player, name .. " is not in your faction")
@@ -1289,8 +1319,9 @@ factions.register_command("set_leader", {
         local playername = args.players[1]
         local playerfaction, facname = factions.get_player_faction(playername)
         local targetfaction = args.factions[1]
-        if playername ~= targetname then
-            send_error(player, "Player " .. playername .. " is not in faction " .. targetname .. ".")
+		
+        if facname ~= targetfaction.name then
+            send_error(player, "Player " .. playername .. " is not in faction " .. targetfaction.name .. ".")
             return false
         end
         factions.set_leader(targetfaction.name, playername)
@@ -1378,21 +1409,6 @@ factions.register_command("get_factions_spawn", {
             send_error(player, "Faction has no spawn set.")
             return false
         end
-    end
-},false)
-
-factions.register_command("whoin", {
-    description = "Get all members of a faction",
-    infaction = false,
-    global_privileges = def_global_privileges,
-    format = {"faction"},
-    on_success = function(player, faction, pos, parcelpos, args)
-        local msg = {}
-        for player, _ in pairs(args.factions[1].players) do
-            table.insert(msg, player)
-        end
-        minetest.chat_send_player(player, table.concat(msg, ", "))
-        return true
     end
 },false)
 
