@@ -33,7 +33,7 @@ util = {
 
 starting_ranks = {["leader"] = {"build", "door", "container", "name", "description", "motd", "invite", "kick"
 						, "player_title", "spawn", "with_draw", "territory", "claim", "access", "disband", "flags", "ranks", "promote"},
-                 ["moderator"] = {"claim", "door", "build", "spawn", "invite", "kick", "promote"},
+                 ["moderator"] = {"claim", "door", "build", "spawn", "invite", "kick", "promote", "container"},
                  ["member"] = {"build", "container", "door"}
                 }
 
