@@ -32,7 +32,7 @@ util = {
 }
 
 starting_ranks = {["leader"] = {"build", "door", "container", "name", "description", "motd", "invite", "kick"
-						, "player_title", "spawn", "with_draw", "territory", "claim", "access", "disband", "flags", "ranks", "promote"},
+						, "spawn", "with_draw", "territory", "claim", "access", "disband", "flags", "ranks", "promote"},
                  ["moderator"] = {"claim", "door", "build", "spawn", "invite", "kick", "promote", "container"},
                  ["member"] = {"build", "container", "door"}
                 }
@@ -48,7 +48,6 @@ starting_ranks = {["leader"] = {"build", "door", "container", "name", "descripti
 -- motd: set the faction's message of the day
 -- invite: (un)invite players to join the faction
 -- kick: kick players off the faction
--- player_title: set player titles
 -- spawn: set the faction's spawn
 -- with_draw: withdraw money from the faction's bank
 -- territory: claim or unclaim territory
@@ -61,7 +60,7 @@ starting_ranks = {["leader"] = {"build", "door", "container", "name", "descripti
 -- diplomacy: be able to control the faction's diplomacy
 
 factions.permissions = {"build", "pain_build", "door", "container", "name", "description", "motd", "invite", "kick"
-						, "player_title", "spawn", "with_draw", "territory", "claim", "access", "disband", "flags", "ranks", "promote"}
+						, "spawn", "with_draw", "territory", "claim", "access", "disband", "flags", "ranks", "promote"}
 factions.permissions_desc = {"dig and place nodes", "dig and place nodes but take damage doing so", "open/close or dig faction doors", "be able to use containers like chest", "set the faction's name"
 						, "Set the faction description", "set the faction's message of the day", "(un)invite players to join the faction", "kick players off the faction", "set player titles", "set the faction's spawn"
 						, "withdraw money from the faction's bank", "claim or unclaim territory", "(un)claim parcels of land", "manage access to territory and parcels of land to players or factions"
