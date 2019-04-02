@@ -39,7 +39,7 @@ if minetest.registered_nodes["default:chest"] then
 			local meta = minetest.get_meta(pos)
 			local name = parcel_faction.name
 			meta:set_string("faction", name)
-			meta:set_string("infotext", "Faction Chest (owned by faction " ..
+			meta:set_string("infotext", "Faction Container (owned by faction " ..
 				name .. ")")
 		end
 	end
@@ -75,11 +75,11 @@ if minetest.registered_nodes["default:chest"] then
 		return def_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
 	end
 	minetest.override_item("default:chest", {after_place_node = after_place_node,
-	can_dig = can_dig,
-	allow_metadata_inventory_move = allow_metadata_inventory_move,
-	allow_metadata_inventory_put = allow_metadata_inventory_put,
-	allow_metadata_inventory_take = allow_metadata_inventory_take,
-	on_rightclick = on_rightclick})
+		can_dig = can_dig,
+		allow_metadata_inventory_move = allow_metadata_inventory_move,
+		allow_metadata_inventory_put = allow_metadata_inventory_put,
+		allow_metadata_inventory_take = allow_metadata_inventory_take,
+		on_rightclick = on_rightclick})
 end
 
 local door_items = {"doors:door_wood", "doors:door_steel", "doors:door_glass", "doors:door_obsidian_glass", "doors:woodglass_door", "doors:slide_door",
@@ -103,17 +103,20 @@ local all_items = {}
 
 local item_count = 1
 
+local old_i = 0
+
 for i, l in ipairs(door_items) do
 	doors[item_count] = l .. "_a"
 	doors[item_count + 1] = l .. "_b"
-	all_items[item_count] = l
+	all_items[i] = l
 	item_count = item_count + 2
+	old_i = old_i + 1
 end
 
 for i, l in ipairs(trapdoor_items) do
 	doors[item_count] = l
 	doors[item_count + 1] = l .. "_open"
-	all_items[item_count] = l
+	all_items[old_i + i] = l
 	item_count = item_count + 2
 end
 
