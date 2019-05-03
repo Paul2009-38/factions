@@ -64,19 +64,20 @@ minetest.register_on_leaveplayer(
 				return
 			end
 			factions.onlineplayers[facname] = nil
-			on_death[pname] = nil
+			on_death[name] = nil
 		end
 	end
 )
 
 minetest.register_on_respawnplayer(
     function(player)
-        local faction, facname = factions.get_player_faction(player:get_player_name())
+        local name = player:get_player_name()
+		local faction, facname = factions.get_player_faction(name)
         
 		if not faction then
             return false
         else
-			on_death[pname] = nil
+			on_death[name] = nil
             if not faction.spawn then
                 return false
             else
