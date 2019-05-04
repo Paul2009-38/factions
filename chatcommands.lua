@@ -940,14 +940,12 @@ factions.register_command("who", {
     on_success = function(player, faction, pos, parcelpos, args)
         local str = args.strings[1]
 		
-		local f = {}
-		
 		if str then
-			f = factions.get_faction(str)
+			local f = factions.get_faction(str)
 			
 			if not f and not f.players then
 				f = factions.get_player_faction(player)
-				if not f and not f.players then
+				if not f or not f.players then
 					minetest.chat_send_player(player, "Your not in a faction.")
 					return
 				else
@@ -965,8 +963,8 @@ factions.register_command("who", {
 				return true
 			end
 		else
-			f = factions.get_player_faction(player)
-			if not f and not f.players then
+			local f = factions.get_player_faction(player)
+			if not f or not f.players then
 				minetest.chat_send_player(player, "Your not in a faction.")
 				return
 			else
