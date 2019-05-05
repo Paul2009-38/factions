@@ -1,5 +1,0 @@
-default?
-doors?
-xdecor?
-colddb
-ts_doors?
