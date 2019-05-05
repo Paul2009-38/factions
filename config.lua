@@ -1,6 +1,4 @@
 factions_config = {}
--- If you want to hardcode the config settings just delete settingstypes.txt, and the line up to END. And then uncomment the hardcoded settings below and change it to whatever you want.
--- settingstypes
 local flip = tonumber(minetest.settings:get("protection_max_depth")) or 512
 factions_config.protection_max_depth = -flip
 factions_config.protection_max_height = tonumber(minetest.settings:get("protection_max_height")) or 10000
@@ -25,30 +23,3 @@ factions_config.faction_diplomacy = minetest.settings:get_bool("faction_diplomac
 factions_config.spawn_teleport =  minetest.settings:get_bool("spawn_teleport") or false
 factions_config.protection_style = minetest.settings:get("protection_style") or "2d"
 factions_config.faction_user_priv = minetest.settings:get("faction_user_priv") or false
--- END
---[[
--- hardcoded config settings
-factions_config.protection_max_depth = -512
-factions_config.protection_max_height = 10000
-factions_config.power_per_parcel = 1
-factions_config.power_per_death = 1
-factions_config.power_per_tick = 2
-factions_config.tick_time = 60
-factions_config.power_per_attack = 10
-factions_config.faction_name_max_length = 50
-factions_config.rank_name_max_length = 25
-factions_config.maximum_faction_inactivity = 604800
-factions_config.maximum_parcelless_faction_time = 10800
-factions_config.power = 12
-factions_config.maxpower = 0
-factions_config.power_per_player = 1
-factions_config.powermax_per_player = 12
-factions_config.parcel_size = 16
-factions_config.protection_depth_height_limit = true
-factions_config.enable_power_per_player = true
-factions_config.attack_parcel = false
-factions_config.faction_diplomacy = true
-factions_config.spawn_teleport = false
-factions_config.protection_style = "2d"
-factions_config.faction_user_priv = false
---]]

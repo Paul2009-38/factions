@@ -112,7 +112,7 @@ function hudUpdateClaimInfo()
 	for i in pairs(playerslist) do
 		local player = playerslist[i]
 		local name = player:get_player_name()
-		local faction, facname = factions.get_faction_at(player:getpos())
+		local faction, facname = factions.get_faction_at(player:get_pos())
 		local id_name = name .. "factionLand"
 		
 		if hud_ids[id_name] then

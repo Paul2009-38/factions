@@ -489,7 +489,7 @@ end
 function factions.get_faction_at(pos)
 	local y = pos.y
     if factions_config.protection_depth_height_limit and (pos.y < factions_config.protection_max_depth or pos.y > factions_config.protection_max_height) then
-        return nil
+		return nil
     end
     local parcelpos = factions.get_parcel_pos(pos)
     return factions.get_parcel_faction(parcelpos)

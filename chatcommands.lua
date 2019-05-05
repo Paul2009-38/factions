@@ -109,7 +109,7 @@ factions.register_command = function(cmd_name, cmd, ignore_param_count, or_perm,
 			end
 
             -- get some more data
-            local pos = minetest.get_player_by_name(player):getpos()
+            local pos = minetest.get_player_by_name(player):get_pos()
             local parcelpos = factions.get_parcel_pos(pos)
             return self.on_success(player, player_faction, pos, parcelpos, args)
         end,

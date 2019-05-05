@@ -30,6 +30,7 @@ if minetest.registered_nodes["default:chest"] then
 			end
 		end
 	})
+	
 	local dc = minetest.registered_nodes["default:chest"]
 	local def_on_rightclick = dc.on_rightclick
 
@@ -43,37 +44,77 @@ if minetest.registered_nodes["default:chest"] then
 				name .. ")")
 		end
 	end
+	
 	local can_dig = function(pos, player)
 		local meta = minetest.get_meta(pos)
 		local inv = meta:get_inventory()
 		return inv:is_empty("main") and
 				factions.can_use_node(pos, player:get_player_name(), "container")
 	end
-	local allow_metadata_inventory_move = function(pos, from_list, from_index,
-			to_list, to_index, count, player)
-		if not factions.can_use_node(pos, player:get_player_name(), "container") then
-			return 0
+	
+	local allow_metadata_inventory_move
+	local def_allow_metadata_inventory_move = dc.allow_metadata_inventory_move
+	if def_allow_metadata_inventory_move then
+		allow_metadata_inventory_move = function(pos, from_list, from_index,
+				to_list, to_index, count, player)
+			if not factions.can_use_node(pos, player:get_player_name(), "container") then
+				return 0
+			end
+			return def_allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
 		end
-		return count
-	end
-	local allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-		if not factions.can_use_node(pos, player:get_player_name(), "container") then
-			return 0
+	else
+		allow_metadata_inventory_move = function(pos, from_list, from_index,
+				to_list, to_index, count, player)
+			if not factions.can_use_node(pos, player:get_player_name(), "container") then
+				return 0
+			end
+			return count
 		end
-		return stack:get_count()
 	end
-	local allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-		if not factions.can_use_node(pos, player:get_player_name(), "container") then
-			return 0
+	
+	local allow_metadata_inventory_put
+	local def_allow_metadata_inventory_put = dc.allow_metadata_inventory_put
+	if def_allow_metadata_inventory_put then
+		allow_metadata_inventory_put = function(pos, listname, index, stack, player)
+			if not factions.can_use_node(pos, player:get_player_name(), "container") then
+				return 0
+			end
+			return def_allow_metadata_inventory_put(pos, listname, index, stack, player)
 		end
-		return stack:get_count()
+	else
+		allow_metadata_inventory_put = function(pos, listname, index, stack, player)
+			if not factions.can_use_node(pos, player:get_player_name(), "container") then
+				return 0
+			end
+			return stack:get_count()
+		end
 	end
+	
+	local allow_metadata_inventory_take
+	local def_allow_metadata_inventory_take = dc.allow_metadata_inventory_take
+	if def_allow_metadata_inventory_take then
+		allow_metadata_inventory_take = function(pos, listname, index, stack, player)
+			if not factions.can_use_node(pos, player:get_player_name(), "container") then
+				return 0
+			end
+			return def_allow_metadata_inventory_take(pos, listname, index, stack, player)
+		end
+	else
+		allow_metadata_inventory_take = function(pos, listname, index, stack, player)
+			if not factions.can_use_node(pos, player:get_player_name(), "container") then
+				return 0
+			end
+			return stack:get_count()
+		end
+	end
+	
 	local on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
 		if not factions.can_use_node(pos, clicker:get_player_name(), "container") then
 			return itemstack
 		end
 		return def_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
 	end
+	
 	minetest.override_item("default:chest", {after_place_node = after_place_node,
 		can_dig = can_dig,
 		allow_metadata_inventory_move = allow_metadata_inventory_move,
