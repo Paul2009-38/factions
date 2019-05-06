@@ -466,10 +466,10 @@ function factions.is_online(name)
 end
 
 function factions.get_parcel_pos(pos)
-	if factions_config.protection_style == "2d" then
-		return math.floor(pos.x / parcel_size) * parcel_size .. "," .. math.floor(pos.z / parcel_size) * parcel_size
-	elseif factions_config.protection_style == "3d" then
+	if factions_config.protection_style == "3d" then
 		return math.floor(pos.x / parcel_size) * parcel_size .. "," .. math.floor(pos.y / parcel_size) * parcel_size .. "," .. math.floor(pos.z / parcel_size) * parcel_size
+	else
+		return math.floor(pos.x / parcel_size) * parcel_size .. "," .. math.floor(pos.z / parcel_size) * parcel_size
 	end
 end
 
