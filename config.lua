@@ -1,6 +1,5 @@
 factions_config = {}
-local flip = tonumber(minetest.settings:get("protection_max_depth")) or 512
-factions_config.protection_max_depth = -flip
+factions_config.protection_max_depth = tonumber(minetest.settings:get("protection_max_depth")) or -512
 factions_config.protection_max_height = tonumber(minetest.settings:get("protection_max_height")) or 10000
 factions_config.power_per_parcel = tonumber(minetest.settings:get("power_per_parcel")) or 1
 factions_config.power_per_death = tonumber(minetest.settings:get("power_per_death")) or 1
