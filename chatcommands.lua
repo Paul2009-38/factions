@@ -942,19 +942,9 @@ factions.register_command("who", {
 		
 		if str then
 			local f = factions.get_faction(str)
-			
-			if not f and not f.players then
-				f = factions.get_player_faction(player)
-				if not f or not f.players then
-					minetest.chat_send_player(player, "Your not in a faction.")
-					return
-				else
-					minetest.chat_send_player(player, "Players in faction " .. f.name .. ": ")
-					for p, rank in pairs(f.players) do
-						minetest.chat_send_player(player, p .." (" .. rank .. ")")
-					end
-					return true
-				end
+			if not f or not f.players then
+				minetest.chat_send_player(player, "Faction " .. str .. " does not exist.")
+				return
 			else
 				minetest.chat_send_player(player, "Players in faction " .. f.name .. ": ")
 				for p, rank in pairs(f.players) do
