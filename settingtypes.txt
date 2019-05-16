@@ -49,7 +49,7 @@ factions.spawn_teleport (Enable spawn teleport) bool false
 factions.faction_user_priv (Enable faction user priv) bool false
 
 [StringSettings]
-# Set the way that the parcel protection works (2d,3d).
+# Set the way that the parcel protection works (2d, 3d).
 # 2d limits how far x and z can go but protection on the y goes up and down far.
 # 3d limits all three axis.
-factions.protection_style (Protection style) string 2d
+factions.protection_style (Protection style) enum 2d 3d,2d
