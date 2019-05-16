@@ -1,55 +1,55 @@
 [ValueSettings]
 
 # The max depth of protection from a parcel.
-protection_max_depth (Protection max depth) float 512
+factions.protection_max_depth (Protection max depth) float 512
 # The max height of protection from a parcel.
-protection_max_height (Protection max height) float 10000
+factions.protection_max_height (Protection max height) float 10000
 # Cost of power to claim a parcel of land.
-power_per_parcel (Power-per-parcel) float 1
+factions.power_per_parcel (Power-per-parcel) float 1
 # Power lost on death.
-power_per_death (Power-per-death) float 1
+factions.power_per_death (Power-per-death) float 1
 # Power regeneration rate.
-power_per_tick (Power-per-tick) float 2
+factions.power_per_tick (Power-per-tick) float 2
 # Faction timer. This timer regenerates power.
-tick_time (Faction timer) float 60
+factions.tick_time (Faction timer) float 60
 # Not in use.
-power_per_attack (Power-per-attack) float 10
+factions.power_per_attack (Power-per-attack) float 10
 # Limit how long a faction name can be.
-faction_name_max_length (Faction name max) int 50
+factions.faction_name_max_length (Faction name max) int 50
 # Limit how long a rank name can be.
-rank_name_max_length (Rank name max length) int 25
+factions.rank_name_max_length (Rank name max length) int 25
 # The maximum amount of inactivity before disbanning a faction.
-maximum_faction_inactivity (Maximum faction inactivity) int 604800
+factions.maximum_faction_inactivity (Maximum faction inactivity) int 604800
 # The maximum amount of time for a parcelless faction to disban.
-maximum_parcelless_faction_time (Maximum parcelless faction time) int 10800
+factions.maximum_parcelless_faction_time (Maximum parcelless faction time) int 10800
 # Power of a starting faction (needed for parcel claiming).
-power (Starting power) float 12
+factions.power (Starting power) float 12
 # Maximum power of a starting faction.
-maxpower (Starting Maximum power) float 0
+factions.maxpower (Starting Maximum power) float 0
 # How much power the players make.
-power_per_player (power-per-player) float 1
+factions.power_per_player (power-per-player) float 1
 # How much max power is created per new player.
-powermax_per_player (powermax-per-player) float 12
+factions.powermax_per_player (powermax-per-player) float 12
 # parcel size
-parcel_size (parcel-size) float 16
+factions.parcel_size (parcel-size) float 16
 
 [BoolSettings]
 
 # Enable or disabled power-per-player.
-power_per_playerb (Enable power-per-player) bool true
+factions.power_per_playerb (Enable power-per-player) bool true
 # Enable or disabled attack_parcel function.
-attack_parcel (Enable attack parcel) bool false
+factions.attack_parcel (Enable attack parcel) bool false
 # Enable or disabled faction diplomacy.
-faction_diplomacy (Enable faction diplomacy) bool true
+factions.faction_diplomacy (Enable faction diplomacy) bool true
 # Enable or disabled the max depth and height limit for a parcel
-protection_depth_height_limit (Enable protection depth height limit) bool true
+factions.protection_depth_height_limit (Enable protection depth height limit) bool true
 # Enable or disabled faction spawn teleport
-spawn_teleport (Enable spawn teleport) bool false
+factions.spawn_teleport (Enable spawn teleport) bool false
 # Enable or disabled the need for faction_user priv
-faction_user_priv (Enable faction user priv) bool false
+factions.faction_user_priv (Enable faction user priv) bool false
 
 [StringSettings]
 # Set the way that the parcel protection works (2d,3d).
 # 2d limits how far x and z can go but protection on the y goes up and down far.
 # 3d limits all three axis.
-protection_style (Protection style) string 2d
+factions.protection_style (Protection style) string 2d
