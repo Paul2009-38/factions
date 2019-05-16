@@ -232,7 +232,7 @@ function factions.add_player(name, player, rank)
     faction.invited_players[player] = nil
 	local pdata = minetest.get_player_by_name(player)
 	if pdata then
-		local ipc = pdata:is_player_connected(player)
+		local ipc = pdata:is_player_connected()
 		if ipc then
 			createHudFactionName(pdata, name)
 			createHudPower(pdata, faction)
@@ -283,7 +283,7 @@ function factions.remove_player(name, player)
 	
 	local pdata = minetest.get_player_by_name(player)
 	if pdata then
-		local ipc = pdata:is_player_connected(player)
+		local ipc = pdata:is_player_connected()
 		
 		if ipc then
 			removeHud(pdata,"factionName")
