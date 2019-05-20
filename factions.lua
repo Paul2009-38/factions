@@ -429,7 +429,6 @@ function factions.tp_spawn(name, playername)
 	
 	if player then
 		player:set_pos(faction.spawn)
-		minetest.sound_play("whoosh", {pos = faction.spawn, gain = 0.5, max_hear_distance = 10})
 	end
 end
 
