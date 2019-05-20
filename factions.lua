@@ -142,7 +142,7 @@ function factions.set_name(oldname, name)
 	local faction = factions.factions.get(oldname)
 	faction.name = name
 	
-	for i, v in pairs(factions.get_faction_list()) do
+	for i, v in factions.factions.iterate() do
 		if v ~= oldname then
 			local fac = factions.factions.get(v)
 			
@@ -301,7 +301,7 @@ function factions.disband(name, reason)
 	local faction = factions.factions.get(name)
 	
 	if not faction.is_admin then
-		for i, v in pairs(factions.get_faction_list()) do
+		for i, v in factions.factions.iterate() do
 			local fac = factions.factions.get(v)
 			if fac ~= nil and fac.name ~= name then
 				if fac.enemies[name] then
@@ -495,21 +495,9 @@ function factions.get_faction_at(pos)
     return factions.get_parcel_faction(parcelpos)
 end
 
-function factions.get_faction_list()
-
-	local names = {}
-	local directory = string.format("%s/factions/factions", minetest.get_worldpath())
-	local nameslist = minetest.get_dir_list(directory)
-	for k, v in pairs(nameslist) do
-		names[#names + 1] = v:sub(0, v:len() - 5)
-	end
-
-    return names
-end
-
 function factions.faction_tick()
     local now = os.time()
-    for i, facname in pairs(factions.get_faction_list()) do
+    for i, facname in factions.factions.iterate() do
         local faction = factions.factions.get(facname)
 		
 		if faction ~= nil then
