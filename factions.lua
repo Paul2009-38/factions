@@ -142,7 +142,7 @@ function factions.set_name(oldname, name)
 	local faction = factions.factions.get(oldname)
 	faction.name = name
 	
-	for i, v in factions.factions.iterate() do
+	for v, i in factions.factions.iterate() do
 		if v ~= oldname then
 			local fac = factions.factions.get(v)
 			
@@ -301,7 +301,7 @@ function factions.disband(name, reason)
 	local faction = factions.factions.get(name)
 	
 	if not faction.is_admin then
-		for i, v in factions.factions.iterate() do
+		for v, i in factions.factions.iterate() do
 			local fac = factions.factions.get(v)
 			if fac ~= nil and fac.name ~= name then
 				if fac.enemies[name] then
@@ -496,7 +496,7 @@ end
 
 function factions.faction_tick()
     local now = os.time()
-    for i, facname in factions.factions.iterate() do
+    for facname, i in factions.factions.iterate() do
         local faction = factions.factions.get(facname)
 		
 		if faction ~= nil then

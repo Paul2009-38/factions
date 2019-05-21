@@ -1,13 +1,13 @@
 function factions.start_diplomacy(name, faction)
 	for l, i in factions.factions.iterate() do
-		local fac = factions.factions.get(i)
-		if i ~= name and not (faction.neutral[i] or faction.allies[i] or faction.enemies[i]) then
+		local fac = factions.factions.get(l)
+		if l ~= name and not (faction.neutral[l] or faction.allies[l] or faction.enemies[l]) then
 			if factions_config.faction_diplomacy == true then
-				factions.new_neutral(name, i)
-				factions.new_neutral(i, name)
+				factions.new_neutral(name, l)
+				factions.new_neutral(l, name)
 			else
-				factions.new_enemy(name, i)
-				factions.new_enemy(i, name)
+				factions.new_enemy(name, l)
+				factions.new_enemy(l, name)
 			end
 		end
 	end

@@ -330,10 +330,10 @@ factions.register_command("list", {
     infaction = false,
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
-        local list = factions.factions.iterate()
+        local list = factions.factions.to_array()
         local tosend = "Existing factions:"
         
-        for i,v in ipairs(list) do
+        for i, v in ipairs(list) do
             if i ~= #list then
                 tosend = tosend .. " " .. v .. ","
             else
@@ -1525,7 +1525,7 @@ factions.register_command("obliterate", {
     infaction = false,
     global_privileges = {"faction_admin"},
     on_success = function(player, faction, pos, parcelpos, args)
-        for i, facname in factions.factions.iterate() do
+        for facname, i in factions.factions.iterate() do
             factions.disband(facname, "obliterated")
         end
         return true
