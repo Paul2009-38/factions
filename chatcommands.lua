@@ -1404,11 +1404,12 @@ factions.register_command("chat", {
     description = "Send a message to your faction's members",
 	description_arg = " <message>:",
 	global_privileges = def_global_privileges,
+	format = {"string"},
     on_success = function(player, faction, pos, parcelpos, args)
         local msg = table.concat(args.strings, " ")
         factions.broadcast(faction.name, msg, player)
     end
-},true)
+}, true)
 
 factions.register_command("force_update", {
     description = "Forces an update tick.",
