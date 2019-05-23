@@ -271,7 +271,7 @@ function factions.claim_all(player, faction)
 end
 
 function factions.claim_help(player, func)
-	local text = "<o,one, a,auto, f,fill, s,square, c,circle, all, h,help>, <none, number>"
+	local text = "All params for /f claim: <o,one, a,auto, f,fill, s,square, c,circle, all, h,help>, <none, number>"
 	
 	if func == "o" or func == "one" then
 		text = "/f claim o\n/f claim one\n Claim one parcel."
@@ -396,7 +396,7 @@ function factions.unclaim_all(player, faction)
 end
 
 function factions.unclaim_help(player, func)
-	local text = "<o,one, a,auto, f,fill, s,square, c,circle, all, h,help>, <none, number>"
+	local text = "All params for /f unclaim: <o,one, a,auto, f,fill, s,square, c,circle, all, h,help>, <none, number>"
 	
 	if func == "o" or func == "one" then
 		text = "/f unclaim o\n/f unclaim one\n Unclaim one parcel."
@@ -415,8 +415,7 @@ function factions.unclaim_help(player, func)
 	minetest.chat_send_player(player, text)
 end
 
-minetest.register_on_leaveplayer(
-	function(player)
+minetest.register_on_leaveplayer(function(player)
 		auto_list[player:get_player_name()] = nil
 	end
 )
