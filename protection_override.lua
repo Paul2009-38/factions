@@ -9,7 +9,11 @@ minetest.is_protected = function(pos, player)
 
     local parcelpos = factions.get_parcel_pos(pos)
     local parcel_faction, parcel_fac_name = factions.get_parcel_faction(parcelpos)
-    local player_faction, player_fac_name = factions.get_player_faction(player)
+    local player_faction
+    local player_fac_name
+    if player then
+        player_faction, player_fac_name = factions.get_player_faction(player)
+    end
 	
     -- no faction
     if not parcel_faction then
@@ -33,4 +37,5 @@ minetest.is_protected = function(pos, player)
     else
         return true
     end
+    return false
 end

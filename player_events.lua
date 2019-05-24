@@ -4,8 +4,7 @@ minetest.register_on_prejoinplayer(function(name, ip)
 	factions.player_ips.set(name, ip)
 end)
 
-minetest.register_on_joinplayer(
-function(player)
+minetest.register_on_joinplayer(function(player)
 	local name = player:get_player_name()
 	minetest.after(5, createHudfactionLand, player)
     local faction, facname = factions.get_player_faction(name)
@@ -40,8 +39,7 @@ function(player)
 end
 )
 
-minetest.register_on_leaveplayer(
-	function(player)
+minetest.register_on_leaveplayer(function(player)
 		local name = player:get_player_name()
 		local faction, facname = factions.get_player_faction(name)
 		local id_name1 = name .. "factionLand"
@@ -69,8 +67,7 @@ minetest.register_on_leaveplayer(
 	end
 )
 
-minetest.register_on_respawnplayer(
-    function(player)
+minetest.register_on_respawnplayer(function(player)
         local name = player:get_player_name()
 		local faction, facname = factions.get_player_faction(name)
         
@@ -88,8 +85,7 @@ minetest.register_on_respawnplayer(
     end
 )
 
-minetest.register_on_dieplayer(
-function(player)
+minetest.register_on_dieplayer(function(player)
 	local pname = player:get_player_name()
 	if on_death[pname] then
 		return

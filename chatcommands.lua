@@ -209,7 +209,7 @@ factions.register_command ("name", {
             return false
         end
     end
-},false)
+}, false)
 
 factions.register_command ("claim", {
     faction_permissions = {"claim"},
@@ -265,7 +265,7 @@ factions.register_command ("claim", {
 			factions.claim_help(player, arg_two)
 		end
     end
-},true)
+}, true)
 
 factions.register_command("unclaim", {
     faction_permissions = {"claim"},
@@ -321,7 +321,7 @@ factions.register_command("unclaim", {
 			factions.unclaim_help(player, arg_two)
 		end
     end
-},true)
+}, true)
 
 --list all known factions
 factions.register_command("list", {
@@ -344,7 +344,7 @@ factions.register_command("list", {
         minetest.chat_send_player(player, tosend, false)
         return true
     end
-},false)
+}, false)
 
 --show factions mod version
 factions.register_command("version", {
@@ -354,7 +354,7 @@ factions.register_command("version", {
     on_success = function(player, faction, pos, parcelpos, args)
         minetest.chat_send_player(player, "factions: version 0.8.8", false)
     end
-},false)
+}, false)
 
 --show description of faction
 factions.register_command("info", {
@@ -369,7 +369,7 @@ factions.register_command("info", {
             args.factions[1].description, false)
         return true
     end
-},false)
+}, false)
 
 factions.register_command("leave", {
     description = "Leave your faction",
@@ -379,7 +379,7 @@ factions.register_command("leave", {
         factions.remove_player(faction.name, player)
         return true
     end
-},false)
+}, false)
 
 factions.register_command("kick", {
     faction_permissions = {"kick"},
@@ -405,7 +405,7 @@ factions.register_command("kick", {
             return false
         end
     end
-},false)
+}, false)
 
 --create new faction
 factions.register_command("create", {
@@ -433,7 +433,7 @@ factions.register_command("create", {
             return false
         end
     end
-},false)
+}, false)
 
 factions.register_command("join", {
     format = {"faction"},
@@ -461,7 +461,7 @@ factions.register_command("join", {
 		
         return true
     end
-},false)
+}, false)
 
 factions.register_command("disband", {
     faction_permissions = {"disband"},
@@ -472,7 +472,7 @@ factions.register_command("disband", {
         factions.disband(faction.name)
         return true
     end
-},false)
+}, false)
 
 factions.register_command("flag", {
     faction_permissions = {"flags"},
@@ -513,7 +513,7 @@ factions.register_command("flag", {
 		end
         return true
     end
-},true)
+}, true)
 
 factions.register_command("desc", {
 	format = {"string"},
