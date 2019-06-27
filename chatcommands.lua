@@ -193,7 +193,7 @@ if factions_config.faction_user_priv == true then
 	def_global_privileges = {"faction_user"}
 end
 
-factions.register_command ("name", {
+factions.register_command("name", {
     faction_permissions = {"name"},
 	format = {"string"},
     description = "Change the faction's name.",
@@ -642,7 +642,7 @@ if factions_config.faction_diplomacy == true then
 		on_success = function(player, faction, pos, parcelpos, args)
 			local target_name = args.strings[1]
 			local target_faction = factions.factions.get(target_name)
-			
+
 			if target_faction then
 				if not target_faction.request_inbox[faction.name] then
 					if faction.allies[target_name] then
@@ -688,7 +688,7 @@ if factions_config.faction_diplomacy == true then
 		on_success = function(player, faction, pos, parcelpos, args)
 			local target_name = args.strings[1]
 			local target_faction = factions.factions.get(target_name)
-			
+
 			if target_faction then
 				if not target_faction.request_inbox[faction.name] then
 					if faction.allies[target_name] then
@@ -734,6 +734,11 @@ if factions_config.faction_diplomacy == true then
 		on_success = function(player, faction, pos, parcelpos, args)
 			local target_name = args.strings[1]
 			local target_faction = factions.factions.get(target_name)
+
+			if not target_faction then
+				send_error(player, target_name .. " Is not a faction.")
+				return false
+			end
 			
 			if faction.request_inbox[target_name] then
 				if target_name == faction.name then
@@ -770,6 +775,11 @@ if factions_config.faction_diplomacy == true then
 		on_success = function(player, faction, pos, parcelpos, args)
 			local target_name = args.strings[1]
 			local target_faction = factions.factions.get(target_name)
+
+			if not target_faction then
+				send_error(player, target_name .. " Is not a faction.")
+				return false
+			end
 			
 			if faction.request_inbox[target_name] then
 				if target_name == faction.name then
@@ -797,6 +807,11 @@ if factions_config.faction_diplomacy == true then
 		on_success = function(player, faction, pos, parcelpos, args)
 			local target_name = args.strings[1]
 			local target_faction = factions.factions.get(target_name)
+
+			if not target_faction then
+				send_error(player, target_name .. " Is not a faction.")
+				return false
+			end
 			
 			if not faction.enemies[target_name] then
 				if target_name == faction.name then
@@ -832,6 +847,11 @@ if factions_config.faction_diplomacy == true then
 		on_success = function(player, faction, pos, parcelpos, args)
 			local target_name = args.strings[1]
 			local target_faction = factions.factions.get(target_name)
+
+			if not target_faction then
+				send_error(player, target_name .. " Is not a faction.")
+				return false
+			end
 			
 			if faction.allies[target_name] then
 				if target_name == faction.name then
@@ -1343,12 +1363,15 @@ factions.register_command("promote", {
 			
 			local promoter_faction, promoter_facname = factions.get_player_faction(player)
 			
-			if player_faction and promoter_facname == facname then
+			if player_faction and promoter_facname == facname and player ~= name then
 				factions.promote(faction.name, name, rank)
 				minetest.chat_send_player(player, "Promoted " .. name .. " to " .. rank .. "!")
 				return true
 			elseif not player_faction or promoter_facname ~= facname then
 				send_error(player, name .. " is not in your faction")
+				return false
+			elseif player == name then
+				send_error(player, "You can not promote yourself!")
 				return false
 			else
 				send_error(player, name .. " cannot be promoted from your faction")
@@ -1651,20 +1674,21 @@ local premade_help_admin = ""
 
 local a_z = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
 
-for l, j in pairs(a_z) do
-	for k, v in pairs(factions.commands) do
-		if k:sub(1, 1) == j then
-			if not v.dont_show_in_help then
-				if not table_Contains(v.global_privileges, "faction_admin") then
-					premade_help = premade_help .. "\t/f " .. k .. v.description_arg .. " " .. v.description .. "\n"
+minetest.register_on_mods_loaded(function()
+	for l, j in pairs(a_z) do
+		for k, v in pairs(factions.commands) do
+			if k:sub(1, 1) == j then
+				if not v.dont_show_in_help then
+					if not table_Contains(v.global_privileges, "faction_admin") then
+						premade_help = premade_help .. "\t/f " .. k .. v.description_arg .. " " .. v.description .. "\n"
+					end
+					premade_help_admin = premade_help_admin .. "\t/f " .. k .. v.description_arg .. " " .. v.description .. "\n"
 				end
-				premade_help_admin = premade_help_admin .. "\t/f " .. k .. v.description_arg .. " " .. v.description .. "\n"
 			end
 		end
 	end
-end
-
-a_z = nil
+	a_z = nil
+end)
 
 -------------------------------------------------------------------------------
 -- name: show_help(playername, parameter)
