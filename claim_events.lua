@@ -234,15 +234,9 @@ function factions.claim_circle(player, faction, r)
 	pos.z = (math.floor(pos.z / parcel_size) * parcel_size) + parcel_size_center
 	
 	for i = 1, 360 do
-		minetest.after(0.05 * i, function(player, faction, r, pos)
-			
-			local angle = i * math.pi / 180
-			
-			local rpos = {x = pos.x + r * math.cos(angle), y = pos.y, z = pos.z + r * math.sin(angle)}
-			
-			claim_helper(player, faction, factions.get_parcel_pos(rpos), true)
-			
-		end, player, faction, r, pos)
+		local angle = i * math.pi / 180
+		local rpos = {x = pos.x + r * math.cos(angle), y = pos.y, z = pos.z + r * math.sin(angle)}
+		claim_helper(player, faction, factions.get_parcel_pos(rpos), true)
 	end
 end
 
@@ -271,7 +265,7 @@ function factions.claim_all(player, faction)
 end
 
 function factions.claim_help(player, func)
-	local text = "All params for /f claim: <o,one, a,auto, f,fill, s,square, c,circle, all, h,help>, <none, number>"
+	local text = "All params for /f claim: <o,one, a,auto, f,fill, s,square, c,circle, all, l,list, h,help>, <none, number>"
 	
 	if func == "o" or func == "one" then
 		text = "/f claim o\n/f claim one\n Claim one parcel."
@@ -283,6 +277,8 @@ function factions.claim_help(player, func)
 		text = "/f claim s <number>\n/f claim square <number>\nClaim by square and radius."
 	elseif func == "c" or func == "circle" then
 		text = "/f claim c <number>\n/f claim circle <number>\nClaim by circle and radius."
+	elseif func == "l" or func == "list" then
+		text = "/f claim l\n/f claim list\nList all the faction's claimed land."
 	elseif func == "all" then
 		text = "/f claim all\nClaim all faction land."
 	end
@@ -365,15 +361,9 @@ function factions.unclaim_circle(player, faction, r)
 	pos.z = (math.floor(pos.z / parcel_size) * parcel_size) + parcel_size_center
 	
 	for i = 1, 360 do
-		minetest.after(0.05 * i, function(player, faction, r, pos)
-			
-			local angle = i * math.pi / 180
-			
-			local rpos = {x = pos.x + r * math.cos(angle), y = pos.y, z = pos.z + r * math.sin(angle)}
-			
-			unclaim_helper(player, faction, factions.get_parcel_pos(rpos), true)
-			
-		end, player, faction, r, pos)
+		local angle = i * math.pi / 180
+		local rpos = {x = pos.x + r * math.cos(angle), y = pos.y, z = pos.z + r * math.sin(angle)}
+		unclaim_helper(player, faction, factions.get_parcel_pos(rpos), true)
 	end
 end
 
@@ -396,7 +386,7 @@ function factions.unclaim_all(player, faction)
 end
 
 function factions.unclaim_help(player, func)
-	local text = "All params for /f unclaim: <o,one, a,auto, f,fill, s,square, c,circle, all, h,help>, <none, number>"
+	local text = "All params for /f unclaim: <o,one, a,auto, f,fill, s,square, c,circle, all, l,list, h,help>, <none, number>"
 	
 	if func == "o" or func == "one" then
 		text = "/f unclaim o\n/f unclaim one\n Unclaim one parcel."
@@ -408,6 +398,8 @@ function factions.unclaim_help(player, func)
 		text = "/f unclaim s <number>\n/f unclaim square <number>\nUnclaim by square and radius."
 	elseif func == "c" or func == "circle" then
 		text = "/f unclaim c <number>\n/f unclaim circle <number>\nUnclaim by circle and radius."
+	elseif func == "l" or func == "list" then
+		text = "/f claim l\n/f claim list\nList all the faction's claimed land."
 	elseif func == "all" then
 		text = "/f unclaim all\nUnclaim all faction land."
 	end

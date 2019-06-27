@@ -255,12 +255,11 @@ factions.register_command ("claim", {
 		elseif arg_one == "all" then
 			factions.claim_all(player, faction)
 		elseif arg_one == "l" or arg_one == "list" then
-			local timer = 0
-			minetest.chat_send_player(player, "All claims:")
+			local aclaims = "All claims:\n"
 			for i in pairs(faction.land) do
-				minetest.after(timer, minetest.chat_send_player, player, i)
-				timer = timer + 0.1
+				aclaims = aclaims .. i .. "\n"
 			end
+			minetest.chat_send_player(player, aclaims)
 		elseif arg_one == "h" or arg_one == "help" then
 			factions.claim_help(player, arg_two)
 		end
@@ -311,12 +310,11 @@ factions.register_command("unclaim", {
 		elseif arg_one == "all" then
 			factions.unclaim_all(player, faction)
 		elseif arg_one == "l" or arg_one == "list" then
-			local timer = 0
-			minetest.chat_send_player(player, "All claims:")
+			local aclaims = "All claims:\n"
 			for i in pairs(faction.land) do
-				minetest.after(timer, minetest.chat_send_player, player, i)
-				timer = timer + 0.1
+				aclaims = aclaims .. i .. "\n"
 			end
+			minetest.chat_send_player(player, aclaims)
 		elseif arg_one == "h" or arg_one == "help" then
 			factions.unclaim_help(player, arg_two)
 		end
