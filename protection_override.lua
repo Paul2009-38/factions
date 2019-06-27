@@ -4,13 +4,14 @@ minetest.is_protected = function(pos, player)
     local y = pos.y
 	
     if factions_config.protection_depth_height_limit and (pos.y < factions_config.protection_max_depth or pos.y > factions_config.protection_max_height) then
-        return false
+        return default_is_protected(pos, player)
     end
 
     local parcelpos = factions.get_parcel_pos(pos)
     local parcel_faction, parcel_fac_name = factions.get_parcel_faction(parcelpos)
     local player_faction
     local player_fac_name
+
     if player then
         player_faction, player_fac_name = factions.get_player_faction(player)
     end
@@ -37,5 +38,5 @@ minetest.is_protected = function(pos, player)
     else
         return true
     end
-    return false
+    return default_is_protected(pos, player)
 end
