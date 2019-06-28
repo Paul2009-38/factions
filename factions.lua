@@ -176,7 +176,9 @@ function factions.set_name(oldname, name)
 	end
 	
 	for playername in pairs(faction.players) do
-		factions.players.set(playername, name)
+		local data = factions.players.get(playername) or {}
+		data.faction = name
+		factions.players.set(playername, data)
 	end
 	
 	for playername in pairs(factions.onlineplayers[oldname]) do
@@ -228,7 +230,11 @@ function factions.add_player(name, player, rank)
 	end
 	
 	faction.players[player] = rank or faction.default_rank
-    factions.players.set(player, name)
+
+	local data = factions.players.get(player) or {}
+	data.faction = name
+	factions.players.set(player, data)
+
     faction.invited_players[player] = nil
 	local pdata = minetest.get_player_by_name(player)
 	if pdata then
@@ -473,9 +479,9 @@ function factions.get_parcel_pos(pos)
 end
 
 function factions.get_player_faction(playername)
-    local facname = factions.players.get(playername)
-    if facname then
-        local faction = factions.factions.get(facname)
+    local data = factions.players.get(playername)
+	if data then
+        local faction = factions.factions.get(faction.faction)
         return faction, facname
     end
     return nil
