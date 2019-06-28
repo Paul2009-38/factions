@@ -14,23 +14,6 @@ end
 
 -- Make default chest the faction chest.
 if minetest.registered_nodes["default:chest"] then
-	minetest.register_lbm({
-		label = "Replace faction chest with default one.",
-		name = "factions:replace_factions_chest",
-		nodenames = {"factions:chest"},
-		action = function(pos, node)
-			minetest.swap_node(pos, {name = "default:chest"})
-			local parcel_faction = factions.get_faction_at(pos)
-			if parcel_faction then
-				local meta = minetest.get_meta(pos)
-				local name = parcel_faction.name
-				meta:set_string("faction", name)
-				meta:set_string("infotext", "Faction Chest (owned by faction " ..
-					name .. ")")
-			end
-		end
-	})
-	
 	local dc = minetest.registered_nodes["default:chest"]
 	local def_on_rightclick = dc.on_rightclick
 
