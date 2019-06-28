@@ -10,7 +10,7 @@ function factions.can_claim_parcel(name, parcelpos)
 	local faction = factions.factions.get(name)
 	
 	if fn then
-		local fac = factions.factions.get(fn)
+		local fac = factions.factions.get(fn.faction)
 		
         if fac.power < 0. and faction.power >= factions_config.power_per_parcel and not faction.allies[fn] and not faction.neutral[fn] then
             return true
@@ -27,12 +27,16 @@ end
 --! @brief claim a parcel, update power and update global parcels table
 function factions.claim_parcel(name, parcelpos)
     -- check if claiming over other faction's territory
-    local otherfac = factions.parcels.get(parcelpos)
-    if otherfac then
-        factions.unclaim_parcel(otherfac, parcelpos)
-		factions.parcelless_check(otherfac)
-    end
-    factions.parcels.set(parcelpos, name)
+	local otherfac = factions.parcels.get(parcelpos)
+	
+	if otherfac then
+		local otherfac_name = otherfac.faction
+        factions.unclaim_parcel(otherfac_name, parcelpos)
+		factions.parcelless_check(otherfac_name)
+	end
+	local data = factions.create_claim_table()
+	data.faction = name
+    factions.parcels.set(parcelpos, data)
 	
 	local faction = factions.factions.get(name)
 	
@@ -85,8 +89,9 @@ function factions.parcelless_check(name)
 end
 
 function factions.get_parcel_faction(parcelpos)
-    local facname = factions.parcels.get(parcelpos)
-    if facname then
+    local data = factions.parcels.get(parcelpos)
+	if data then
+		local facname = data.faction
         local faction = factions.factions.get(facname)
         return faction, facname
     end

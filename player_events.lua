@@ -1,7 +1,9 @@
 local on_death = {}
 
 minetest.register_on_prejoinplayer(function(name, ip)
-	factions.player_ips.set(name, ip)
+	local data = factions.create_ip_table()
+	data.ip = ip
+	factions.player_ips.set(name, data)
 end)
 
 minetest.register_on_joinplayer(function(player)
@@ -49,18 +51,19 @@ minetest.register_on_leaveplayer(function(player)
 		end
 		
 		if faction then
+			faction.last_logon = os.time()
+			factions.factions.set(facname, faction)
 			factions.onlineplayers[facname][name] = nil
 			local id_name2 = name .. "factionName"
 			local id_name3 = name .. "powerWatch"
+			
 			if hud_ids[id_name2] then
 				hud_ids[id_name2] = nil
 			end
 			if hud_ids[id_name3] then
 				hud_ids[id_name3] = nil
 			end
-			for k, v in pairs(factions.onlineplayers[facname]) do
-				return
-			end
+
 			factions.onlineplayers[facname] = nil
 			on_death[name] = nil
 		end

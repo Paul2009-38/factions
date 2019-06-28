@@ -70,60 +70,9 @@ if factions_config.faction_diplomacy == true then
 	starting_ranks["leader"] = lt
 end
 
-function factions.new() 
-    return {
-		name = "",
-        --! @brief power of a faction (needed for parcel claiming)
-        power = factions_config.power,
-        --! @brief maximum power of a faction
-        maxpower = factions_config.maxpower,
-        --! @brief power currently in use
-        usedpower = 0.,
-        --! @brief list of player names
-        players = {},
-        --! @brief table of ranks/permissions
-        ranks = starting_ranks,
-        --! @brief name of the leader
-        leader = nil,
-		--! @brief spawn of the faction
-		spawn = {x=0, y=0, z=0},
-        --! @brief default joining rank for new members
-        default_rank = "member",
-        --! @brief default rank assigned to the leader
-        default_leader_rank = "leader",
-        --! @brief faction's description string
-        description = "Default faction description.",
-		--! @brief faction's message of the day.
-		message_of_the_day = "",
-        --! @brief list of players currently invited (can join with /f join)
-        invited_players = {},
-        --! @brief table of claimed parcels (keys are parcelpos strings)
-        land = {},
-        --! @brief table of allies
-        allies = {},
-		--
-		request_inbox = {},
-        --! @brief table of enemies
-        enemies = {},
-		--!
-		neutral = {},
-        --! @brief table of parcels/factions that are under attack
-        attacked_parcels = {},
-        --! @brief whether faction is closed or open (boolean)
-        join_free = false,
-        --! @brief gives certain privileges
-        is_admin = false,
-        --! @brief last time anyone logged on
-        last_logon = os.time(),
-		--! @brief how long this has been without parcels
-		no_parcel = os.time(),
-    }
-end
-
-
 --! @brief create a new empty faction
 function factions.new_faction(name)
-    local faction = factions.new()
+    local faction = factions.create_faction_table()
 	
     faction.name = name
     factions.factions.set(name, faction)
@@ -172,11 +121,13 @@ function factions.set_name(oldname, name)
 	end
 	
 	for parcel in pairs(faction.land) do
-		factions.parcels.set(parcel, name)
+		local data = factions.create_claim_table()
+		data.faction = name
+		factions.parcels.set(parcel, data)
 	end
 	
 	for playername in pairs(faction.players) do
-		local data = factions.players.get(playername) or {}
+		local data = factions.players.get(playername) or factions.create_player_table()
 		data.faction = name
 		factions.players.set(playername, data)
 	end
@@ -231,7 +182,7 @@ function factions.add_player(name, player, rank)
 	
 	faction.players[player] = rank or faction.default_rank
 
-	local data = factions.players.get(player) or {}
+	local data = factions.players.get(player) or factions.create_player_table()
 	data.faction = name
 	factions.players.set(player, data)
 
