@@ -40,7 +40,7 @@ if minetest.registered_nodes["default:chest"] then
 	if def_allow_metadata_inventory_move then
 		allow_metadata_inventory_move = function(pos, from_list, from_index,
 				to_list, to_index, count, player)
-			if not factions.can_use_node(pos, player:get_player_name(), "container") then
+			if not factions.can_use_node(pos, player:get_player_name(), "container") and not minetest.check_player_privs(player, "protection_bypass") then
 				return 0
 			end
 			return def_allow_metadata_inventory_move(pos, from_list, from_index, to_list, to_index, count, player)
@@ -48,7 +48,7 @@ if minetest.registered_nodes["default:chest"] then
 	else
 		allow_metadata_inventory_move = function(pos, from_list, from_index,
 				to_list, to_index, count, player)
-			if not factions.can_use_node(pos, player:get_player_name(), "container") then
+			if not factions.can_use_node(pos, player:get_player_name(), "container") and not minetest.check_player_privs(player, "protection_bypass") then
 				return 0
 			end
 			return count
@@ -59,14 +59,14 @@ if minetest.registered_nodes["default:chest"] then
 	local def_allow_metadata_inventory_put = dc.allow_metadata_inventory_put
 	if def_allow_metadata_inventory_put then
 		allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-			if not factions.can_use_node(pos, player:get_player_name(), "container") then
+			if not factions.can_use_node(pos, player:get_player_name(), "container") and not minetest.check_player_privs(player, "protection_bypass") then
 				return 0
 			end
 			return def_allow_metadata_inventory_put(pos, listname, index, stack, player)
 		end
 	else
 		allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-			if not factions.can_use_node(pos, player:get_player_name(), "container") then
+			if not factions.can_use_node(pos, player:get_player_name(), "container") and not minetest.check_player_privs(player, "protection_bypass") then
 				return 0
 			end
 			return stack:get_count()
@@ -77,14 +77,14 @@ if minetest.registered_nodes["default:chest"] then
 	local def_allow_metadata_inventory_take = dc.allow_metadata_inventory_take
 	if def_allow_metadata_inventory_take then
 		allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-			if not factions.can_use_node(pos, player:get_player_name(), "container") then
+			if not factions.can_use_node(pos, player:get_player_name(), "container") and not minetest.check_player_privs(player, "protection_bypass") then
 				return 0
 			end
 			return def_allow_metadata_inventory_take(pos, listname, index, stack, player)
 		end
 	else
 		allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-			if not factions.can_use_node(pos, player:get_player_name(), "container") then
+			if not factions.can_use_node(pos, player:get_player_name(), "container") and not minetest.check_player_privs(player, "protection_bypass") then
 				return 0
 			end
 			return stack:get_count()
@@ -92,7 +92,7 @@ if minetest.registered_nodes["default:chest"] then
 	end
 	
 	local on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-		if not factions.can_use_node(pos, clicker:get_player_name(), "container") then
+		if not factions.can_use_node(pos, clicker:get_player_name(), "container") and not minetest.check_player_privs(clicker, "protection_bypass") then
 			return itemstack
 		end
 		return def_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
@@ -151,7 +151,7 @@ for i, l in ipairs(doors) do
 		local def_can_dig = dw.can_dig
 		
 		local on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-			if factions.can_use_node(pos, clicker:get_player_name(), "door") then
+			if factions.can_use_node(pos, clicker:get_player_name(), "door") or minetest.check_player_privs(clicker, "protection_bypass") then
 				def_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
 			end
 			return itemstack

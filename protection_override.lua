@@ -1,6 +1,10 @@
 local default_is_protected = minetest.is_protected
 
 minetest.is_protected = function(pos, player)
+    if minetest.check_player_privs(player, "protection_bypass") then
+        return default_is_protected(pos, player)
+    end
+    
     local y = pos.y
 	
     if factions_config.protection_depth_height_limit and (pos.y < factions_config.protection_max_depth or pos.y > factions_config.protection_max_height) then
