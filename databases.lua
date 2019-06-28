@@ -99,7 +99,7 @@ end
 -- Create a empty player table.
 function factions.create_player_table() 
     local table = {
-        faction = ""
+        faction = "",
     }
     return factions.on_create_player_table(table)
 end
@@ -110,4 +110,31 @@ function factions.create_claim_table()
         faction = ""
     }
     return factions.on_create_claim_table(table)
+end
+
+-- helper functions
+function factions.db_is_empty(table)
+    for k, v in pairs(table) do
+        return false
+    end
+    return true
+end
+
+function factions.remove_key(db, db_name, db_data, key, write)
+    if not db_data then
+        db_data = db.get(db_name)
+    end
+
+    db_data[key] = nil
+
+    if factions.db_is_empty(db_data) then
+        db.remove(db_name)
+        return nil
+    end
+
+    if write then
+        db.set(db_name, db_data)
+    end
+    
+    return db_data
 end

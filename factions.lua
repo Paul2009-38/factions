@@ -220,7 +220,7 @@ function factions.remove_player(name, player)
 	
 	factions.factions.set(name, faction)
 	
-    factions.players.remove(player)
+	factions.remove_key(factions.players, player, nil, "faction", true)
 	factions.on_player_leave(name, player)
 	
 	if factions_config.enable_power_per_player then
@@ -281,11 +281,11 @@ function factions.disband(name, reason)
 		end
 		
 		for k, _ in pairs(faction.players) do -- remove players affiliation
-			factions.players.remove(k)
+			factions.remove_key(factions.players, k, nil, "faction", true)
 		end
 		
 		for k, v in pairs(faction.land) do -- remove parcel claims
-			factions.parcels.remove(k)
+			factions.remove_key(factions.parcels, k, nil, "faction", true)
 		end
 		
 		factions.on_disband(name, reason)

@@ -52,7 +52,7 @@ end
 
 --! @brief claim a parcel, update power and update global parcels table
 function factions.unclaim_parcel(name, parcelpos)
-    factions.parcels.remove(parcelpos)
+	factions.remove_key(factions.parcels, parcelpos, nil, "faction", true)
 	
 	local faction = factions.factions.get(name)
 	
