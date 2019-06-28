@@ -481,7 +481,7 @@ end
 function factions.get_player_faction(playername)
     local data = factions.players.get(playername)
 	if data then
-        local faction = factions.factions.get(faction.faction)
+        local faction = factions.factions.get(data.faction)
         return faction, facname
     end
     return nil
