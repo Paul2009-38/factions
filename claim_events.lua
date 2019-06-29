@@ -34,7 +34,7 @@ function factions.claim_parcel(name, parcelpos)
         factions.unclaim_parcel(otherfac_name, parcelpos)
 		factions.parcelless_check(otherfac_name)
 	end
-	local data = factions.create_claim_table()
+	local data = factions.create_parcel_table()
 	data.faction = name
     factions.parcels.set(parcelpos, data)
 	

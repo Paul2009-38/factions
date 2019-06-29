@@ -30,7 +30,7 @@ function factions.on_create_player_table(table)
 end
 
 -- Hook function to add or delete from the claim table.
-function factions.on_create_claim_table(table)
+function factions.on_create_parcel_table(table)
     return table
 end
 
@@ -83,7 +83,9 @@ function factions.create_faction_table()
         --! @brief last time anyone logged on
         last_logon = os.time(),
 		--! @brief how long this has been without parcels
-		no_parcel = os.time(),
+        no_parcel = os.time(),
+        --! @brief access table
+        access = {players = {}, factions = {}},
     }
     return factions.on_create_faction_table(table)
 end
@@ -99,17 +101,17 @@ end
 -- Create a empty player table.
 function factions.create_player_table() 
     local table = {
-        faction = "",
+        faction = ""
     }
     return factions.on_create_player_table(table)
 end
 
 -- Create a empty claim table.
-function factions.create_claim_table() 
+function factions.create_parcel_table() 
     local table = {
         faction = ""
     }
-    return factions.on_create_claim_table(table)
+    return factions.on_create_parcel_table(table)
 end
 
 -- helper functions
@@ -138,3 +140,48 @@ function factions.remove_key(db, db_name, db_data, key, write)
     
     return db_data
 end
+
+-- faction data check on load
+local function update_data(db, db_name, db_data, empty_table, write)
+    local needs_update = false
+
+    if not db_data then
+        db_data = db.get(db_name)
+    end
+
+    for k, v in pairs(empty_table) do
+        if db_data[k] == nil then
+            db_data[k] = v
+            needs_update = true
+            minetest.log("Adding property " .. k .. " to " .. db_name .. " file.")
+        end
+    end
+
+    if write and needs_update then
+        db.set(db_name, db_data)
+    end
+    
+    return db_data
+end
+
+minetest.register_on_mods_loaded(function()
+    minetest.log("Checking faction files.")
+    for k, v in factions.factions.iterate() do
+        update_data(factions.factions, k, nil, factions.create_faction_table(), true)
+    end
+
+    minetest.log("Checking parcel files.")
+    for k, v in factions.parcels.iterate() do
+        update_data(factions.parcels, k, nil, factions.create_parcel_table(), true)
+    end
+
+    minetest.log("Checking player files.")
+    for k, v in factions.players.iterate() do
+        update_data(factions.players, k, nil, factions.create_player_table(), true)
+    end
+
+    minetest.log("Checking ip files.")
+    for k, v in factions.player_ips.iterate() do
+        update_data(factions.player_ips, k, nil, factions.create_ip_table(), true)
+    end
+end)

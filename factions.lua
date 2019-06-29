@@ -121,7 +121,7 @@ function factions.set_name(oldname, name)
 	end
 	
 	for parcel in pairs(faction.land) do
-		local data = factions.create_claim_table()
+		local data = factions.create_parcel_table()
 		data.faction = name
 		factions.parcels.set(parcel, data)
 	end
