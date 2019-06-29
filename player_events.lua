@@ -54,19 +54,14 @@ minetest.register_on_leaveplayer(function(player)
 			faction.last_logon = os.time()
 			factions.factions.set(facname, faction)
 			factions.onlineplayers[facname][name] = nil
-			local id_name2 = name .. "factionName"
-			local id_name3 = name .. "powerWatch"
 			
-			if hud_ids[id_name2] then
-				hud_ids[id_name2] = nil
-			end
-			if hud_ids[id_name3] then
-				hud_ids[id_name3] = nil
-			end
-
-			factions.onlineplayers[facname] = nil
-			on_death[name] = nil
+			hud_ids[name .. "factionName"] = nil
+			hud_ids[name .. "powerWatch"] = nil
+		else
+			factions.remove_key(factions.player_ips, name, nil, "ip", true)
 		end
+
+		on_death[name] = nil
 	end
 )
 
