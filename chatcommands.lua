@@ -123,14 +123,6 @@ factions.register_command = function(cmd_name, cmd, ignore_param_count, or_perm,
     end
 end
 
-factions.register_commands = function(cmd_names, cmd, ignore_param_count, or_perm)
-	local hide = false
-	for k, v in pairs(cmd_names) do
-		factions.register_command(k, cmd, ignore_param_count, or_perm, hide)
-		hide = true
-	end
-end
-
 local init_commands
 init_commands = function()
 	
@@ -1670,9 +1662,9 @@ local premade_help = ""
 
 local premade_help_admin = ""
 
-local a_z = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
+local a_z = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
 
-minetest.register_on_mods_loaded(function()
+function factions.create_help_text()
 	for l, j in pairs(a_z) do
 		for k, v in pairs(factions.commands) do
 			if k:sub(1, 1) == j then
@@ -1685,7 +1677,10 @@ minetest.register_on_mods_loaded(function()
 			end
 		end
 	end
-	a_z = nil
+end
+
+minetest.register_on_mods_loaded(function()
+	factions.create_help_text()
 end)
 
 -------------------------------------------------------------------------------

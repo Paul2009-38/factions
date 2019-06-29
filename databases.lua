@@ -12,28 +12,6 @@ factions.player_ips = factions.root.sub_database("ips")
 -- Memory only storage.
 factions.onlineplayers = {}
 
--- Table hook functions.
-
--- Hook function to add or delete from the faction table.
-function factions.on_create_faction_table(table)
-    return table
-end
-
--- Hook function to add or delete from the ip table.
-function factions.on_create_ip_table(table)
-    return table
-end
-
--- Hook function to add or delete from the player table.
-function factions.on_create_player_table(table)
-    return table
-end
-
--- Hook function to add or delete from the claim table.
-function factions.on_create_parcel_table(table)
-    return table
-end
-
 -- Table creation.
 
 -- Create a empty faction.
@@ -87,7 +65,7 @@ function factions.create_faction_table()
         --! @brief access table
         access = {players = {}, factions = {}},
     }
-    return factions.on_create_faction_table(table)
+    return table
 end
 
 -- Create a empty ip table.
@@ -95,7 +73,7 @@ function factions.create_ip_table()
     local table = {
         ip = ""
     }
-    return factions.on_create_ip_table(table)
+    return table
 end
 
 -- Create a empty player table.
@@ -103,7 +81,7 @@ function factions.create_player_table()
     local table = {
         faction = ""
     }
-    return factions.on_create_player_table(table)
+    return table
 end
 
 -- Create a empty claim table.
@@ -111,7 +89,7 @@ function factions.create_parcel_table()
     local table = {
         faction = ""
     }
-    return factions.on_create_parcel_table(table)
+    return table
 end
 
 -- helper functions
