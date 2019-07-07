@@ -2,12 +2,27 @@
 --! @brief main class for factions
 factions = {}
 
--- Create cold databases.
-factions.root = colddb.Colddb(minetest.get_worldpath() .. "/factions")
-factions.factions = factions.root.sub_database("factions")
-factions.parcels = factions.root.sub_database("parcels")
-factions.players = factions.root.sub_database("players")
-factions.player_ips = factions.root.sub_database("ips")
+-- database
+factions.root = {}
+factions.factions = {}
+factions.parcels = {}
+factions.players = {}
+factions.player_ips = {}
+
+if factions_config.database == "colddb" then
+    -- Create cold databases.
+    factions.root = colddb.Colddb(minetest.get_worldpath() .. "/factions")
+    factions.factions = factions.root.sub_database("factions")
+    factions.parcels = factions.root.sub_database("parcels")
+    factions.players = factions.root.sub_database("players")
+    factions.player_ips = factions.root.sub_database("ips")
+elseif factions_config.database == "mod_storage" then
+    factions.root = storagedb.Storagedb("factions")
+    factions.factions = factions.root.sub_database("factions")
+    factions.parcels = factions.root.sub_database("parcels")
+    factions.players = factions.root.sub_database("players")
+    factions.player_ips = factions.root.sub_database("ips")
+end
 
 -- Memory only storage.
 factions.onlineplayers = {}
@@ -145,21 +160,21 @@ end
 minetest.register_on_mods_loaded(function()
     minetest.log("Checking faction files.")
     for k, v in factions.factions.iterate() do
-        update_data(factions.factions, k, nil, factions.create_faction_table(), true)
+        --update_data(factions.factions, k, nil, factions.create_faction_table(), true)
     end
 
     minetest.log("Checking parcel files.")
     for k, v in factions.parcels.iterate() do
-        update_data(factions.parcels, k, nil, factions.create_parcel_table(), true)
+        --update_data(factions.parcels, k, nil, factions.create_parcel_table(), true)
     end
 
     minetest.log("Checking player files.")
     for k, v in factions.players.iterate() do
-        update_data(factions.players, k, nil, factions.create_player_table(), true)
+        --update_data(factions.players, k, nil, factions.create_player_table(), true)
     end
 
     minetest.log("Checking ip files.")
     for k, v in factions.player_ips.iterate() do
-        update_data(factions.player_ips, k, nil, factions.create_ip_table(), true)
+        --update_data(factions.player_ips, k, nil, factions.create_ip_table(), true)
     end
 end)

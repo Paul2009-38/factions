@@ -2,6 +2,7 @@
 factions_modpath = minetest.get_modpath("factions")
 
 dofile (factions_modpath .. "/config.lua")
+dofile (factions_modpath .. "/storagedb.lua")
 dofile (factions_modpath .. "/databases.lua")
 dofile (factions_modpath .. "/eventcallbacks.lua")
 dofile (factions_modpath .. "/diplomacy_events.lua")

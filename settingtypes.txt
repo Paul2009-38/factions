@@ -53,3 +53,5 @@ factions.faction_user_priv (Enable faction user priv) bool false
 # 2d limits how far x and z can go but protection on the y goes up and down far.
 # 3d limits all three axis.
 factions.protection_style (Protection style) enum 2d 3d,2d
+# Set the type of database to use.
+factions.database (Database) enum mod_storage colddb,mod_storage
