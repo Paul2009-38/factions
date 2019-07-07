@@ -19,9 +19,9 @@ function storagedb.Storagedb(dir)
         local list = minetest.deserialize(storage:get_string(directory))
         if not list then
             list = {}
-            list[dir .. "/" .. key] = key
+            list[key] = key
         else
-            list[dir .. "/" .. key] = key
+            list[key] = key
         end
         storage:set_string(directory, minetest.serialize(list))
     end
@@ -30,7 +30,7 @@ function storagedb.Storagedb(dir)
         if not list then
             list = {}
         else
-            list[dir .. "/" .. key] = nil
+            list[key] = nil
         end
         storage:set_string(directory, minetest.serialize(list))
     end
