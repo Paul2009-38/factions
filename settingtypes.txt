@@ -47,6 +47,8 @@ factions.protection_depth_height_limit (Enable protection depth height limit) bo
 factions.spawn_teleport (Enable spawn teleport) bool false
 # Enable or disabled the need for faction_user priv
 factions.faction_user_priv (Enable faction user priv) bool false
+# Enable or disabled Store player ips to prevent players from gaining more max power from alts
+factions.store_ip bool true
 
 [StringSettings]
 # Set the way that the parcel protection works (2d, 3d).

@@ -45,31 +45,40 @@ starting_ranks = {["leader"] = {"build", "door", "container", "name", "descripti
 -- ranks: create, edit, and delete ranks
 -- promote: set a player's rank
 -- diplomacy: be able to control the faction's diplomacy
-
-factions.permissions = {"build", "pain_build", "door", "container", "name", "description", "motd", "invite", "kick"
-						, "spawn", "with_draw", "territory", "claim", "access", "disband", "flags", "ranks", "promote"}
-factions.permissions_desc = {"dig and place nodes", "dig and place nodes but take damage doing so", "open/close or dig faction doors", "be able to use containers like chest", "set the faction's name"
-						, "Set the faction description", "set the faction's message of the day", "(un)invite players to join the faction", "kick players off the faction", "set player titles", "set the faction's spawn"
-						, "withdraw money from the faction's bank", "claim or unclaim territory", "(un)claim parcels of land", "manage access to territory and parcels of land to players or factions"
-						, "disband the faction", "manage faction's flags", "create, edit, and delete ranks", "set a player's rank"}
-						
+factions.permissions = {}
+factions.permissions["build"] = "dig and place nodes"
+factions.permissions["pain_build"] = "dig and place nodes but take damage doing so"
+factions.permissions["door"] = "open, close, or dig faction doors"
+factions.permissions["container"] = "be able to interact with containers on claimed parcels"
+factions.permissions["name"] = "set the faction's name"
+factions.permissions["description"] = "Set the faction description"
+factions.permissions["motd"] = "set the faction's message of the day"
+factions.permissions["invite"] = "(un)invite players to join the faction"
+factions.permissions["kick"] = "kick players off the faction"
+factions.permissions["spawn"] = "set the faction's spawn"
+factions.permissions["with_draw"] = "withdraw money from the faction's bank"
+factions.permissions["territory"] = "claim or unclaim territory"
+factions.permissions["claim"] = "(un)claim parcels of land"
+factions.permissions["access"] = "manage access to territory and parcels of land to players or factions"
+factions.permissions["disband"] = "disband the faction"
+factions.permissions["flags"] = "manage the faction's flags"
+factions.permissions["ranks"] = "create, edit, or delete ranks"
+factions.permissions["promote"] = "set a player's rank"
 -- open: can the faction be joined without an invite?
 -- monsters: can monsters spawn on your land?
 -- tax_kick: will players be kicked for not paying tax?
 -- animals: can animals spawn on your land?
-factions.flags = {"open", "monsters", "tax_kick", "animals"}
-factions.flags_desc = {"can the faction be joined without an invite?", "can monsters spawn on your land?(unused)", "will players be kicked for not paying tax?(unused)", "can animals spawn on your land?(unused)"}
-
+factions.flags = {}
+factions.flags["open"] = "can the faction be joined without an invite?"
+factions.flags["monsters"] = "can monsters spawn on your land?(unused)"
+factions.flags["tax_kick"] = "will players be kicked for not paying tax?(unused)"
+factions.flags["animals"] = "can animals spawn on your land?(unused)"
 if factions_config.faction_diplomacy == true then
-	table.insert(factions.permissions, "diplomacy")
-	
-	table.insert(factions.permissions_desc, "be able to control the faction's diplomacy")
-	
+	factions.permissions["diplomacy"] = "be able to control the faction's diplomacy"
 	local lt = starting_ranks["leader"]
 	table.insert(lt, "diplomacy")
 	starting_ranks["leader"] = lt
 end
-
 --! @brief create a new empty faction
 function factions.new_faction(name)
     local faction = factions.create_faction_table()
@@ -327,7 +336,6 @@ end
 --! @return boolean indicating permissions. Players not in faction always receive false
 function factions.has_permission(name, player, permission)
 	local faction = factions.factions.get(name)
-	
     local p = faction.players[player]
     if not p then
         return false
@@ -346,20 +354,16 @@ end
 
 function factions.set_description(name, new)
 	local faction = factions.factions.get(name)
-	
     faction.description = new
     factions.on_change_description(name)
-	
 	factions.factions.set(name, faction)
 end
 
 --! @brief set faction openness
 function factions.toggle_join_free(name, bool)
     local faction = factions.factions.get(name)
-	
 	faction.join_free = bool
     factions.on_toggle_join_free(name)
-    
 	factions.factions.set(name, faction)
 end
 

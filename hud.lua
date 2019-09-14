@@ -4,7 +4,6 @@ function createHudfactionLand(player)
 	if player then
 		local name = player:get_player_name()
 		local id_name = name .. "factionLand"
-		
 		if not hud_ids[id_name] then
 			hud_ids[id_name] = player:hud_add({
 				hud_elem_type = "text",
@@ -23,7 +22,6 @@ function createHudFactionName(player, factionname)
 	if player and factionname then
 		local name = player:get_player_name()
 		local id_name = name .. "factionName"
-		
 		if not hud_ids[id_name] then
 			hud_ids[id_name] = player:hud_add({
 				hud_elem_type = "text",
@@ -43,7 +41,6 @@ function createHudPower(player, faction)
 	if player and faction then
 		local name = player:get_player_name()
 		local id_name = name .. "powerWatch"
-		
 		if not hud_ids[id_name] then
 			hud_ids[id_name] = player:hud_add({
 				hud_elem_type = "text",

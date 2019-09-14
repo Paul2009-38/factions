@@ -1,9 +1,4 @@
-local send_error = function(player, message)
-    minetest.chat_send_player(player, message)
-end
-
 factions_chat = {}
-
 factions.commands = {}
 
 factions.register_command = function(cmd_name, cmd)
@@ -25,7 +20,7 @@ factions.register_command = function(cmd_name, cmd)
                 end
                 local bool, missing_privs = minetest.check_player_privs(player, tmp)
                 if not bool then
-                    send_error(player, "Unauthorized.")
+                    minetest.chat_send_player(player, "Unauthorized.")
                     return false
                 end
             end
@@ -39,7 +34,7 @@ factions.register_command = function(cmd_name, cmd)
             }
 			if not self.ignore_param_limit then
 				if #argv < #(self.format) then
-					send_error(player, "Not enough parameters.")
+					minetest.chat_send_player(player, "Not enough parameters.")
 					return false
 				end
 				else
@@ -54,14 +49,13 @@ factions.register_command = function(cmd_name, cmd)
 					end
 				end
 			end
-			
             for i in ipairs(self.format) do
                 local argtype = self.format[i]
                 local arg = argv[i]
                 if argtype == "faction" then
                     local fac = factions.get_faction(arg)
                     if not fac then
-                        send_error(player, "Specified faction "..arg.." does not exist")
+                        minetest.chat_send_player(player, "Specified faction " .. arg .. " does not exist")
                         return false
                     else
                         table.insert(args.factions, fac)
@@ -71,7 +65,7 @@ factions.register_command = function(cmd_name, cmd)
 					if data then
 						table.insert(args.players, arg)
 					else
-						send_error(player, "Player does not exist.")
+						minetest.chat_send_player(player, "Player does not exist.")
 						return false
 					end
                 elseif argtype == "string" then
@@ -85,7 +79,6 @@ factions.register_command = function(cmd_name, cmd)
 					table.insert(args.other, argv[i])
 				end
             end
-
             -- checks permissions
             local player_faction, facname = factions.get_player_faction(player)
             if self.infaction and not player_faction then
@@ -97,7 +90,7 @@ factions.register_command = function(cmd_name, cmd)
                 for i in ipairs(self.faction_permissions) do
 					local perm = self.faction_permissions[i]
                     if not self.or_perm and not factions.has_permission(facname, player, perm) then
-                        send_error(player, "You do not have the faction permission " .. perm)
+                        minetest.chat_send_player(player, "You do not have the faction permission " .. perm)
                         return false
 					elseif self.or_perm and factions.has_permission(facname, player, perm) then
 						one_p = true
@@ -106,10 +99,9 @@ factions.register_command = function(cmd_name, cmd)
                 end
             end
 			if self.or_perm and one_p == false then
-			    send_error(player, "You do not have any of faction permissions required.")
+			    minetest.chat_send_player(player, "You do not have any of faction permissions required.")
                 return false
 			end
-
             -- get some more data
             local pos = minetest.get_player_by_name(player):get_pos()
             local parcelpos = factions.get_parcel_pos(pos)
@@ -127,7 +119,6 @@ end
 
 local init_commands
 init_commands = function()
-	
 	if factions_config.faction_user_priv == true then
 		minetest.register_privilege("faction_user",
 			{
@@ -136,20 +127,16 @@ init_commands = function()
 			}
 		)
 	end
-	
-	
 	minetest.register_privilege("faction_admin",
 		{
 			description = "this user is allowed to create or delete factions",
 			give_to_singleplayer = true,
 		}
 	)
-	
 	local def_privs = {interact = true}
 	if factions_config.faction_user_priv == true then
 		def_privs.faction_user = true
 	end
-	
 	minetest.register_chatcommand("f",
 		{
 			params = "<command> parameters",
@@ -158,7 +145,6 @@ init_commands = function()
 			func = factions_chat.cmdhandler,
 		}
 	)
-	
 	minetest.register_chatcommand("faction",
 		{
 			params = "<command> parameters",
@@ -168,14 +154,10 @@ init_commands = function()
 		}
 	)
 end
-	
-
 -------------------------------------------
 -- R E G I S T E R E D   C O M M A N D S  |
 -------------------------------------------
-
 local def_global_privileges = nil
-
 if factions_config.faction_user_priv == true then
 	minetest.register_on_newplayer(function(player)
 		local name = player:get_player_name()
@@ -186,7 +168,6 @@ if factions_config.faction_user_priv == true then
 	)
 	def_global_privileges = {"faction_user"}
 end
-
 factions.register_command("name", {
     faction_permissions = {"name"},
 	format = {"string"},
@@ -199,12 +180,11 @@ factions.register_command("name", {
 			factions.set_name(faction.name, factionname)
             return true
         else
-            send_error(player, "Faction cannot be renamed.")
+            minetest.chat_send_player(player, "Faction cannot be renamed.")
             return false
         end
     end
 })
-
 factions.register_command ("claim", {
     faction_permissions = {"claim"},
     description = "Claim the plot of land you're on.",
@@ -224,12 +204,10 @@ factions.register_command ("claim", {
 		elseif arg_one == "s" or arg_one == "square" then
 			if arg_two then
 				local r = tonumber(arg_two)
-				
 				if not r then
-					send_error(player, "Only use numbers in the second cmd parameter [0-9].")
+					minetest.chat_send_player(player, "Only use numbers in the second cmd parameter [0-9].")
 					return
 				end
-				
 				factions.claim_square(player, faction, r)
 			else
 				factions.claim_square(player, faction, 3)
@@ -237,12 +215,10 @@ factions.register_command ("claim", {
 		elseif arg_one == "c" or arg_one == "circle" then
 			if arg_two then
 				local r = tonumber(arg_two)
-				
 				if not r then
-					send_error(player, "Only use numbers in the second cmd parameter [0-9].")
+					minetest.chat_send_player(player, "Only use numbers in the second cmd parameter [0-9].")
 					return
 				end
-				
 				factions.claim_circle(player, faction, r)
 			else
 				factions.claim_circle(player, faction, 3)
@@ -260,7 +236,6 @@ factions.register_command ("claim", {
 		end
     end
 })
-
 factions.register_command("unclaim", {
     faction_permissions = {"claim"},
     description = "Unclaim the plot of land you're on.",
@@ -280,12 +255,10 @@ factions.register_command("unclaim", {
 		elseif arg_one == "s" or arg_one == "square" then
 			if arg_two then
 				local r = tonumber(arg_two)
-				
 				if not r then
-					send_error(player, "Only use numbers in the second cmd parameter [0-9].")
+					minetest.chat_send_player(player, "Only use numbers in the second cmd parameter [0-9].")
 					return
 				end
-				
 				factions.unclaim_square(player, faction, r)
 			else
 				factions.unclaim_square(player, faction, 3)
@@ -293,12 +266,10 @@ factions.register_command("unclaim", {
 		elseif arg_one == "c" or arg_one == "circle" then
 			if arg_two then
 				local r = tonumber(arg_two)
-				
 				if not r then
-					send_error(player, "Only use numbers in the second cmd parameter [0-9].")
+					minetest.chat_send_player(player, "Only use numbers in the second cmd parameter [0-9].")
 					return
 				end
-				
 				factions.unclaim_circle(player, faction, r)
 			else
 				factions.unclaim_circle(player, faction, 3)
@@ -316,7 +287,6 @@ factions.register_command("unclaim", {
 		end
     end
 })
-
 --list all known factions
 factions.register_command("list", {
     description = "List all registered factions.",
@@ -326,7 +296,6 @@ factions.register_command("list", {
     on_success = function(player, faction, pos, parcelpos, args)
         local list = factions.factions.to_array()
         local tosend = "Existing factions:"
-        
         for i, v in ipairs(list) do
             if i ~= #list then
                 tosend = tosend .. " " .. v .. ","
@@ -334,12 +303,10 @@ factions.register_command("list", {
                 tosend = tosend .. " " .. v
             end
         end
-		
         minetest.chat_send_player(player, tosend, false)
         return true
     end
 })
-
 --show factions mod version
 factions.register_command("version", {
     description = "Displays mod version.",
@@ -349,7 +316,6 @@ factions.register_command("version", {
         minetest.chat_send_player(player, "factions: version 0.8.8", false)
     end
 })
-
 --show description of faction
 factions.register_command("info", {
     format = {"faction"},
@@ -364,7 +330,6 @@ factions.register_command("info", {
         return true
     end
 })
-
 factions.register_command("leave", {
     description = "Leave your faction",
 	description_arg = ":",
@@ -374,7 +339,6 @@ factions.register_command("leave", {
         return true
     end
 })
-
 factions.register_command("kick", {
     faction_permissions = {"kick"},
     format = {"player"},
@@ -383,24 +347,20 @@ factions.register_command("kick", {
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         local name = args.players[1]
-		
         local victim_faction, facname = factions.get_player_faction(name)
-		
 		local kicker_faction, kicker_facname = factions.get_player_faction(player)
-		
         if victim_faction and kicker_facname == facname and name ~= victim_faction.leader then -- can't kick da king
             factions.remove_player(facname, name)
             return true
         elseif not victim_faction or kicker_facname ~= facname then
-            send_error(player, name .. " is not in your faction")
+            minetest.chat_send_player(player, name .. " is not in your faction")
             return false
         else
-            send_error(player, name .. " cannot be kicked from your faction")
+            minetest.chat_send_player(player, name .. " cannot be kicked from your faction")
             return false
         end
     end
 })
-
 --create new faction
 factions.register_command("create", {
     format = {"string"},
@@ -410,12 +370,10 @@ factions.register_command("create", {
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         if faction then
-            send_error(player, "You are already in a faction")
+            minetest.chat_send_player(player, "You are already in a faction")
             return false
         end
-		
         local factionname = args.strings[1]
-		
         if factions.can_create_faction(factionname) then
 			local new_faction = factions.new_faction(factionname)
             factions.add_player(factionname, player, new_faction.default_leader_rank)
@@ -423,12 +381,11 @@ factions.register_command("create", {
 			factions.start_diplomacy(factionname, new_faction)
             return true
         else
-            send_error(player, "Faction cannot be created.")
+            minetest.chat_send_player(player, "Faction cannot be created.")
             return false
         end
     end
 })
-
 factions.register_command("join", {
     format = {"faction"},
     description = "Join a faction",
@@ -437,26 +394,22 @@ factions.register_command("join", {
 	global_privileges = def_global_privileges,
     on_success = function(player, faction, pos, parcelpos, args)
         if faction ~= nil or faction then
-			send_error(player, "You need to leave your current faction in order to join this one.")
+			minetest.chat_send_player(player, "You need to leave your current faction in order to join this one.")
             return false
 		end
-		
 		local new_faction = args.factions[1]
-		
         if new_faction and factions.can_join(new_faction.name, player) then
             factions.add_player(new_faction.name, player)
         elseif new_faction then
-            send_error(player, "You cannot join this faction")
+            minetest.chat_send_player(player, "You cannot join this faction")
             return false
 		else
-			send_error(player, "Enter the right faction name.")
+			minetest.chat_send_player(player, "Enter the right faction name.")
             return false
         end
-		
         return true
     end
 })
-
 factions.register_command("disband", {
     faction_permissions = {"disband"},
     description = "Disband your faction",
@@ -467,7 +420,6 @@ factions.register_command("disband", {
         return true
     end
 })
-
 factions.register_command("flag", {
     faction_permissions = {"flags"},
     description = "Manage the faction's flags.",
@@ -476,15 +428,14 @@ factions.register_command("flag", {
 	format = {"string"},
 	ignore_param_limit = true,
     on_success = function(player, faction, pos, parcelpos, args)
-		--"Make your faction invite-only."
-		--"Allow any player to join your "
-        --faction:toggle_join_free(false)
 		local flag_name = args.strings[1]
 		local bool = args.strings[2]
 		if (flag_name == "help" or flag_name == "flags") or not bool then
+			local msg = ""
 			for i, k in pairs(factions.flags) do
-				minetest.chat_send_player(player, k..": ".. factions.flags_desc[i] .. "\n")
+				msg = msg .. i ..": ".. k .. "\n"
 			end
+			minetest.chat_send_player(player, msg)
 			return true
 		end
 		if flag_name and bool then
@@ -494,7 +445,7 @@ factions.register_command("flag", {
 			elseif bool == "no" then
 				yes = false
 			else
-				send_error(player, "Set the flags only to yes or no.")
+				minetest.chat_send_player(player, "Set the flags only to yes or no.")
 				return false
 			end
 			if flag_name == "open" then
@@ -503,13 +454,12 @@ factions.register_command("flag", {
 			elseif flag_name == "tax_kick" then
 			elseif flag_name == "animals" then
 			else
-				send_error(player, flag_name.." is not an flag.")
+				minetest.chat_send_player(player, flag_name.." is not an flag.")
 			end
 		end
         return true
     end
 })
-
 factions.register_command("desc", {
 	format = {"string"},
     faction_permissions = {"description"},
@@ -522,7 +472,6 @@ factions.register_command("desc", {
         return true
     end
 })
-
 factions.register_command("invite", {
     format = {"player"},
     faction_permissions = {"invite"},
@@ -532,7 +481,7 @@ factions.register_command("invite", {
     on_success = function(player, faction, pos, parcelpos, args)
         if args.players and args.players[1] then
 			if player == args.players[1] then
-				send_error(player, "You can not invite yourself.")
+				minetest.chat_send_player(player, "You can not invite yourself.")
 				return
 			end
 			factions.invite_player(faction.name, args.players[1])
@@ -541,7 +490,6 @@ factions.register_command("invite", {
         return true
     end
 })
-
 factions.register_command("invites", {
     description = "List invited players.",
 	description_arg = ":",
@@ -550,17 +498,19 @@ factions.register_command("invites", {
     on_success = function(player, faction, pos, parcelpos, args)
         minetest.chat_send_player(player, "Invited players:")
 		local foundplayer = false
+		local msg = ""
 		for p, _ in pairs(faction.invited_players) do
-			minetest.chat_send_player(player, p)
+			msg = msg .. p .. "\n"
 			foundplayer = true
 		end
 		if not foundplayer then
 			minetest.chat_send_player(player, "None:")
+			return false
 		end
+		minetest.chat_send_player(player, msg)
         return true
     end
 })
-
 factions.register_command("uninvite", {
     format = {"player"},
     faction_permissions = {"invite"},
@@ -573,7 +523,6 @@ factions.register_command("uninvite", {
         return true
     end
 })
-
 factions.register_command("delete", {
     global_privileges = {"faction_admin"},
     format = {"faction"},
@@ -585,33 +534,33 @@ factions.register_command("delete", {
         return true
     end
 })
-
 factions.register_command("ranks", {
     description = "List ranks within your faction",
 	description_arg = ":",
 	global_privileges = def_global_privileges,
-    on_success = function(player, faction, pos, parcelpos, args)
-        for rank, permissions in pairs(faction.ranks) do
-            minetest.chat_send_player(player, rank .. ": " .. table.concat(permissions, " "))
-        end
+	on_success = function(player, faction, pos, parcelpos, args)
+		local msg = ""
+		for rank, permissions in pairs(faction.ranks) do
+			msg = msg .. rank .. ": " .. table.concat(permissions, " ") .. "\n"
+		end
+		minetest.chat_send_player(player, msg)
         return true
     end
 })
-
 factions.register_command("rank_privileges", {
     description = "List available rank privileges",
 	description_arg = ":",
 	global_privileges = def_global_privileges,
 	infaction = false,
-    on_success = function(player, faction, pos, parcelpos, args)
-		minetest.chat_send_player(player, "Privileges available:\n")
+	on_success = function(player, faction, pos, parcelpos, args)
+		local msg = "Privileges available:\n"
 		for i, k in pairs(factions.permissions) do
-            minetest.chat_send_player(player, k .. ": " .. factions.permissions_desc[i] .. "\n")
-        end
+			msg = msg .. i .. ": " .. k .. "\n"
+		end
+		minetest.chat_send_player(player, msg)
         return true
     end
 })
-
 factions.register_command("motd", {
     format = {"string"},
     faction_permissions = {"motd"},
@@ -628,7 +577,6 @@ factions.register_command("motd", {
         return true
     end
 })
-
 if factions_config.faction_diplomacy == true then
 	factions.register_command("send_alliance", {
 		description = "Send an alliance request to another faction",
@@ -639,43 +587,36 @@ if factions_config.faction_diplomacy == true then
 		on_success = function(player, faction, pos, parcelpos, args)
 			local target_name = args.strings[1]
 			local target_faction = factions.factions.get(target_name)
-
 			if target_faction then
 				if not target_faction.request_inbox[faction.name] then
 					if faction.allies[target_name] then
-						send_error(player, "You are already allys.")
+						minetest.chat_send_player(player, "You are already allys.")
 						return false
 					end
-					
 					if faction.enemies[target_name] then
-						send_error(player, "You need to be neutral in-order to send an alliance request.")
+						minetest.chat_send_player(player, "You need to be neutral in-order to send an alliance request.")
 						return false
 					end
-					
 					if target_name == faction.name then
-						send_error(player, "You can not send an alliance to your own faction")
+						minetest.chat_send_player(player, "You can not send an alliance to your own faction")
 						return false
 					end
-					
 					if faction.request_inbox[target_name] then
-						send_error(player, "Faction " .. target_name .. "has already sent a request to you.")
+						minetest.chat_send_player(player, "Faction " .. target_name .. "has already sent a request to you.")
 						return false
 					end
-					
 					target_faction.request_inbox[faction.name] = "alliance"
 					factions.broadcast(target_faction.name, "An alliance request from faction " .. faction.name .. " has been sent to you.")
 					factions.broadcast(faction.name, "An alliance request was sent to faction " .. target_name)
-					
 					factions.factions.set(target_name, target_faction)
 				else
-					send_error(player, "You have already sent a request.")
+					minetest.chat_send_player(player, "You have already sent a request.")
 				end
 			else
-				send_error(player, target_name .. " is not a name of a faction")
+				minetest.chat_send_player(player, target_name .. " is not a name of a faction")
 			end
 		end
 	})
-	
 	factions.register_command("send_neutral", {
 		description = "Send neutral to another faction",
 		description_arg = " <faction>:",
@@ -685,43 +626,36 @@ if factions_config.faction_diplomacy == true then
 		on_success = function(player, faction, pos, parcelpos, args)
 			local target_name = args.strings[1]
 			local target_faction = factions.factions.get(target_name)
-
 			if target_faction then
 				if not target_faction.request_inbox[faction.name] then
 					if faction.allies[target_name] then
-						send_error(player, "You are already allys.")
+						minetest.chat_send_player(player, "You are already allys.")
 						return false
 					end
-					
 					if faction.neutral[target_name] then
-						send_error(player, "You are already neutral with this faction")
+						minetest.chat_send_player(player, "You are already neutral with this faction")
 						return false
 					end
-					
 					if target_name == faction.name then
-						send_error(player, "You can not send a neutral request to your own faction")
+						minetest.chat_send_player(player, "You can not send a neutral request to your own faction")
 						return false
 					end
-					
 					if faction.request_inbox[target_name] then
-						send_error(player, "Faction " .. target_name .. "has already sent a request to you.")
+						minetest.chat_send_player(player, "Faction " .. target_name .. "has already sent a request to you.")
 						return false
 					end
-					
 					target_faction.request_inbox[faction.name] = "neutral"
 					factions.broadcast(target_faction.name, "A neutral request from faction " .. faction.name .. " has been sent to you.")
 					factions.broadcast(faction.name, "A neutral request was sent to faction " .. target_name)
-					
 					factions.factions.set(target_name, target_faction)
 				else
-					send_error(player, "You have already sent a request.")
+					minetest.chat_send_player(player, "You have already sent a request.")
 				end
 			else
-				send_error(player, target_name .. " is not a name of a faction")
+				minetest.chat_send_player(player, target_name .. " is not a name of a faction")
 			end
 		end
 	})
-	
 	factions.register_command("accept", {
 		description = "accept an request from another faction",
 		description_arg = " <faction>:",
@@ -731,18 +665,15 @@ if factions_config.faction_diplomacy == true then
 		on_success = function(player, faction, pos, parcelpos, args)
 			local target_name = args.strings[1]
 			local target_faction = factions.factions.get(target_name)
-
 			if not target_faction then
-				send_error(player, target_name .. " Is not a faction.")
+				minetest.chat_send_player(player, target_name .. " Is not a faction.")
 				return false
 			end
-			
 			if faction.request_inbox[target_name] then
 				if target_name == faction.name then
-					send_error(player, "You can not accept an request from own faction")
+					minetest.chat_send_player(player, "You can not accept an request from own faction")
 					return false
 				end
-				
 				if faction.request_inbox[target_name] == "alliance" then
 					factions.new_alliance(faction.name, target_name)
 					factions.new_alliance(target_name, faction.name)
@@ -752,17 +683,13 @@ if factions_config.faction_diplomacy == true then
 						factions.new_neutral(target_name, faction.name)
 					end
 				end
-				
 				faction.request_inbox[target_name] = nil
-				
 				factions.factions.set(faction.name, faction)
-				
 			else
-				send_error(player, "No request was sent to you.")
+				minetest.chat_send_player(player, "No request was sent to you.")
 			end
 		end
 	})
-	
 	factions.register_command("refuse", {
 		description = "refuse an request from another faction",
 		description_arg = " <faction>:",
@@ -772,29 +699,24 @@ if factions_config.faction_diplomacy == true then
 		on_success = function(player, faction, pos, parcelpos, args)
 			local target_name = args.strings[1]
 			local target_faction = factions.factions.get(target_name)
-
 			if not target_faction then
-				send_error(player, target_name .. " Is not a faction.")
+				minetest.chat_send_player(player, target_name .. " Is not a faction.")
 				return false
 			end
-			
 			if faction.request_inbox[target_name] then
 				if target_name == faction.name then
-					send_error(player, "You can not refuse an request from your own faction")
+					minetest.chat_send_player(player, "You can not refuse an request from your own faction")
 					return false
 				end
-				
 				faction.request_inbox[target_name] = nil
 				factions.broadcast(target_name, "Faction " .. faction.name .. " refuse to be your ally.")
 				factions.broadcast(faction.name, "Refused an request from faction " .. target_name)
 				factions.factions.set(faction.name, faction)
-				
 			else
-				send_error(player, "No request was sent to you.")
+				minetest.chat_send_player(player, "No request was sent to you.")
 			end
 		end
 	})
-	
 	factions.register_command("declare_war", {
 		description = "Declare war on a faction",
 		description_arg = " <faction>:",
@@ -804,37 +726,30 @@ if factions_config.faction_diplomacy == true then
 		on_success = function(player, faction, pos, parcelpos, args)
 			local target_name = args.strings[1]
 			local target_faction = factions.factions.get(target_name)
-
 			if not target_faction then
-				send_error(player, target_name .. " Is not a faction.")
+				minetest.chat_send_player(player, target_name .. " Is not a faction.")
 				return false
 			end
-			
 			if not faction.enemies[target_name] then
 				if target_name == faction.name then
-					send_error(player, "You can not declare war on your own faction")
+					minetest.chat_send_player(player, "You can not declare war on your own faction")
 					return false
 				end
-				
 				if faction.allies[target_name] then
 					factions.end_alliance(faction.name, target_name)
 					factions.end_alliance(target_name, faction.name)
 				end
-				
 				if faction.neutral[target_name] then
 					factions.end_neutral(faction.name, target_name)
 					factions.end_neutral(target_name, faction.name)
 				end
-				
 				factions.new_enemy(faction.name, target_name)
 				factions.new_enemy(target_name, faction.name)
-				
 			else
-				send_error(player, "You are already at war.")
+				minetest.chat_send_player(player, "You are already at war.")
 			end
 		end
 	})
-	
 	factions.register_command("break", {
 		description = "Break an alliance.",
 		description_arg = " <faction>:",
@@ -844,29 +759,24 @@ if factions_config.faction_diplomacy == true then
 		on_success = function(player, faction, pos, parcelpos, args)
 			local target_name = args.strings[1]
 			local target_faction = factions.factions.get(target_name)
-
 			if not target_faction then
-				send_error(player, target_name .. " Is not a faction.")
+				minetest.chat_send_player(player, target_name .. " Is not a faction.")
 				return false
 			end
-			
 			if faction.allies[target_name] then
 				if target_name == faction.name then
-					send_error(player, "You can not break an alliance from your own faction")
+					minetest.chat_send_player(player, "You can not break an alliance from your own faction")
 					return false
 				end
-				
 				factions.end_alliance(faction.name, target_name)
 				factions.end_alliance(target_name, faction.name)
 				factions.new_neutral(faction.name, target_name)
 				factions.new_neutral(target_name, faction.name)
-				
 			else
-				send_error(player, "You where not allies to begin with.")
+				minetest.chat_send_player(player, "You where not allies to begin with.")
 			end
 		end
 	})
-	
 	factions.register_command("inbox", {
 		description = "Check your diplomacy request inbox.",
 		description_arg = ":",
@@ -874,80 +784,79 @@ if factions_config.faction_diplomacy == true then
 		faction_permissions = {"diplomacy"},
 		on_success = function(player, faction, pos, parcelpos, args)
 			local empty = true
-			
+			local msg = "Inbox:\n"
 			for i, k in pairs(faction.request_inbox) do
 				if k == "alliance" then
-					minetest.chat_send_player(player, "Alliance request from faction " .. i .. "\n")
-				else 
+					msg = msg .. "Alliance request from faction " .. i .. "\n"
+				else
 					if k == "neutral" then
-						minetest.chat_send_player(player, "neutral request from faction " .. i .. "\n")
+						msg = msg .. "neutral request from faction " .. i .. "\n"
 					end
 				end
-				
 				empty = false
 			end
-			
 			if empty then
 				minetest.chat_send_player(player, "none:")
+			else
+				minetest.chat_send_player(player, msg)
 			end
 		end
 	})
-	
 	factions.register_command("allies", {
 		description = "Shows the factions that are allied to you.",
 		description_arg = ":",
 		global_privileges = def_global_privileges,
 		on_success = function(player, faction, pos, parcelpos, args)
 			local empty = true
-			
+			local msg = ""
 			for i, k in pairs(faction.allies) do
-				minetest.chat_send_player(player, i .. "\n")
+				msg = msg .. i .. "\n"
 				empty = false
 			end
-			
 			if empty then
 				minetest.chat_send_player(player, "none:")
+			else
+				minetest.chat_send_player(player, msg)
 			end
 		end
 	})
-	
 	factions.register_command("neutral", {
 		description = "Shows the factions that are neutral with you.",
 		description_arg = ":",
 		global_privileges = def_global_privileges,
 		on_success = function(player, faction, pos, parcelpos, args)
 			local empty = true
-			
+			local msg = ""
 			for i, k in pairs(faction.neutral) do
-				minetest.chat_send_player(player, i .. "\n")
+				msg = msg .. i .. "\n"
 				empty = false
 			end
-			
 			if empty then
 				minetest.chat_send_player(player, "none:")
+			else
+				minetest.chat_send_player(player, msg)
 			end
 		end
 	})
-	
 	factions.register_command("enemies", {
 		description = "Shows enemies of your faction",
 		description_arg = ":",
 		global_privileges = def_global_privileges,
 		on_success = function(player, faction, pos, parcelpos, args)
 			local empty = true
-			
+			local msg = ""
 			for i, k in pairs(faction.enemies) do
-				minetest.chat_send_player(player, i .. "\n")
+				msg = msg .. i .. "\n"
 				empty = false
 			end
-			
 			if empty then
 				minetest.chat_send_player(player, "none:")
+			else
+				minetest.chat_send_player(player, msg)
 			end
 		end
 	})
 end
-
 factions.register_command("who", {
     description = "List players in a faction, and their ranks.",
 	description_arg = " (none | <faction>):",
@@ -957,7 +866,6 @@ factions.register_command("who", {
 	ignore_param_limit = true,
     on_success = function(player, faction, pos, parcelpos, args)
         local str = args.strings[1]
-		
 		if str then
 			local f = factions.get_faction(str)
 			if not f or not f.players then
@@ -983,13 +891,10 @@ factions.register_command("who", {
 				return true
 			end
 		end
-
         return true
     end
 })
-
 local parcel_size_center = factions_config.parcel_size / 2
-
 factions.register_command("show_parcel", {
     description = "Shows parcel for six seconds.",
 	description_arg = ":",
@@ -998,21 +903,17 @@ factions.register_command("show_parcel", {
 	ignore_param_limit = true,
     on_success = function(player, faction, pos, parcelpos, args)
 		local parcel_faction = factions.get_parcel_faction(parcelpos)
-		
 		if not parcel_faction then
-			send_error(player, "There is no claim here")
+			minetest.chat_send_player(player, "There is no claim here")
 			return false
 		end
-		
 		local psc = parcel_size_center
 		local fps = factions_config.parcel_size
-
 		local ppos = {x = (math.floor(pos.x / fps) * fps) + psc, y = (math.floor(pos.y / fps) * fps) + psc, z = (math.floor(pos.z / fps) * fps) + psc}
 		minetest.add_entity(ppos, "factions:display")
         return true
     end
 })
-
 factions.register_command("new_rank", {
     description = "Add a new rank.",
 	description_arg = " <rank> <privs>:",
@@ -1024,7 +925,7 @@ factions.register_command("new_rank", {
 		if args.strings[1] then
 			local rank = args.strings[1]
 			if faction.ranks[rank] then
-				send_error(player, "Rank already exists")
+				minetest.chat_send_player(player, "Rank already exists")
 				return false
 			end
 			local success = false
@@ -1047,20 +948,19 @@ factions.register_command("new_rank", {
 			end
 			if not success then
 				if args.strings[failindex] then
-					send_error(player, "Permission " .. args.strings[failindex] .. " is invalid.")
+					minetest.chat_send_player(player, "Permission " .. args.strings[failindex] .. " is invalid.")
 				else
-					send_error(player, "No permission was given.")
+					minetest.chat_send_player(player, "No permission was given.")
 				end
 				return false
 			end
 			factions.add_rank(faction.name, rank, args.other)
 			return true
 		end
-		send_error(player, "No rank was given.")
+		minetest.chat_send_player(player, "No rank was given.")
 		return false
     end
 })
-
 factions.register_command("replace_privs", {
     description = "Deletes current permissions and replaces them with the ones given.",
 	description_arg = " <rank> <privs>:",
@@ -1072,7 +972,7 @@ factions.register_command("replace_privs", {
 		if args.strings[1] then
 			local rank = args.strings[1]
 			if not faction.ranks[rank] then
-				send_error(player, "Rank does not exist")
+				minetest.chat_send_player(player, "Rank does not exist")
 				return false
 			end
 			local success = false
@@ -1095,20 +995,19 @@ factions.register_command("replace_privs", {
 			end
 			if not success then
 				if args.strings[failindex] then
-					send_error(player, "Permission " .. args.strings[failindex] .. " is invalid.")
+					minetest.chat_send_player(player, "Permission " .. args.strings[failindex] .. " is invalid.")
 				else
-					send_error(player, "No permission was given.")
+					minetest.chat_send_player(player, "No permission was given.")
 				end
 				return false
 			end
 			factions.replace_privs(faction.name, rank, args.other)
 			return true
 		end
-		send_error(player, "No rank was given.")
+		minetest.chat_send_player(player, "No rank was given.")
 		return false
     end
 })
-
 factions.register_command("remove_privs", {
     description = "Remove permissions from a rank.",
 	description_arg = " <rank> <privs>:",
@@ -1120,7 +1019,7 @@ factions.register_command("remove_privs", {
 		if args.strings[1] then
 			local rank = args.strings[1]
 			if not faction.ranks[rank] then
-				send_error(player, "Rank does not exist")
+				minetest.chat_send_player(player, "Rank does not exist")
 				return false
 			end
 			local success = false
@@ -1143,20 +1042,19 @@ factions.register_command("remove_privs", {
 			end
 			if not success then
 				if args.strings[failindex] then
-					send_error(player, "Permission " .. args.strings[failindex] .. " is invalid.")
+					minetest.chat_send_player(player, "Permission " .. args.strings[failindex] .. " is invalid.")
 				else
-					send_error(player, "No permission was given.")
+					minetest.chat_send_player(player, "No permission was given.")
 				end
 				return false
 			end
 			factions.remove_privs(faction.name, rank, args.other)
 			return true
 		end
-		send_error(player, "No rank was given.")
+		minetest.chat_send_player(player, "No rank was given.")
 		return false
     end
 })
-
 factions.register_command("add_privs", {
     description = "add permissions to a rank.",
 	description_arg = " <rank> <privs>:",
@@ -1168,7 +1066,7 @@ factions.register_command("add_privs", {
 		if args.strings[1] then
 			local rank = args.strings[1]
 			if not faction.ranks[rank] then
-				send_error(player, "Rank does not exist")
+				minetest.chat_send_player(player, "Rank does not exist")
 				return false
 			end
 			local success = false
@@ -1191,20 +1089,19 @@ factions.register_command("add_privs", {
 			end
 			if not success then
 				if args.strings[failindex] then
-					send_error(player, "Permission " .. args.strings[failindex] .. " is invalid.")
+					minetest.chat_send_player(player, "Permission " .. args.strings[failindex] .. " is invalid.")
 				else
-					send_error(player, "No permission was given.")
+					minetest.chat_send_player(player, "No permission was given.")
 				end
 				return false
 			end
 			factions.add_privs(faction.name, rank, args.other)
 			return true
 		end
-		send_error(player, "No rank was given.")
+		minetest.chat_send_player(player, "No rank was given.")
 		return false
     end
 })
-
 factions.register_command("set_rank_name", {
     description = "Change the name of given rank.",
 	description_arg = " <old rank> <new rank>:",
@@ -1215,18 +1112,17 @@ factions.register_command("set_rank_name", {
         local rank = args.strings[1]
         local newrank = args.strings[2]
         if not faction.ranks[rank] then
-            send_error(player, "The rank does not exist.")
+            minetest.chat_send_player(player, "The rank does not exist.")
             return false
         end
 		if faction.ranks[newrank] then
-            send_error(player, "This rank name was already taken.")
+            minetest.chat_send_player(player, "This rank name was already taken.")
             return false
         end
         factions.set_rank_name(faction.name, rank, newrank)
         return true
     end
 })
-
 factions.register_command("del_rank", {
     description = "Replace and delete a rank.",
 	description_arg = " <old rank> <new rank>:",
@@ -1237,14 +1133,13 @@ factions.register_command("del_rank", {
         local rank = args.strings[1]
         local newrank = args.strings[2]
         if not faction.ranks[rank] or not faction.ranks[newrank] then
-            send_error(player, "One of the specified ranks does not exist.")
+            minetest.chat_send_player(player, "One of the specified ranks does not exist.")
             return false
         end
         factions.delete_rank(faction.name, rank, newrank)
         return true
     end
 })
-
 factions.register_command("set_def_rank", {
     description = "Change the default rank given to new players and also replace rankless players in this faction",
 	description_arg = " <rank>:",
@@ -1254,14 +1149,13 @@ factions.register_command("set_def_rank", {
     on_success = function(player, faction, pos, parcelpos, args)
         local rank = args.strings[1]
         if not faction.ranks[rank] then
-            send_error(player, "This rank does not exist.")
+            minetest.chat_send_player(player, "This rank does not exist.")
             return false
         end
         factions.set_def_rank(faction.name, rank)
         return true
     end
 })
-
 factions.register_command("reset_ranks", {
     description = "Reset's all of the factions rankings back to the default ones.",
 	description_arg = ":",
@@ -1273,7 +1167,6 @@ factions.register_command("reset_ranks", {
         return true
     end
 })
-
 factions.register_command("sethome", {
     description = "Set the faction's spawn",
 	description_arg = ":",
@@ -1284,7 +1177,6 @@ factions.register_command("sethome", {
         return true
     end
 })
-
 factions.register_command("unsethome", {
     description = "Set the faction's spawn to zero",
 	description_arg = ":",
@@ -1295,7 +1187,6 @@ factions.register_command("unsethome", {
         return true
     end
 })
-
 if factions_config.spawn_teleport == true then
 	factions.register_command("home", {
 		description = "Teleport to the faction's spawn",
@@ -1310,7 +1201,6 @@ if factions_config.spawn_teleport == true then
 		end
 	})
 end
-
 factions.register_command("where", {
     description = "See whose parcel you stand on.",
 	description_arg = ":",
@@ -1323,7 +1213,6 @@ factions.register_command("where", {
         return true
     end
 })
-
 factions.register_command("help", {
     description = "Shows help for commands.",
 	description_arg = ":",
@@ -1334,7 +1223,6 @@ factions.register_command("help", {
         return true
     end
 })
-
 factions.register_command("gethome", {
     description = "Shows your faction's spawn",
 	description_arg = ":",
@@ -1350,7 +1238,6 @@ factions.register_command("gethome", {
         end
     end
 })
-
 factions.register_command("promote", {
     description = "Promotes a player to a rank",
 	description_arg = " <player> <rank>:",
@@ -1361,32 +1248,28 @@ factions.register_command("promote", {
         local rank = args.strings[1]
         if faction.ranks[rank] then
 			local name = args.players[1]
-			
 			local player_faction, facname = factions.get_player_faction(name)
-			
 			local promoter_faction, promoter_facname = factions.get_player_faction(player)
-			
 			if player_faction and promoter_facname == facname and player ~= name then
 				factions.promote(faction.name, name, rank)
 				minetest.chat_send_player(player, "Promoted " .. name .. " to " .. rank .. "!")
 				return true
 			elseif not player_faction or promoter_facname ~= facname then
-				send_error(player, name .. " is not in your faction")
+				minetest.chat_send_player(player, name .. " is not in your faction")
 				return false
 			elseif player == name then
-				send_error(player, "You can not promote yourself!")
+				minetest.chat_send_player(player, "You can not promote yourself!")
 				return false
 			else
-				send_error(player, name .. " cannot be promoted from your faction")
+				minetest.chat_send_player(player, name .. " cannot be promoted from your faction")
 				return false
 			end
         else
-            send_error(player, "The specified rank does not exist.")
+            minetest.chat_send_player(player, "The specified rank does not exist.")
             return false
         end
     end
 })
-
 factions.register_command("power", {
     description = "Display your faction's power",
 	description_arg = ":",
@@ -1408,7 +1291,6 @@ factions.register_command("power", {
         return true
     end
 })
-
 factions.register_command("free", {
     description = "Forcefully frees a parcel",
 	description_arg = ":",
@@ -1417,7 +1299,7 @@ factions.register_command("free", {
     on_success = function(player, faction, pos, parcelpos, args)
         local parcel_faction = factions.get_parcel_faction(parcelpos)
         if not parcel_faction then
-            send_error(player, "No claim at this position")
+            minetest.chat_send_player(player, "No claim at this position")
             return false
         else
             factions.unclaim_parcel(parcel_faction.name, parcelpos)
@@ -1425,7 +1307,6 @@ factions.register_command("free", {
         end
     end
 })
-
 factions.register_command("chat", {
     description = "Send a message to your faction's members",
 	description_arg = " <message>:",
@@ -1437,7 +1318,6 @@ factions.register_command("chat", {
         factions.broadcast(faction.name, msg, player)
     end
 })
-
 factions.register_command("force_update", {
     description = "Forces an update tick.",
 	description_arg = ":",
@@ -1447,7 +1327,6 @@ factions.register_command("force_update", {
         factions.faction_tick()
     end
 })
-
 factions.register_command("player", {
     description = "Get which faction a player is in",
 	description_arg = " <player>:",
@@ -1462,7 +1341,7 @@ factions.register_command("player", {
 		end
         local faction1, facname = factions.get_player_faction(playername)
         if not faction1 then
-            send_error(player, "Player " .. playername .. " does not belong to any faction")
+            minetest.chat_send_player(player, "Player " .. playername .. " does not belong to any faction")
             return false
         else
             minetest.chat_send_player(player, "player " .. playername .. " belongs to faction " .. faction1.name)
@@ -1470,7 +1349,6 @@ factions.register_command("player", {
         end
     end
 })
-
 factions.register_command("set_leader", {
     description = "Set a player as a faction's leader",
 	description_arg = " <faction> <player>:",
@@ -1481,16 +1359,14 @@ factions.register_command("set_leader", {
         local playername = args.players[1]
         local playerfaction, facname = factions.get_player_faction(playername)
         local targetfaction = args.factions[1]
-		
         if facname ~= targetfaction.name then
-            send_error(player, "Player " .. playername .. " is not in faction " .. targetfaction.name .. ".")
+            minetest.chat_send_player(player, "Player " .. playername .. " is not in faction " .. targetfaction.name .. ".")
             return false
         end
         factions.set_leader(targetfaction.name, playername)
         return true
     end
 })
-
 factions.register_command("set_admin", {
     description = "Make a faction an admin faction",
 	description_arg = " <faction>:",
@@ -1503,15 +1379,11 @@ factions.register_command("set_admin", {
 		else
 			minetest.chat_send_player(player,"faction " .. args.factions[1].name .. " is already an admin ")
 		end
-		
         args.factions[1].is_admin = true
-		
 		factions.factions.set(args.factions[1].name, args.factions[1])
-		
         return true
     end
 })
-
 factions.register_command("remove_admin", {
     description = "Make a faction not an admin faction",
 	description_arg = " <faction>:",
@@ -1525,13 +1397,10 @@ factions.register_command("remove_admin", {
 			minetest.chat_send_player(player,"faction " .. args.factions[1].name .. " is not an admin faction to begin with.")
 		end
         args.factions[1].is_admin = false
-		
 		factions.factions.set(args.factions[1].name, args.factions[1])
-		
         return true
     end
 })
-
 factions.register_command("reset_power", {
     description = "Reset a faction's power",
 	description_arg = " <faction>:",
@@ -1540,14 +1409,10 @@ factions.register_command("reset_power", {
     format = {"faction"},
     on_success = function(player, faction, pos, parcelpos, args)
         args.factions[1].power = 0
-		
 		factions.factions.set(args.factions[1].name, args.factions[1])
-		
         return true
     end
 })
-
-
 factions.register_command("obliterate", {
     description = "Remove all factions",
 	description_arg = ":",
@@ -1560,7 +1425,6 @@ factions.register_command("obliterate", {
         return true
     end
 })
-
 factions.register_command("get_factions_spawn", {
     description = "Get a faction's spawn",
 	description_arg = " <faction>:",
@@ -1573,12 +1437,11 @@ factions.register_command("get_factions_spawn", {
             minetest.chat_send_player(player, spawn.x .. "," .. spawn.y .. "," .. spawn.z)
             return true
         else
-            send_error(player, "Faction has no spawn set.")
+            minetest.chat_send_player(player, "Faction has no spawn set.")
             return false
         end
     end
 })
-
 factions.register_command("stats", {
     description = "Get stats of a faction",
 	description_arg = " <faction>:",
@@ -1603,7 +1466,6 @@ factions.register_command("stats", {
         return true
     end
 })
-
 factions.register_command("seen", {
     description = "Check the last time a faction had a member logged in",
 	description_arg = " <faction>:",
@@ -1622,7 +1484,6 @@ factions.register_command("seen", {
         return true
     end
 })
-
 -------------------------------------------------------------------------------
 -- name: cmdhandler(playername, parameter)
 --
@@ -1647,7 +1508,7 @@ factions_chat.cmdhandler = function (playername,parameter)
 	end
 	local cmd = factions.commands[params[1]]
     if not cmd then
-        send_error(playername, "Unknown command.")
+        minetest.chat_send_player(playername, "Unknown command.")
         return false
     end
     local argv = {}
@@ -1665,11 +1526,9 @@ function table_Contains(t, v)
 	end
 	return false
 end
-
 local premade_help = ""
 local premade_help_admin = ""
 local a_z = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
-
 function factions.create_help_text()
 	for l, j in pairs(a_z) do
 		for k, v in pairs(factions.commands) do
@@ -1684,11 +1543,9 @@ function factions.create_help_text()
 		end
 	end
 end
-
 minetest.register_on_mods_loaded(function()
 	factions.create_help_text()
 end)
-
 -------------------------------------------------------------------------------
 -- name: show_help(playername, parameter)
 --
@@ -1699,17 +1556,14 @@ end)
 --! @param playername name
 -------------------------------------------------------------------------------
 function factions_chat.show_help(playername)
-	local MSG = function(text)
-		minetest.chat_send_player(playername, text, false)
-	end
-	MSG("factions mod")
-	MSG("Usage:")
+	local msg = "factions mod\nUsage:\n"
 	local has, missing = minetest.check_player_privs(playername, {faction_admin = true})
 	if has then
-		MSG(premade_help_admin)
+		msg = msg .. premade_help_admin
 	else
-		MSG(premade_help)
+		msg = msg .. premade_help
 	end
+	minetest.chat_send_player(playername, msg, false)
 end
 
 init_commands()

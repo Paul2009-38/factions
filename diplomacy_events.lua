@@ -15,7 +15,6 @@ end
 
 function factions.new_alliance(name, faction)
 	local bfaction = factions.factions.get(name)
-	
     bfaction.allies[faction] = true
     factions.on_new_alliance(name, faction)
     if bfaction.enemies[faction] then
@@ -24,24 +23,19 @@ function factions.new_alliance(name, faction)
 	if bfaction.neutral[faction] then
         factions.end_neutral(name, faction)
     end
-    
 	factions.factions.set(name, bfaction)
 end
 
 function factions.end_alliance(name, faction)
     local bfaction = factions.factions.get(name)
-	
 	bfaction.allies[faction] = nil
     factions.on_end_alliance(name, faction)
-    
 	factions.factions.set(name, bfaction)
 end
 
 function factions.new_neutral(name, faction)
 	local bfaction = factions.factions.get(name)
-	
     bfaction.neutral[faction] = true
-    
 	factions.on_new_neutral(name, faction)
     if bfaction.allies[faction] then
         factions.end_alliance(name, faction)
@@ -49,41 +43,32 @@ function factions.new_neutral(name, faction)
     if bfaction.enemies[faction] then
         factions.end_enemy(name, faction)
     end
-    
 	factions.factions.set(name, bfaction)
 end
 
 function factions.end_neutral(name, faction)
     local bfaction = factions.factions.get(name)
-	
 	bfaction.neutral[faction] = nil
     factions.on_end_neutral(name, faction)
-    
 	factions.factions.set(name, bfaction)
 end
 
 function factions.new_enemy(name, faction)
 	local bfaction = factions.factions.get(name)
-	
 	bfaction.enemies[faction] = true
     factions.on_new_enemy(name, faction)
-	
     if bfaction.allies[faction] then
         factions.end_alliance(name, faction)
     end
-	
 	if bfaction.neutral[faction] then
         factions.end_neutral(name, faction)
     end
-    
 	factions.factions.set(name, bfaction)
 end
 
 function factions.end_enemy(name, faction)
     local bfaction = factions.factions.get(name)
-	
 	bfaction.enemies[faction] = nil
     factions.on_end_enemy(name, faction)
-    
 	factions.factions.set(name, bfaction)
 end

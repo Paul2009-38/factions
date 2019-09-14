@@ -5,7 +5,6 @@ minetest.register_on_prejoinplayer(function(name, ip)
 	data.ip = ip
 	factions.player_ips.set(name, data)
 end)
-
 minetest.register_on_joinplayer(function(player)
 	local name = player:get_player_name()
 	minetest.after(5, createHudfactionLand, player)
@@ -14,15 +13,11 @@ minetest.register_on_joinplayer(function(player)
 		if factions.onlineplayers[facname] == nil then
 			factions.onlineplayers[facname] = {}
 		end
-		
 		factions.onlineplayers[facname][name] = true
         faction.last_logon = os.time()
-		
 		factions.factions.set(facname, faction)
-		
 		minetest.after(5, createHudFactionName, player, facname)
 		minetest.after(5, createHudPower, player, faction)
-		
 		if faction.no_parcel ~= -1 then
 			local now = os.time() - faction.no_parcel
 			local l = factions_config.maximum_parcelless_faction_time
@@ -37,38 +32,30 @@ minetest.register_on_joinplayer(function(player)
 			minetest.chat_send_player(name, faction.message_of_the_day)
 		end
     end
-	
-end
-)
-
+end)
 minetest.register_on_leaveplayer(function(player)
-		local name = player:get_player_name()
-		local faction, facname = factions.get_player_faction(name)
-		local id_name1 = name .. "factionLand"
-		
-		if hud_ids[id_name1] then
-			hud_ids[id_name1] = nil
-		end
-		
-		if faction then
-			faction.last_logon = os.time()
-			factions.factions.set(facname, faction)
-			factions.onlineplayers[facname][name] = nil
-			
-			hud_ids[name .. "factionName"] = nil
-			hud_ids[name .. "powerWatch"] = nil
-		else
-			factions.remove_key(factions.player_ips, name, nil, "ip", true)
-		end
-
-		on_death[name] = nil
+	local name = player:get_player_name()
+	local faction, facname = factions.get_player_faction(name)
+	local id_name1 = name .. "factionLand"
+	if hud_ids[id_name1] then
+		hud_ids[id_name1] = nil
 	end
-)
+	if faction then
+		faction.last_logon = os.time()
+		factions.factions.set(facname, faction)
+		factions.onlineplayers[facname][name] = nil
+		
+		hud_ids[name .. "factionName"] = nil
+		hud_ids[name .. "powerWatch"] = nil
+	else
+		factions.remove_key(factions.player_ips, name, nil, "ip", true)
+	end
+	on_death[name] = nil
+end)
 
 minetest.register_on_respawnplayer(function(player)
         local name = player:get_player_name()
 		local faction, facname = factions.get_player_faction(name)
-        
 		if not faction then
             return false
         else

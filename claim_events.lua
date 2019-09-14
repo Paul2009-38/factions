@@ -2,16 +2,12 @@
 --! @return whether this faction can claim a parcelpos
 function factions.can_claim_parcel(name, parcelpos)
     local fn = factions.parcels.get(parcelpos)
-	
 	if fn == nil then
 		return true
 	end
-	
 	local faction = factions.factions.get(name)
-	
 	if fn then
 		local fac = factions.factions.get(fn.faction)
-		
         if fac.power < 0. and faction.power >= factions_config.power_per_parcel and not faction.allies[fn] and not faction.neutral[fn] then
             return true
         else
@@ -20,15 +16,12 @@ function factions.can_claim_parcel(name, parcelpos)
     elseif faction.power < factions_config.power_per_parcel then
         return false
     end
-	
     return true
 end
-
 --! @brief claim a parcel, update power and update global parcels table
 function factions.claim_parcel(name, parcelpos)
     -- check if claiming over other faction's territory
 	local otherfac = factions.parcels.get(parcelpos)
-	
 	if otherfac then
 		local otherfac_name = otherfac.faction
         factions.unclaim_parcel(otherfac_name, parcelpos)
@@ -37,29 +30,20 @@ function factions.claim_parcel(name, parcelpos)
 	local data = factions.create_parcel_table()
 	data.faction = name
     factions.parcels.set(parcelpos, data)
-	
 	local faction = factions.factions.get(name)
-	
     faction.land[parcelpos] = true
-	
 	factions.factions.set(name, faction)
-	
     factions.decrease_power(name, factions_config.power_per_parcel)
     factions.increase_usedpower(name, factions_config.power_per_parcel)
     factions.on_claim_parcel(name, parcelpos)
 	factions.parcelless_check(name)
 end
-
 --! @brief claim a parcel, update power and update global parcels table
 function factions.unclaim_parcel(name, parcelpos)
 	factions.remove_key(factions.parcels, parcelpos, nil, "faction", true)
-	
 	local faction = factions.factions.get(name)
-	
     faction.land[parcelpos] = nil
-	
 	factions.factions.set(name, faction)
-	
     factions.increase_power(name, factions_config.power_per_parcel)
     factions.decrease_usedpower(name, factions_config.power_per_parcel)
     factions.on_unclaim_parcel(name, parcelpos)
@@ -68,7 +52,6 @@ end
 
 function factions.parcelless_check(name)
 	local faction = factions.factions.get(name)
-	
 	if faction.land then
 		local count = 0
 		for index, value in pairs(faction.land) do
@@ -165,15 +148,11 @@ local parcel_size = factions_config.parcel_size
 function factions.claim_square(player, faction, r)
 	local rplayer = minetest.get_player_by_name(player)
 	local pos = vector.round(rplayer:get_pos())
-	
 	pos.x = math.floor(pos.x / parcel_size) * parcel_size
 	pos.z = math.floor(pos.z / parcel_size) * parcel_size
-	
 	pos.x = pos.x - (parcel_size * (r - math.floor(r / 2)))
 	pos.z = pos.z - (parcel_size * (r - math.floor(r / 2)))
-	
 	local timer = 0
-	
 	for i = 1, r do
 		for l = 1, r do
 			local p = {x = pos.x + (parcel_size * l), y = pos.y, z = pos.z + (parcel_size * i)}
@@ -183,9 +162,7 @@ function factions.claim_square(player, faction, r)
 		end
 	end
 end
-
 local auto_list = {}
-
 local function _claim_auto(player, faction)
 	if auto_list[player] then
 		local rplayer = minetest.get_player_by_name(player)
@@ -194,7 +171,6 @@ local function _claim_auto(player, faction)
 		minetest.after(0.1, _claim_auto, player, faction)
 	end
 end
-
 function factions.claim_auto(player, faction)
 	if auto_list[player] then
 		auto_list[player] = nil
@@ -205,7 +181,6 @@ function factions.claim_auto(player, faction)
 		_claim_auto(player, faction)
 	end
 end
-
 local function _claim_fill(player, faction, pos)
 	if claim_helper(player, faction, factions.get_parcel_pos(pos), true) then
 		local pos1 = {x = pos.x - parcel_size, y = pos.y, z = pos.z}
@@ -218,7 +193,6 @@ local function _claim_fill(player, faction, pos)
 		minetest.after(math.random(0, 11) / 10, _claim_fill, player, faction, pos4)
 	end
 end
-
 function factions.claim_fill(player, faction)
 	local rplayer = minetest.get_player_by_name(player)
 	local pos = vector.round(rplayer:get_pos())
@@ -262,16 +236,13 @@ end
 function factions.claim_all(player, faction)
 	local rplayer = minetest.get_player_by_name(player)
 	local pos = vector.round(rplayer:get_pos())
-	
 	pos.x = math.floor(pos.x / parcel_size) * parcel_size
 	pos.z = math.floor(pos.z / parcel_size) * parcel_size
-	
 	_claim_all(player, faction, pos)
 end
 
 function factions.claim_help(player, func)
 	local text = "All params for /f claim: <o,one, a,auto, f,fill, s,square, c,circle, all, l,list, h,help>, <none, number>"
-	
 	if func == "o" or func == "one" then
 		text = "/f claim o\n/f claim one\n Claim one parcel."
 	elseif func == "a" or func == "auto" then
@@ -287,22 +258,17 @@ function factions.claim_help(player, func)
 	elseif func == "all" then
 		text = "/f claim all\nClaim all faction land."
 	end
-	
 	minetest.chat_send_player(player, text)
 end
 
 function factions.unclaim_square(player, faction, r)
 	local rplayer = minetest.get_player_by_name(player)
 	local pos = vector.round(rplayer:get_pos())
-	
 	pos.x = math.floor(pos.x / parcel_size) * parcel_size
 	pos.z = math.floor(pos.z / parcel_size) * parcel_size
-	
 	pos.x = pos.x - (parcel_size * (r - math.floor(r / 2)))
 	pos.z = pos.z - (parcel_size * (r - math.floor(r / 2)))
-	
 	local timer = 0
-	
 	for i = 1, r do
 		for l = 1, r do
 			local p = {x = pos.x + (parcel_size * l), y = pos.y, z = pos.z + (parcel_size * i)}
@@ -349,10 +315,8 @@ end
 function factions.unclaim_fill(player, faction)
 	local rplayer = minetest.get_player_by_name(player)
 	local pos = vector.round(rplayer:get_pos())
-	
 	pos.x = math.floor(pos.x / parcel_size) * parcel_size
 	pos.z = math.floor(pos.z / parcel_size) * parcel_size
-	
 	_unclaim_fill(player, faction, pos)
 end
 
@@ -361,10 +325,8 @@ local parcel_size_center = parcel_size / 2
 function factions.unclaim_circle(player, faction, r)
 	local rplayer = minetest.get_player_by_name(player)
 	local pos = vector.round(rplayer:get_pos())
-	
 	pos.x = (math.floor(pos.x / parcel_size) * parcel_size) + parcel_size_center
 	pos.z = (math.floor(pos.z / parcel_size) * parcel_size) + parcel_size_center
-	
 	for i = 1, 360 do
 		local angle = i * math.pi / 180
 		local rpos = {x = pos.x + r * math.cos(angle), y = pos.y, z = pos.z + r * math.sin(angle)}
@@ -383,16 +345,13 @@ end
 function factions.unclaim_all(player, faction)
 	local rplayer = minetest.get_player_by_name(player)
 	local pos = vector.round(rplayer:get_pos())
-	
 	pos.x = math.floor(pos.x / parcel_size) * parcel_size
 	pos.z = math.floor(pos.z / parcel_size) * parcel_size
-	
 	_unclaim_all(player, faction, pos)
 end
 
 function factions.unclaim_help(player, func)
 	local text = "All params for /f unclaim: <o,one, a,auto, f,fill, s,square, c,circle, all, l,list, h,help>, <none, number>"
-	
 	if func == "o" or func == "one" then
 		text = "/f unclaim o\n/f unclaim one\n Unclaim one parcel."
 	elseif func == "a" or func == "auto" then
@@ -408,11 +367,9 @@ function factions.unclaim_help(player, func)
 	elseif func == "all" then
 		text = "/f unclaim all\nUnclaim all faction land."
 	end
-	
 	minetest.chat_send_player(player, text)
 end
 
 minetest.register_on_leaveplayer(function(player)
-		auto_list[player:get_player_name()] = nil
-	end
-)
+	auto_list[player:get_player_name()] = nil
+end)

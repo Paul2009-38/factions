@@ -17,7 +17,6 @@ minetest.register_on_mods_loaded(function()
 	if minetest.registered_nodes["default:chest"] then
 		local dc = minetest.registered_nodes["default:chest"]
 		local def_on_rightclick = dc.on_rightclick
-
 		local after_place_node = function(pos, placer)
 			local parcel_faction = factions.get_faction_at(pos)
 			if parcel_faction then
@@ -28,14 +27,12 @@ minetest.register_on_mods_loaded(function()
 					name .. ")")
 			end
 		end
-		
 		local can_dig = function(pos, player)
 			local meta = minetest.get_meta(pos)
 			local inv = meta:get_inventory()
 			return inv:is_empty("main") and
 					factions.can_use_node(pos, player:get_player_name(), "container")
 		end
-		
 		local allow_metadata_inventory_move
 		local def_allow_metadata_inventory_move = dc.allow_metadata_inventory_move
 		if def_allow_metadata_inventory_move then
@@ -55,7 +52,6 @@ minetest.register_on_mods_loaded(function()
 				return count
 			end
 		end
-		
 		local allow_metadata_inventory_put
 		local def_allow_metadata_inventory_put = dc.allow_metadata_inventory_put
 		if def_allow_metadata_inventory_put then
@@ -73,7 +69,6 @@ minetest.register_on_mods_loaded(function()
 				return stack:get_count()
 			end
 		end
-		
 		local allow_metadata_inventory_take
 		local def_allow_metadata_inventory_take = dc.allow_metadata_inventory_take
 		if def_allow_metadata_inventory_take then
@@ -91,14 +86,12 @@ minetest.register_on_mods_loaded(function()
 				return stack:get_count()
 			end
 		end
-		
 		local on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
 			if not factions.can_use_node(pos, clicker:get_player_name(), "container") and not minetest.check_player_privs(clicker, "protection_bypass") then
 				return itemstack
 			end
 			return def_on_rightclick(pos, node, clicker, itemstack, pointed_thing)
 		end
-		
 		minetest.override_item("default:chest", {after_place_node = after_place_node,
 			can_dig = can_dig,
 			allow_metadata_inventory_move = allow_metadata_inventory_move,
@@ -123,11 +116,8 @@ minetest.register_on_mods_loaded(function()
 						
 	-- Edit default doors and trapdoors to make them require the door permission.
 	local doors = {}
-
 	local all_items = {}
-
 	local item_count = 1
-
 	local old_i = 0
 
 	for i, l in ipairs(door_items) do

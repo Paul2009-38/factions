@@ -38,7 +38,7 @@ function factions.create_faction_table()
         --! @brief maximum power of a faction
         maxpower = factions_config.maxpower,
         --! @brief power currently in use
-        usedpower = 0.,
+        usedpower = 0,
         --! @brief list of player names
         players = {},
         --! @brief table of ranks/permissions
@@ -119,29 +119,23 @@ function factions.remove_key(db, db_name, db_data, key, write)
     if not db_data then
         db_data = db.get(db_name)
     end
-
     db_data[key] = nil
-
     if factions.db_is_empty(db_data) then
         db.remove(db_name)
         return nil
     end
-
     if write then
         db.set(db_name, db_data)
     end
-    
     return db_data
 end
 
 -- faction data check on load
 local function update_data(db, db_name, db_data, empty_table, write)
     local needs_update = false
-
     if not db_data then
         db_data = db.get(db_name)
     end
-
     for k, v in pairs(empty_table) do
         if db_data[k] == nil then
             db_data[k] = v
@@ -149,11 +143,9 @@ local function update_data(db, db_name, db_data, empty_table, write)
             minetest.log("Adding property " .. k .. " to " .. db_name .. " file.")
         end
     end
-
     if write and needs_update then
         db.set(db_name, db_data)
     end
-    
     return db_data
 end
 
@@ -162,17 +154,14 @@ minetest.register_on_mods_loaded(function()
     for k, v in factions.factions.iterate() do
         update_data(factions.factions, k, nil, factions.create_faction_table(), true)
     end
-
     minetest.log("Checking parcel files.")
     for k, v in factions.parcels.iterate() do
         update_data(factions.parcels, k, nil, factions.create_parcel_table(), true)
     end
-
     minetest.log("Checking player files.")
     for k, v in factions.players.iterate() do
         update_data(factions.players, k, nil, factions.create_player_table(), true)
     end
-
     minetest.log("Checking ip files.")
     for k, v in factions.player_ips.iterate() do
         update_data(factions.player_ips, k, nil, factions.create_ip_table(), true)
