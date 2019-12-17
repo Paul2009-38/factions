@@ -910,7 +910,7 @@ factions.register_command("show_parcel", {
 		local psc = parcel_size_center
 		local fps = factions_config.parcel_size
 		local ppos = {x = (math.floor(pos.x / fps) * fps) + psc, y = (math.floor(pos.y / fps) * fps) + psc, z = (math.floor(pos.z / fps) * fps) + psc}
-		minetest.add_entity(ppos, "factions:display")
+		minetest.add_entity(ppos, "fac_objects:display")
         return true
     end
 })

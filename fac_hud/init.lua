@@ -122,3 +122,5 @@ function hudUpdateClaimInfo()
 	end
 	minetest.after(3, hudUpdateClaimInfo)
 end
+
+hudUpdateClaimInfo()

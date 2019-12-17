@@ -1,4 +1,4 @@
 # factions
-mod for minetest
+modpack for minetest
 
-Mod for handling in game factions.
+Mods for handling in game factions.

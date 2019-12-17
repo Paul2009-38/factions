@@ -198,7 +198,7 @@ end)
 
 local x = math.floor(factions_config.parcel_size / 2.1)
 
-minetest.register_node("factions:display_node", {
+minetest.register_node("fac_objects:display_node", {
 	tiles = {"factions_display.png"},
 	use_texture_alpha = true,
 	walkable = false,
@@ -227,12 +227,12 @@ minetest.register_node("factions:display_node", {
 	drop = "",
 })
 
-minetest.register_entity("factions:display", {
+minetest.register_entity("fac_objects:display", {
 	physical = false,
 	collisionbox = {0, 0, 0, 0, 0, 0},
 	visual = "wielditem",
 	visual_size = {x = 1.0 / 1.5, y = 1.0 / 1.5},
-	textures = {"factions:display_node"},
+	textures = {"fac_objects:display_node"},
 	timer = 0,
 
 	on_step = function(self, dtime)

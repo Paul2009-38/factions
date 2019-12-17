@@ -54,21 +54,20 @@ minetest.register_on_leaveplayer(function(player)
 end)
 
 minetest.register_on_respawnplayer(function(player)
-        local name = player:get_player_name()
-		local faction, facname = factions.get_player_faction(name)
-		if not faction then
-            return false
-        else
-			on_death[name] = nil
-            if not faction.spawn then
-                return false
-            else
-                player:set_pos(faction.spawn)
-                return true
-            end
-        end
-    end
-)
+	local name = player:get_player_name()
+	local faction, facname = factions.get_player_faction(name)
+	if not faction then
+		return false
+	else
+		on_death[name] = nil
+		if not faction.spawn then
+			return false
+		else
+			player:set_pos(faction.spawn)
+			return true
+		end
+	end
+end)
 
 minetest.register_on_dieplayer(function(player)
 	local pname = player:get_player_name()

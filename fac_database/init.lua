@@ -17,6 +17,7 @@ if factions_config.database == "colddb" then
     factions.players = factions.root.sub_database("players")
     factions.player_ips = factions.root.sub_database("ips")
 elseif factions_config.database == "mod_storage" then
+    dofile (minetest.get_modpath("fac_database") .. "/storagedb.lua")
     factions.root = storagedb.Storagedb("factions")
     factions.factions = factions.root.sub_database("factions")
     factions.parcels = factions.root.sub_database("parcels")
