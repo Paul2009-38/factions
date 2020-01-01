@@ -68,8 +68,9 @@ function factions.on_end_enemy(name, faction)
     factions.broadcast(name, "This faction is no longer at war with " .. faction .. "!")
 end
 function factions.on_set_spawn(name)
-	local faction = factions.factions.get(name)
-    factions.broadcast(name, "The faction spawn has been set to (" .. util.coords3D_string(faction.spawn) .. ").")
+    local faction = factions.factions.get(name)
+    local spawn_str = faction.spawn.x .. ", " .. faction.spawn.y .. ", " .. faction.spawn.z
+    factions.broadcast(name, "The faction spawn has been set to (" .. spawn_str .. ").")
 end
 function factions.on_add_rank(name, rank)
 	local faction = factions.factions.get(name)

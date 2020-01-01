@@ -11,18 +11,10 @@ factions.can_create_faction = function(name)
     end
 end
 
-
-util = {
-    coords3D_string = function(coords)
-        return coords.x..", "..coords.y..", "..coords.z
-    end
-}
-
 starting_ranks = {["leader"] = {"build", "door", "container", "name", "description", "motd", "invite", "kick"
 						, "spawn", "with_draw", "territory", "claim", "access", "disband", "flags", "ranks", "promote"},
                  ["moderator"] = {"claim", "door", "build", "spawn", "invite", "kick", "promote", "container"},
-                 ["member"] = {"build", "container", "door"}
-                }
+                 ["member"] = {"build", "container", "door"}}
 
 -- Faction permissions:
 --
