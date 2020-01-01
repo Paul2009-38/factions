@@ -22,4 +22,3 @@ factions_config.faction_diplomacy = minetest.settings:get_bool("factions.faction
 factions_config.spawn_teleport =  minetest.settings:get_bool("factions.spawn_teleport") or false
 factions_config.protection_style = minetest.settings:get("factions.protection_style") or "2d"
 factions_config.faction_user_priv = minetest.settings:get("factions.faction_user_priv") or false
-factions_config.database = minetest.settings:get("factions.database") or "mod_storage"
