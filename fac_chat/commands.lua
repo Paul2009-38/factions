@@ -24,9 +24,7 @@ factions.register_command ("claim", {
     faction_permissions = {"claim"},
     description = "Claim the plot of land you're on.",
 	description_arg = ":",
-	format = {"string"},
 	global_privileges = def_global_privileges,
-	ignore_param_limit = true,
     on_success = function(player, faction, pos, parcelpos, args)
 		return claim_helper(player, faction, parcelpos)
     end
@@ -35,51 +33,9 @@ factions.register_command("unclaim", {
     faction_permissions = {"claim"},
     description = "Unclaim the plot of land you're on.",
 	description_arg = ":",
-	format = {"string"},
 	global_privileges = def_global_privileges,
-	ignore_param_limit = true,
     on_success = function(player, faction, pos, parcelpos, args)
-		local arg_one = args.strings[1]
-		local arg_two = args.strings[2]
-		if not arg_one or arg_one == "o" or arg_one == "one" then
-			return unclaim_helper(player, faction, parcelpos)
-		elseif arg_one == "a" or arg_one == "auto" then
-			factions.unclaim_auto(player, faction)
-		elseif arg_one == "f" or arg_one == "fill" then
-			factions.unclaim_fill(player, faction)
-		elseif arg_one == "s" or arg_one == "square" then
-			if arg_two then
-				local r = tonumber(arg_two)
-				if not r then
-					minetest.chat_send_player(player, "Only use numbers in the second cmd parameter [0-9].")
-					return
-				end
-				factions.unclaim_square(player, faction, r)
-			else
-				factions.unclaim_square(player, faction, 3)
-			end
-		elseif arg_one == "c" or arg_one == "circle" then
-			if arg_two then
-				local r = tonumber(arg_two)
-				if not r then
-					minetest.chat_send_player(player, "Only use numbers in the second cmd parameter [0-9].")
-					return
-				end
-				factions.unclaim_circle(player, faction, r)
-			else
-				factions.unclaim_circle(player, faction, 3)
-			end
-		elseif arg_one == "all" then
-			factions.unclaim_all(player, faction)
-		elseif arg_one == "l" or arg_one == "list" then
-			local aclaims = "All claims:\n"
-			for i in pairs(faction.land) do
-				aclaims = aclaims .. i .. "\n"
-			end
-			minetest.chat_send_player(player, aclaims)
-		elseif arg_one == "h" or arg_one == "help" then
-			factions.unclaim_help(player, arg_two)
-		end
+		return unclaim_helper(player, faction, parcelpos)
     end
 })
 --list all known factions
