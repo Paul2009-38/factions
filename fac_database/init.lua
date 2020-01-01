@@ -3,18 +3,16 @@
 factions = {}
 
 -- database
-factions.root = {}
 factions.factions = {}
 factions.parcels = {}
 factions.players = {}
 factions.player_ips = {}
 
 dofile(minetest.get_modpath("fac_database") .. "/storagedb.lua")
-factions.root = storagedb.Storagedb("factions")
-factions.factions = factions.root.sub_database("factions")
-factions.parcels = factions.root.sub_database("parcels")
-factions.players = factions.root.sub_database("players")
-factions.player_ips = factions.root.sub_database("ips")
+factions.factions = storagedb.Storagedb("factions")
+factions.parcels = storagedb.Storagedb("parcels")
+factions.players = storagedb.Storagedb("players")
+factions.player_ips = storagedb.Storagedb("ips")
 
 -- Memory only storage.
 factions.onlineplayers = {}
