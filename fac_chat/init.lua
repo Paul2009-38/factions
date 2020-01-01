@@ -126,11 +126,14 @@ end
 
 function factions.register_command(cmd_name, cmd)
 	local cmd_type = type(cmd_name)
+	local next = false
 	if cmd_type == "string" then
 	register_command(cmd_name, cmd)
 	elseif cmd_type == "table" then
 		for k, v in pairs(cmd_name) do
+			cmd.dont_show_in_help = next
 			register_command(v, cmd)
+			next = true
 		end
 	end
 end
