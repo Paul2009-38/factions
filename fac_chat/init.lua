@@ -110,7 +110,14 @@ local function register_command(cmd_name, cmd)
         on_success = function(player, faction, pos, parcelpos, args)
             minetest.chat_send_player(player, "Not implemented yet!")
         end
-    }
+	}
+	-- count cmd spaces.
+	local words = cmd_name:split(" ")
+	local word_spaces = 0
+	for k in pairs(words) do
+		word_spaces = word_spaces + 1
+	end
+	cmd.word_spaces = word_spaces
     -- override defaults
     for k, v in pairs(cmd) do
         factions.commands[cmd_name][k] = v
@@ -204,18 +211,15 @@ function factions_chat.cmdhandler(playername, parameter)
 	end
 	--local cmd = factions.commands[params[1]]
 	local cmd = factions.commands[parameter]
-	local up = 0
 	if not cmd then
 		cmd = factions.commands[params[1]]
 		if not cmd then
 			minetest.chat_send_player(playername, "Unknown command.")
 			return false
 		end
-	else
-		up = 1
-    end
+	end
     local argv = {}
-    for i=2 + up, #params, 1 do
+    for i = 1 + cmd.word_spaces, #params, 1 do
         table.insert(argv, params[i])
     end
 	cmd:run(playername, argv)
@@ -232,7 +236,8 @@ end
 
 local premade_help = ""
 local premade_help_admin = ""
-local a_z = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
+local a_z = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e"
+			, "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
 function factions.create_help_text()
 	for l, j in pairs(a_z) do
 		for k, v in pairs(factions.commands) do
