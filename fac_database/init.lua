@@ -9,7 +9,7 @@ factions.parcels = {}
 factions.players = {}
 factions.player_ips = {}
 
-dofile (minetest.get_modpath("fac_database") .. "/storagedb.lua")
+dofile(minetest.get_modpath("fac_database") .. "/storagedb.lua")
 factions.root = storagedb.Storagedb("factions")
 factions.factions = factions.root.sub_database("factions")
 factions.parcels = factions.root.sub_database("parcels")
