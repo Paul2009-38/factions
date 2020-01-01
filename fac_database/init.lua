@@ -9,21 +9,12 @@ factions.parcels = {}
 factions.players = {}
 factions.player_ips = {}
 
-if factions_config.database == "colddb" then
-    -- Create cold databases.
-    factions.root = colddb.Colddb(minetest.get_worldpath() .. "/factions")
-    factions.factions = factions.root.sub_database("factions")
-    factions.parcels = factions.root.sub_database("parcels")
-    factions.players = factions.root.sub_database("players")
-    factions.player_ips = factions.root.sub_database("ips")
-elseif factions_config.database == "mod_storage" then
-    dofile (minetest.get_modpath("fac_database") .. "/storagedb.lua")
-    factions.root = storagedb.Storagedb("factions")
-    factions.factions = factions.root.sub_database("factions")
-    factions.parcels = factions.root.sub_database("parcels")
-    factions.players = factions.root.sub_database("players")
-    factions.player_ips = factions.root.sub_database("ips")
-end
+dofile (minetest.get_modpath("fac_database") .. "/storagedb.lua")
+factions.root = storagedb.Storagedb("factions")
+factions.factions = factions.root.sub_database("factions")
+factions.parcels = factions.root.sub_database("parcels")
+factions.players = factions.root.sub_database("players")
+factions.player_ips = factions.root.sub_database("ips")
 
 -- Memory only storage.
 factions.onlineplayers = {}

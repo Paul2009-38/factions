@@ -16,51 +16,31 @@ function storagedb.Storagedb(dir)
 	setmetatable(mem_pool_del, {__mode = "kv"})
 
 	local function storekey(key)
-        local list = minetest.deserialize(storage:get_string(directory))
+        local list = deserializer(storage:get_string(directory))
         if not list then
             list = {}
             list[key] = key
         else
             list[key] = key
         end
-        storage:set_string(directory, minetest.serialize(list))
+        storage:set_string(directory, serializer(list))
     end
     local function removekey(key)
-        local list = minetest.deserialize(storage:get_string(directory))
+        local list = deserializer(storage:get_string(directory))
         if not list then
             list = {}
         else
             list[key] = nil
         end
-        storage:set_string(directory, minetest.serialize(list))
+        storage:set_string(directory, serializer(list))
     end
     local function getkeys()
-        local list = minetest.deserialize(storage:get_string(directory))
+        local list = deserializer(storage:get_string(directory))
         if not list then
             list = {}
         end
         return list
     end
-	
-	self.get_memory_pool = function()
-		return mem_pool
-	end
-	self.set_memory_pool = function(pool)
-		mem_pool = pool
-	end
-	self.add_to_memory_pool = function(value)
-		if value then
-			add_to_mem_pool = value
-		end
-		return add_to_mem_pool
-	end
-	self.get_serializer = function()
-		return serializer, deserializer
-	end
-	self.set_serializer = function(coder, decoder)
-		serializer = coder
-		deserializer = decoder
-	end
 	local function load_into_mem(name, _table)
 		if add_to_mem_pool then
 			mem_pool[name] = {mem = _table}
@@ -79,7 +59,7 @@ function storagedb.Storagedb(dir)
 			return false
 		end
 		storekey(name)
-		storage:set_string(string.format("%s/%s", directory, name), minetest.serialize(_table))
+		storage:set_string(string.format("%s/%s", directory, name), serializer(_table))
 	end
 	local function save_key(name)
 		storage:set_string(string.format("%s/%s", directory, name), "")
@@ -90,6 +70,25 @@ function storagedb.Storagedb(dir)
 			return true
 		end
 		return false
+	end
+	self.get_memory_pool = function()
+		return mem_pool
+	end
+	self.set_memory_pool = function(pool)
+		mem_pool = pool
+	end
+	self.add_to_memory_pool = function(value)
+		if value then
+			add_to_mem_pool = value
+		end
+		return add_to_mem_pool
+	end
+	self.get_serializer = function()
+		return serializer, deserializer
+	end
+	self.set_serializer = function(coder, decoder)
+		serializer = coder
+		deserializer = decoder
 	end
 	self.set_mem = function(name, _table)
 		load_into_mem(name, _table)
