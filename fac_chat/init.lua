@@ -214,10 +214,19 @@ function factions_chat.cmdhandler(playername, parameter)
         end
 		return
 	end
-	--local cmd = factions.commands[params[1]]
 	local cmd = factions.commands[parameter]
 	if not cmd then
-		cmd = factions.commands[params[1]]
+		local cmd_text = ""
+		for i = 1, #params, 1 do
+			if cmd_text == "" then
+				cmd_text = params[i]
+			else
+				cmd_text = cmd_text .. " " .. params[i]
+			end
+			if factions.commands[cmd_text] then
+				cmd = factions.commands[cmd_text]
+			end
+		end
 		if not cmd then
 			minetest.chat_send_player(playername, "Unknown command.")
 			return false
