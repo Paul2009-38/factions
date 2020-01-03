@@ -176,39 +176,13 @@ factions.register_command("flag", {
     description = "Manage the faction's flags.",
 	description_arg = " <flag> <value>:",
 	global_privileges = def_global_privileges,
-	format = {"string"},
-	ignore_param_limit = true,
     on_success = function(player, faction, pos, parcelpos, args)
-		local flag_name = args.strings[1]
-		local bool = args.strings[2]
-		if (flag_name == "help" or flag_name == "flags") or not bool then
-			local msg = ""
-			for i, k in pairs(factions.flags) do
-				msg = msg .. i ..": ".. k .. "\n"
-			end
-			minetest.chat_send_player(player, msg)
-			return true
-		end
-		if flag_name and bool then
-			local yes = false
-			if bool == "yes" then
-				yes = true
-			elseif bool == "no" then
-				yes = false
-			else
-				minetest.chat_send_player(player, "Set the flags only to yes or no.")
-				return false
-			end
-			if flag_name == "open" then
-				factions.toggle_join_free(faction.name, yes)
-			elseif flag_name == "monsters" then
-			elseif flag_name == "tax_kick" then
-			elseif flag_name == "animals" then
-			else
-				minetest.chat_send_player(player, flag_name.." is not an flag.")
-			end
-		end
-        return true
+        local msg = ""
+        for i, k in pairs(factions.flags) do
+            msg = msg .. i ..": ".. k .. "\n"
+        end
+		minetest.chat_send_player(player, msg)
+		return true
     end
 })
 factions.register_command("desc", {

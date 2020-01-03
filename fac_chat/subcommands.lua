@@ -3,7 +3,7 @@ if factions_config.faction_user_priv == true then
     def_global_privileges = {"faction_user"}
 end
 
-factions.register_command ({"claim o", "claim one"}, {
+factions.register_command({"claim o", "claim one"}, {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
@@ -11,7 +11,7 @@ factions.register_command ({"claim o", "claim one"}, {
 		return claim_helper(player, faction, parcelpos)
     end
 })
-factions.register_command ({"claim a", "claim auto"}, {
+factions.register_command({"claim a", "claim auto"}, {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
@@ -19,7 +19,7 @@ factions.register_command ({"claim a", "claim auto"}, {
 		factions.claim_auto(player, faction)
     end
 })
-factions.register_command ({"claim f", "claim fill"}, {
+factions.register_command({"claim f", "claim fill"}, {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
@@ -27,7 +27,7 @@ factions.register_command ({"claim f", "claim fill"}, {
 		factions.claim_fill(player, faction)
     end
 })
-factions.register_command ({"claim s", "claim square"}, {
+factions.register_command({"claim s", "claim square"}, {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
@@ -46,7 +46,7 @@ factions.register_command ({"claim s", "claim square"}, {
         end
     end
 })
-factions.register_command ({"claim c", "claim circle"}, {
+factions.register_command({"claim c", "claim circle"}, {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
@@ -65,7 +65,7 @@ factions.register_command ({"claim c", "claim circle"}, {
         end
     end
 })
-factions.register_command ("claim all", {
+factions.register_command("claim all", {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
@@ -73,7 +73,7 @@ factions.register_command ("claim all", {
 		factions.claim_all(player, faction)
     end
 })
-factions.register_command ({"claim l", "claim list"}, {
+factions.register_command({"claim l", "claim list"}, {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
@@ -85,7 +85,7 @@ factions.register_command ({"claim l", "claim list"}, {
         minetest.chat_send_player(player, aclaims)
     end
 })
-factions.register_command ({"claim h", "claim help"}, {
+factions.register_command({"claim h", "claim help"}, {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
@@ -94,7 +94,7 @@ factions.register_command ({"claim h", "claim help"}, {
     end
 })
 
-factions.register_command ({"unclaim o", "unclaim one"}, {
+factions.register_command({"unclaim o", "unclaim one"}, {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
@@ -110,7 +110,7 @@ factions.register_command ({"unclaim a", "unclaim auto"}, {
 		factions.unclaim_auto(player, faction)
     end
 })
-factions.register_command ({"unclaim f", "unclaim fill"}, {
+factions.register_command({"unclaim f", "unclaim fill"}, {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
@@ -118,7 +118,7 @@ factions.register_command ({"unclaim f", "unclaim fill"}, {
 		factions.unclaim_fill(player, faction)
     end
 })
-factions.register_command ({"unclaim s", "unclaim square"}, {
+factions.register_command({"unclaim s", "unclaim square"}, {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
@@ -137,7 +137,7 @@ factions.register_command ({"unclaim s", "unclaim square"}, {
         end
     end
 })
-factions.register_command ({"unclaim c", "unclaim circle"}, {
+factions.register_command({"unclaim c", "unclaim circle"}, {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
@@ -156,7 +156,7 @@ factions.register_command ({"unclaim c", "unclaim circle"}, {
         end
     end
 })
-factions.register_command ("unclaim all", {
+factions.register_command("unclaim all", {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
@@ -164,7 +164,7 @@ factions.register_command ("unclaim all", {
 		factions.unclaim_all(player, faction)
     end
 })
-factions.register_command ({"unclaim l", "unclaim list"}, {
+factions.register_command({"unclaim l", "unclaim list"}, {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
@@ -176,11 +176,45 @@ factions.register_command ({"unclaim l", "unclaim list"}, {
         minetest.chat_send_player(player, aclaims)
     end
 })
-factions.register_command ({"unclaim h", "unclaim help"}, {
+factions.register_command({"unclaim h", "unclaim help"}, {
     faction_permissions = {"claim"},
     global_privileges = def_global_privileges,
     dont_show_in_help = true,
     on_success = function(player, faction, pos, parcelpos, args)
 		factions.unclaim_help(player, arg_two)
+    end
+})
+
+factions.register_command({"flag help", "flag flags"}, {
+    faction_permissions = {"flags"},
+	global_privileges = def_global_privileges,
+	dont_show_in_help = true,
+    on_success = function(player, faction, pos, parcelpos, args)
+        local msg = ""
+        for i, k in pairs(factions.flags) do
+            msg = msg .. i ..": ".. k .. "\n"
+        end
+        minetest.chat_send_player(player, msg)
+    end
+})
+factions.register_command("flag open", {
+    faction_permissions = {"flags"},
+	global_privileges = def_global_privileges,
+    dont_show_in_help = true,
+    format = {"string"},
+    on_success = function(player, faction, pos, parcelpos, args)
+		local bool = args.strings[1]
+		if bool then
+			local yes = false
+			if bool == "yes" then
+				yes = true
+			elseif bool == "no" then
+				yes = false
+			else
+				minetest.chat_send_player(player, "Set the flags only to yes or no.")
+				return false
+			end
+			factions.toggle_join_free(faction.name, yes)
+		end
     end
 })
