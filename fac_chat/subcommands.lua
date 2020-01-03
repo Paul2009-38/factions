@@ -192,7 +192,7 @@ factions.register_command({"flag help", "flag flags"}, {
     on_success = function(player, faction, pos, parcelpos, args)
         local msg = ""
         for i, k in pairs(factions.flags) do
-            msg = msg .. i ..": ".. k .. "\n"
+            msg = msg .. i .. ": " .. k .. "\n"
         end
         minetest.chat_send_player(player, msg)
     end

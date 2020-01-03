@@ -64,7 +64,7 @@ factions.register_command("version", {
 	description_arg = ":",
 	infaction = false,
     on_success = function(player, faction, pos, parcelpos, args)
-        minetest.chat_send_player(player, "factions: version 0.8.8", false)
+        minetest.chat_send_player(player, "factions: version 0.8.9", false)
     end
 })
 --show description of faction
@@ -152,7 +152,7 @@ factions.register_command("join", {
         if new_faction and factions.can_join(new_faction.name, player) then
             factions.add_player(new_faction.name, player)
         elseif new_faction then
-            minetest.chat_send_player(player, "You cannot join this faction")
+            minetest.chat_send_player(player, "You cannot join this faction.")
             return false
 		else
 			minetest.chat_send_player(player, "Enter the right faction name.")
@@ -185,11 +185,11 @@ factions.register_command("flag", {
 		return true
     end
 })
-factions.register_command("desc", {
+factions.register_command({"description", "desc"}, {
 	format = {"string"},
     faction_permissions = {"description"},
     description = "Set your faction's description",
-	description_arg = " <description>:",
+	description_arg = " <desc, description>:",
 	global_privileges = def_global_privileges,
 	ignore_param_limit = true,
     on_success = function(player, faction, pos, parcelpos, args)
