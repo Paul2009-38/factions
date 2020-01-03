@@ -272,7 +272,7 @@ factions.register_command("ranks", {
         return true
     end
 })
-factions.register_command("privs", {
+factions.register_command({"privileges", "privs"}, {
     description = "List available rank privileges",
 	description_arg = ":",
 	global_privileges = def_global_privileges,
