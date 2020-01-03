@@ -189,7 +189,7 @@ factions.register_command({"description", "desc"}, {
 	format = {"string"},
     faction_permissions = {"description"},
     description = "Set your faction's description",
-	description_arg = " <desc, description>:",
+	description_arg = " <description>:",
 	global_privileges = def_global_privileges,
 	ignore_param_limit = true,
     on_success = function(player, faction, pos, parcelpos, args)
@@ -286,10 +286,10 @@ factions.register_command("privs", {
         return true
     end
 })
-factions.register_command("motd", {
+factions.register_command({"message_of_the_day", "motd"}, {
     format = {"string"},
     faction_permissions = {"motd"},
-    description = "Sets the message that shows up every time a faction member logs-in",
+    description = "Sets the message that shows up every time a faction member logs in.",
 	description_arg = " <message>:",
 	global_privileges = def_global_privileges,
 	ignore_param_limit = true,
