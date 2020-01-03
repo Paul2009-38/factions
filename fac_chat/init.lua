@@ -131,7 +131,7 @@ function factions.register_command(cmd_name, cmd)
 	register_command(cmd_name, cmd)
 	elseif cmd_type == "table" then
 		for k, v in pairs(cmd_name) do
-			if next then
+			if next and cmd.dont_show_in_help == nil then
 				cmd.dont_show_in_help = true
 			end
 			register_command(v, cmd)
