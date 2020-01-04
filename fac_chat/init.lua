@@ -258,9 +258,9 @@ function factions.create_help_text()
 			if k:sub(1, 1) == j then
 				if not v.dont_show_in_help then
 					if not table_Contains(v.global_privileges, "faction_admin") then
-						premade_help = premade_help .. "\t/f " .. k .. v.description_arg .. " " .. v.description .. "\n"
+						premade_help = premade_help .. "\t/f " .. v.name .. v.description_arg .. " " .. v.description .. "\n"
 					end
-					premade_help_admin = premade_help_admin .. "\t/f " .. k .. v.description_arg .. " " .. v.description .. "\n"
+					premade_help_admin = premade_help_admin .. "\t/f " .. v.name .. v.description_arg .. " " .. v.description .. "\n"
 				end
 			end
 		end

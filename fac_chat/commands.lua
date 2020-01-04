@@ -186,6 +186,7 @@ factions.register_command("flag", {
     end
 })
 factions.register_command({"description", "desc"}, {
+	name = "desc,description",
 	format = {"string"},
     faction_permissions = {"description"},
     description = "Set your faction's description",
@@ -273,6 +274,7 @@ factions.register_command("ranks", {
     end
 })
 factions.register_command({"privileges", "privs"}, {
+	name = "privs,privileges",
     description = "List available rank privileges",
 	description_arg = ":",
 	global_privileges = def_global_privileges,
@@ -287,6 +289,7 @@ factions.register_command({"privileges", "privs"}, {
     end
 })
 factions.register_command({"message_of_the_day", "motd"}, {
+	name = "motd,message_of_the_day",
     format = {"string"},
     faction_permissions = {"motd"},
     description = "Sets the message that shows up every time a faction member logs in.",
